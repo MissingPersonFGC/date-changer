@@ -4,6 +4,9 @@
     <div class="selection">
       <!-- <label>Upload permanent zero/holiday calendar:</label>
       <input type="file"> -->
+      <p v-if="error" class="error">
+        <span>Error:</span> {{error}}
+      </p>
       <p>Select a teacher:</p>
       <!-- <v-select
         label="name"
@@ -109,6 +112,7 @@
 <script>
 import "vue-datetime/dist/vue-datetime.css";
 import "vue-select/dist/vue-select.css";
+import axios from 'axios';
 // @ is an alias to /src
 
 export default {
