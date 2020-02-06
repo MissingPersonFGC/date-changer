@@ -11,6 +11,7 @@ const { applyMiddleware } = require("./utils");
 const { router: courseRouter } = require("./routes/courseRoute");
 const { router: moduleRouter } = require("./routes/moduleRoute");
 const { router: itemRouter } = require("./routes/itemRoute");
+const { router: assignmentRouter } = require('./routes/assignmentRoute');
 
 // import routers above this line
 applyMiddleware(middleWare, router);
@@ -19,6 +20,7 @@ applyMiddleware(middleWare, router);
 router.use("/api/courses", courseRouter);
 router.use("/api/modules", moduleRouter);
 router.use("/api/item", itemRouter);
+router.use("/api/assignments", assignmentRouter);
 
 const server = http.createServer(router);
 
