@@ -11,8 +11,11 @@
   "dependencies": {
     "axios": "^0.19.2",
     "bcrypt": "^3.0.8",
+    "body-parser": "^1.19.0",
     "concurrently": "^5.1.0",
     "core-js": "^3.4.4",
+    "cors": "^2.8.5",
+    "http": "0.0.0",
     "jsonwebtoken": "^8.5.1",
     "mongoose": "^5.8.11",
     "vue": "^2.6.10",
@@ -24,5 +27,16 @@
     "@vue/cli-plugin-router": "^4.1.0",
     "@vue/cli-service": "^4.1.0",
     "vue-template-compiler": "^2.6.10"
+  },
+  "vue": {
+    "devServer": {
+      "proxy": {
+        "^/api": {
+          "target": "http://localhost:4000",
+          "ws": true,
+          "changeOrigin": true
+        }
+      }
+    }
   }
 }
