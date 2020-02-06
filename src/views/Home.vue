@@ -2,17 +2,21 @@
   <div class="home">
     <h1>Assignment Date Editor</h1>
     <div class="selection">
-      <label>Upload permanent zero/holiday calendar:</label>
-      <input type="file">
+      <!-- <label>Upload permanent zero/holiday calendar:</label>
+      <input type="file"> -->
       <p>Select a teacher:</p>
-      <v-select
+      <!-- <v-select
         label="name"
         :options="teachers"
         @input="setTeacher"
-      ></v-select>
-      <p v-if="teacher !== ''">Select a course:</p>
+      ></v-select> -->
+      <form class="" @submit.prevent="getCourses">
+        <input type="text" v-model="teacher">
+        <button type="submit">Get Courses</button>
+      </form>
+      <p v-if="teacher !== '' && courses.length > 0">Select a course:</p>
       <v-select
-        v-if="teacher !== ''"
+        v-if="teacher !== '' && courses.length > 0"
         label="name"
         :options="courses"
         @input="setCourse"
@@ -28,6 +32,7 @@
           type="checkbox"
           v-model="setExtension"
           name="setExtension"
+          disabled
         >
         <label for="setExtension">Set new end dates for students with an extension</label>
         <div
@@ -110,69 +115,16 @@ export default {
   name: "home",
   data() {
     return {
-      teachers: [
-        {
-          name: "Gupta, S.",
-          id: "1"
-        },
-        {
-          name: "Griswold, C.",
-          id: "2"
-        },
-        {
-          name: "Lee, J.",
-          id: "3"
-        },
-        {
-          name: "Kent, C.",
-          id: "4"
-        },
-        {
-          name: "Barr, J.",
-          id: "5"
-        }
-      ],
+      teachers: [],
       teacher: "",
-      courses: [
-        {
-          name: "Biology A",
-          teacher: "3",
-          id: "4"
-        }
-      ],
+      courses: [],
       course: "",
-      assignments: [
-        {
-          name: "Intro to Life Sciences",
-          course: "4",
-          id: "1"
-        },
-        {
-          name: "What is a cell?",
-          course: "4",
-          id: "2"
-        },
-        {
-          name: "Quiz: Celluar structure",
-          course: "4",
-          id: "3"
-        }
-      ],
-      setExtension: false,
-      students: [
-        {
-          name: "Smith, Thomas",
-          id: "1"
-        },
-        {
-          name: "Chen, Julie",
-          id: "2"
-        },
-        {
-          name: "Omar, Aaliyah",
-          id: "3"
-        }
-      ]
+      assignments: [],
+      setExtension: true,
+      students: [],
+      loading: false,
+      error: null,
+      success: false
     };
   },
   methods: {
@@ -183,6 +135,31 @@ export default {
     setCourse: function(e) {
       const { id } = e;
       this.course = id;
+    },
+    getCourses: async function() {
+      this.loading = true;
+      this.success = false;
+      this.error = null;
+      try {
+        if (this.$data.teacher !== '') {
+          const { teacher } = this.$data;
+          const res = await axios({
+            method: 'GET',
+            url: '/api/courses',
+            params: {
+              apiKey: teacher
+            }
+          });
+          this.loading = false;
+          this.courses = res.data.data;
+        } else {
+          this.loading = false;
+          this.error = `Please input a valid token.`
+        }
+      } catch (e) {
+        this.loading = false;
+        this.error = e.message;
+      }
     }
   }
 };
