@@ -3,12 +3,15 @@
   "version": "0.1.0",
   "private": true,
   "scripts": {
-    "serve": "vue-cli-service serve",
-    "build": "vue-cli-service build"
+    "client": "vue-cli-service serve",
+    "build": "vue-cli-service build",
+    "server": "nodemon api/server.js",
+    "all": "concurrently --kill-others \"nodemon api/server.js\" \"vue-cli-service serve\""
   },
   "dependencies": {
     "axios": "^0.19.2",
     "bcrypt": "^3.0.8",
+    "concurrently": "^5.1.0",
     "core-js": "^3.4.4",
     "jsonwebtoken": "^8.5.1",
     "mongoose": "^5.8.11",
