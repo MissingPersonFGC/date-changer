@@ -136,8 +136,25 @@ export default {
       const { id } = e;
       this.teacher = id;
     },
-    setCourse: function(e) {
+    setCourse: async function(e) {
+      this.loading = true;
+      this.error = null;
+      const { teacher } = this.$data;
       const { id } = e;
+      try {
+        const res = await axios({
+          method: "GET",
+          url: '/api/assignments',
+          params: {
+            apiKey: teacher,
+            course: id
+          }
+        });
+        console.log(res);
+        this.loading = false;
+      } catch (e) {
+        this.error = e.message;
+      }
       this.course = id;
     },
     getCourses: async function() {
