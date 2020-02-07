@@ -53,8 +53,12 @@
               v-for="student in students"
               :key="student.id"
             >
-              <input type="checkbox">
-              {{student.name}}
+              <input
+                type="checkbox"
+                :value="student.id"
+                v-model="selectedStudents
+              ">
+              {{student.sortable_name}}
             </div>
           </div>
         </div>
@@ -128,7 +132,8 @@ export default {
       students: [],
       loading: false,
       error: null,
-      success: false
+      success: false,
+      selectedStudents: []
     };
   },
   methods: {
@@ -150,7 +155,18 @@ export default {
             course: id
           }
         });
-        console.log(res);
+        const studentRes = await axios({
+          method: "Get",
+          url: '/api/students',
+          params: {
+            apiKey: teacher,
+            course: id
+          }
+        });
+        const { assignments } = res.data;
+        const { students } = studentRes.data;
+        this.assignments = assignments;
+        this.students = students;
         this.loading = false;
       } catch (e) {
         this.error = e.message;

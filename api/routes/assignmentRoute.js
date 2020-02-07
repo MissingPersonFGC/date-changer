@@ -5,7 +5,7 @@ const axios = require("axios");
 router.route("/").get(async (req, res) => {
   const { apiKey: access_token, course } = req.query;
   try {
-    const result = await axios({
+    const assignments = await axios({
       method: "GET",
       url: `https://canvas.instructure.com/api/v1/courses/${course}/assignments`,
       headers: {
@@ -21,7 +21,7 @@ router.route("/").get(async (req, res) => {
       }
     });
     res.status(200).json({
-      data: [...result.data]
+      assignments: [...assignments.data]
     });
   } catch (e) {
     res.status(400).send(e);
