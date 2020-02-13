@@ -1,6 +1,6 @@
 <template>
   <div class="home">
-    <Auth v-if="!user" />
+    <Auth v-if="!user" :setUser="setUser" />
     <DateSetter v-if="user" />
   </div>
 </template>
@@ -22,6 +22,11 @@ export default {
     return {
       user: null
     };
+  },
+  methods: {
+    setUser: function(id) {
+      this.user = id;
+    }
   }
 };
 </script>

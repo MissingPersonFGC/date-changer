@@ -15,8 +15,12 @@
 
 <script>
   import axios from 'axios';
+  import { setToken } from '../services/tokenService';
   export default {
     name: 'auth',
+    props: {
+      setUser: Function
+    },
     data() {
       return {
         email: '',
@@ -39,7 +43,9 @@
             }
           });
           const { token, id } = res.data.data;
-          console.log(token, id);
+          setToken(token);
+          localStorage.setItem('icadDateId', id);
+          this.$props.setUser(id);
           this.loading = false;
           this.success = true;
         } catch (e) {
