@@ -1,5 +1,6 @@
 <template>
   <div class="login">
+    <div class="loading" v-if="loading" :aria-busy="loading"></div>
     <h1>Login</h1>
     <p>You must login to use this app.</p>
     <p class="error" v-if="error"><span>Error:</span> {{error}}</p>
@@ -58,6 +59,33 @@
 </script>
 
 <style scoped>
+  @keyframes rotation {
+    from {
+      transform: rotateZ(0deg);
+    }
+    to {
+      transform: rotateZ(360deg);
+    }
+  }
+  .login {
+    position: relative;
+  }
+  .loading {
+    position: static;
+    top: 10px;
+    right: 0px;
+    width: 20px;
+    height: 20px;
+    border-radius: 20px;
+    border-top: 3px solid skyblue;
+    border-right: 3px solid black;
+    border-bottom: 3px solid darkgray;
+    border-left: 3px solid darkblue;
+    background: white;
+  }
+  .loading[aria-busy="true"] {
+    animation: rotation 0.5s linear infinite;
+  }
   form {
     text-align: left;
     max-width: 300px;
