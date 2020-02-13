@@ -23,6 +23,10 @@ export default {
       user: null
     };
   },
+  beforeMount() {
+    const user = localStorage.getItem("icadDateId");
+    this.user = user;
+  },
   methods: {
     setUser: function(id) {
       this.user = id;
