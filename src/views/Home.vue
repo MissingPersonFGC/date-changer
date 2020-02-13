@@ -278,4 +278,9 @@ button.submit:hover {
   grid-template-columns: repeat(5, 1fr);
   grid-gap: 10px;
 }
+
+.error span {
+  color: red;
+  font-weight: bold;
+}
 </style>
