@@ -1,203 +1,27 @@
 <template>
   <div class="home">
-    <h1>Assignment Date Editor</h1>
-    <div class="selection">
-      <!-- <label>Upload permanent zero/holiday calendar:</label>
-      <input type="file"> -->
-      <p v-if="error" class="error">
-        <span>Error:</span> {{error}}
-      </p>
-      <p>Select a teacher:</p>
-      <!-- <v-select
-        label="name"
-        :options="teachers"
-        @input="setTeacher"
-      ></v-select> -->
-      <form class="" @submit.prevent="getCourses">
-        <input type="text" v-model="teacher">
-        <button type="submit">Get Courses</button>
-      </form>
-      <p v-if="teacher !== '' && courses.length > 0">Select a course:</p>
-      <v-select
-        v-if="teacher !== '' && courses.length > 0"
-        label="name"
-        :options="courses"
-        @input="setCourse"
-      ></v-select>
-    </div>
-    <div
-      class="assignments"
-      v-if="course !== ''"
-    >
-      <h2>Assignments</h2>
-      <div class="set-extension">
-        <input
-          type="checkbox"
-          v-model="setExtension"
-          name="setExtension"
-          disabled
-        >
-        <label for="setExtension">Set new end dates for students with an extension</label>
-        <div
-          v-if="setExtension"
-          class="select-student"
-        >
-          <div class="set-extension">
-            <p>Extension end date:</p>
-            <datetime type="date" />
-          </div>
-          <p>Select student(s):</p>
-          <div class="student-grid">
-            <div
-              class="student"
-              v-for="student in students"
-              :key="student.id"
-            >
-              <input
-                type="checkbox"
-                :value="student.id"
-                v-model="selectedStudents
-              ">
-              {{student.sortable_name}}
-            </div>
-          </div>
-        </div>
-      </div>
-      <div
-        class="grid-container"
-        v-if="!setExtension"
-      >
-        <div class="grid grid-header">
-          <div class="name">Assignment Name:</div>
-          <div class="unlock">Start Date:</div>
-          <div class="due">Due Date:</div>
-          <div
-            class="permanent-zero"
-            v-if="!setExtension"
-          >End Date:</div>
-          <div
-            class="extension"
-            v-if="setExtension"
-          >New End Date:</div>
-        </div>
-        <div
-          class="grid"
-          v-for="assignment in assignments"
-          :key="assignment.id"
-        >
-          <div class="name">{{assignment.name}}</div>
-          <div class="unlock">
-            <datetime type="date" />
-          </div>
-          <div class="due">
-            <datetime type="date" />
-          </div>
-          <div
-            class="permanent-zero"
-            v-if="!setExtension"
-          >
-            <datetime type="date" />
-          </div>
-          <div
-            class="extension"
-            v-if="setExtension"
-          >
-            <datetime type="date" />
-          </div>
-        </div>
-      </div>
-      <button class="submit">
-        Submit Dates
-      </button>
-    </div>
+    <Auth v-if="!user" />
+    <DateSetter v-if="user" />
   </div>
 </template>
 
 <script>
 import "vue-datetime/dist/vue-datetime.css";
 import "vue-select/dist/vue-select.css";
-import axios from 'axios';
+import Auth from './Auth';
+import DateSetter from './DateSetter';
 // @ is an alias to /src
 
 export default {
   name: "home",
+  components: {
+    Auth,
+    DateSetter
+  },
   data() {
     return {
-      teachers: [],
-      teacher: "",
-      courses: [],
-      course: "",
-      assignments: [],
-      setExtension: true,
-      students: [],
-      loading: false,
-      error: null,
-      success: false,
-      selectedStudents: []
+      user: null
     };
-  },
-  methods: {
-    setTeacher: function(e) {
-      const { id } = e;
-      this.teacher = id;
-    },
-    setCourse: async function(e) {
-      this.loading = true;
-      this.error = null;
-      const { teacher } = this.$data;
-      const { id } = e;
-      try {
-        const res = await axios({
-          method: "GET",
-          url: '/api/assignments',
-          params: {
-            apiKey: teacher,
-            course: id
-          }
-        });
-        const studentRes = await axios({
-          method: "Get",
-          url: '/api/students',
-          params: {
-            apiKey: teacher,
-            course: id
-          }
-        });
-        const { assignments } = res.data;
-        const { students } = studentRes.data;
-        this.assignments = assignments;
-        this.students = students;
-        this.loading = false;
-      } catch (e) {
-        this.error = e.message;
-      }
-      this.course = id;
-    },
-    getCourses: async function() {
-      this.loading = true;
-      this.success = false;
-      this.error = null;
-      try {
-        if (this.$data.teacher !== '') {
-          const { teacher } = this.$data;
-          const res = await axios({
-            method: 'GET',
-            url: '/api/courses',
-            params: {
-              apiKey: teacher
-            }
-          });
-          this.loading = false;
-          this.courses = res.data.data;
-        } else {
-          this.loading = false;
-          this.error = `Please input a valid token.`
-        }
-      } catch (e) {
-        this.loading = false;
-        this.error = e.message;
-      }
-    }
   }
 };
 </script>
