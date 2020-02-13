@@ -8,6 +8,7 @@
       <input type="email" placeholder="Email address" v-model="email">
       <label>Password:</label>
       <input type="password" placeholder="Password" v-model="password">
+      <button type="submit">Login</button>
     </form>
   </div>
 </template>
@@ -49,3 +50,37 @@
     }
   }
 </script>
+
+<style scoped>
+  form {
+    text-align: left;
+    max-width: 300px;
+    width: 100%;
+    margin: 0 auto;
+  }
+  form input {
+    width: 100%;
+    margin: 5px 0 15px;
+    padding: 5px 10px;
+    border: 0;
+    border-bottom: 1px solid darkblue;
+    transition: all 0.3s ease-in-out;
+  }
+  form input:active {
+    border-bottom: 1px solid blue;
+  }
+  button {
+    background: #2c3e50;
+    border: 0;
+    border-radius: 5px;
+    color: #ddf5ff;
+    padding: 10px 15px;
+    text-transform: uppercase;
+    font-weight: bold;
+    transition: all 0.5s ease-in-out;
+  }
+  button {
+    background: #253d55;
+    border-radius: 7px;
+  }
+</style>
