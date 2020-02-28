@@ -1,6 +1,7 @@
 {
-  "name": "date-setter-wireframe",
+  "name": "date-changer",
   "version": "0.1.0",
+  "author": "Corey Lanier",
   "private": true,
   "scripts": {
     "client": "vue-cli-service serve",
