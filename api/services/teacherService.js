@@ -7,3 +7,11 @@ exports.bulkAdd = async arr => {
     throw e;
   }
 };
+
+exports.getAllTeachers = async () => {
+  try {
+    return await Teacher.find({});
+  } catch (e) {
+    throw e;
+  }
+};

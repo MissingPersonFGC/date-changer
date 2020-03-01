@@ -14,4 +14,18 @@ router.route("/bulk").post(async (req, res) => {
   }
 });
 
+router.route("/").get(async (_, res) => {
+  try {
+    const teachers = await teacherService.getAllTeachers();
+    teachers.sort((a, b) => {
+      return a.lastName.localeCompare(b.lastName);
+    });
+    res.status(200).json({
+      data: teachers
+    });
+  } catch (e) {
+    res.status(400).send(e);
+  }
+});
+
 exports.router = router;
