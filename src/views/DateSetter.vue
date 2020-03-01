@@ -4,19 +4,18 @@
     <div class="selection">
       <!-- <label>Upload permanent zero/holiday calendar:</label>
       <input type="file"> -->
-      <p v-if="error" class="error">
+      <p
+        v-if="error"
+        class="error"
+      >
         <span>Error:</span> {{error}}
       </p>
       <p>Select a teacher:</p>
-      <!-- <v-select
-        label="name"
+      <v-select
+        label="fullName"
         :options="teachers"
         @input="setTeacher"
-      ></v-select> -->
-      <form class="" @submit.prevent="getCourses">
-        <input type="text" v-model="teacher">
-        <button type="submit">Get Courses</button>
-      </form>
+      ></v-select>
       <p v-if="teacher !== '' && courses.length > 0">Select a course:</p>
       <v-select
         v-if="teacher !== '' && courses.length > 0"
@@ -57,7 +56,8 @@
                 type="checkbox"
                 :value="student.id"
                 v-model="selectedStudents
-              ">
+              "
+              >
               {{student.sortable_name}}
             </div>
           </div>
@@ -116,7 +116,7 @@
 <script>
 import "vue-datetime/dist/vue-datetime.css";
 import "vue-select/dist/vue-select.css";
-import axios from 'axios';
+import axios from "axios";
 // @ is an alias to /src
 
 export default {
@@ -136,10 +136,37 @@ export default {
       selectedStudents: []
     };
   },
+  mounted: async function() {
+    const teachers = await axios({
+      method: "GET",
+      url: "/api/teachers/"
+    });
+    teachers.data.data.forEach(teacher => {
+      teacher.fullName = `${teacher.lastName}, ${teacher.firstName} (${teacher.designation})`;
+    });
+    this.teachers = teachers.data.data;
+  },
   methods: {
-    setTeacher: function(e) {
-      const { id } = e;
-      this.teacher = id;
+    setTeacher: async function(e) {
+      this.loading = true;
+      this.success = false;
+      this.error = null;
+      const { apiKey } = e;
+      this.teacher = apiKey;
+      try {
+        const res = await axios({
+          method: "GET",
+          url: "/api/courses",
+          params: {
+            apiKey
+          }
+        });
+        this.loading = false;
+        this.courses = res.data.data;
+      } catch (e) {
+        this.loading = false;
+        this.error = e.message;
+      }
     },
     setCourse: async function(e) {
       this.loading = true;
@@ -149,7 +176,7 @@ export default {
       try {
         const res = await axios({
           method: "GET",
-          url: '/api/assignments',
+          url: "/api/assignments",
           params: {
             apiKey: teacher,
             course: id
@@ -157,7 +184,7 @@ export default {
         });
         const studentRes = await axios({
           method: "Get",
-          url: '/api/students',
+          url: "/api/students",
           params: {
             apiKey: teacher,
             course: id
@@ -172,31 +199,6 @@ export default {
         this.error = e.message;
       }
       this.course = id;
-    },
-    getCourses: async function() {
-      this.loading = true;
-      this.success = false;
-      this.error = null;
-      try {
-        if (this.$data.teacher !== '') {
-          const { teacher } = this.$data;
-          const res = await axios({
-            method: 'GET',
-            url: '/api/courses',
-            params: {
-              apiKey: teacher
-            }
-          });
-          this.loading = false;
-          this.courses = res.data.data;
-        } else {
-          this.loading = false;
-          this.error = `Please input a valid token.`
-        }
-      } catch (e) {
-        this.loading = false;
-        this.error = e.message;
-      }
     }
   }
 };
