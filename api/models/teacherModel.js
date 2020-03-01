@@ -1,5 +1,5 @@
 "use strict";
-const mongoose = require('mongoose');
+const mongoose = require("mongoose");
 const { Schema } = mongoose;
 
 const teacherSchema = new Schema({
@@ -15,7 +15,7 @@ const teacherSchema = new Schema({
     type: String,
     required: true
   },
-  department: {
+  designation: {
     type: String,
     required: true
   }

@@ -13,9 +13,10 @@ const { PORT, MONGODB_URI } = require("./utils/constants");
 const { router: courseRouter } = require("./routes/courseRoute");
 const { router: moduleRouter } = require("./routes/moduleRoute");
 const { router: itemRouter } = require("./routes/itemRoute");
-const { router: assignmentRouter } = require('./routes/assignmentRoute');
-const { router: studentRouter } = require('./routes/studentRoute');
-const { router: userRouter } = require('./routes/userRoute');
+const { router: assignmentRouter } = require("./routes/assignmentRoute");
+const { router: studentRouter } = require("./routes/studentRoute");
+const { router: userRouter } = require("./routes/userRoute");
+const { router: teacherRouter } = require("./routes/teacherRoute");
 
 // import routers above this line
 applyMiddleware(middleWare, router);
@@ -25,8 +26,9 @@ router.use("/api/courses", courseRouter);
 router.use("/api/modules", moduleRouter);
 router.use("/api/item", itemRouter);
 router.use("/api/assignments", assignmentRouter);
-router.use('/api/students', studentRouter);
-router.use('/api/users', userRouter);
+router.use("/api/students", studentRouter);
+router.use("/api/users", userRouter);
+router.use("/api/teachers", teacherRouter);
 
 const server = http.createServer(router);
 
