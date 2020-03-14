@@ -10,6 +10,22 @@
       >
         <span>Error:</span> {{error}}
       </p>
+      <div class="date-grid">
+        <div>
+          <p>Set start date of course:</p>
+          <datetime
+            type="date"
+            v-model="startDate"
+          />
+        </div>
+        <div>
+          <p>Set end date of course:</p>
+          <datetime
+            type="date"
+            v-model="endDate"
+          />
+        </div>
+      </div>
       <p>Select a teacher:</p>
       <v-select
         label="fullName"
@@ -34,7 +50,6 @@
           type="checkbox"
           v-model="setExtension"
           name="setExtension"
-          disabled
         >
         <label for="setExtension">Set new end dates for students with an extension</label>
         <div
@@ -128,12 +143,14 @@ export default {
       courses: [],
       course: "",
       assignments: [],
-      setExtension: true,
+      setExtension: false,
       students: [],
       loading: false,
       error: null,
       success: false,
-      selectedStudents: []
+      selectedStudents: [],
+      startDate: "",
+      endDate: ""
     };
   },
   mounted: async function() {
@@ -284,5 +301,10 @@ button.submit:hover {
 .error span {
   color: red;
   font-weight: bold;
+}
+
+.date-grid {
+  display: flex;
+  justify-content: space-between;
 }
 </style>
