@@ -70,8 +70,7 @@
               <input
                 type="checkbox"
                 :value="student.id"
-                v-model="selectedStudents
-              "
+                v-model="selectedStudents"
               >
               {{student.sortable_name}}
             </div>
@@ -102,16 +101,25 @@
         >
           <div class="name">{{assignment.name}}</div>
           <div class="unlock">
-            <datetime type="date" />
+            <datetime
+              type="date"
+              v-model="assignment.unlock_at"
+            />
           </div>
           <div class="due">
-            <datetime type="date" />
+            <datetime
+              type="date"
+              v-model="assignment.due_at"
+            />
           </div>
           <div
             class="permanent-zero"
             v-if="!setExtension"
           >
-            <datetime type="date" />
+            <datetime
+              type="date"
+              v-model="assignment.lock_at"
+            />
           </div>
           <div
             class="extension"
