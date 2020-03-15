@@ -14,10 +14,8 @@ router.route("/").get(async (req, res) => {
       params: {
         access_token,
         per_page: 100,
-        include: [
-          'overrides',
-          'observed_users'
-        ]
+        include: ["overrides", "observed_users"],
+        order_by: "position"
       }
     });
     res.status(200).json({
