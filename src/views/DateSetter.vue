@@ -125,7 +125,10 @@
             class="extension"
             v-if="setExtension"
           >
-            <datetime type="date" />
+            <datetime
+              type="date"
+              v-model="extension"
+            />
           </div>
         </div>
       </div>
@@ -158,7 +161,8 @@ export default {
       success: false,
       selectedStudents: [],
       startDate: "",
-      endDate: ""
+      endDate: "",
+      extension: ""
     };
   },
   mounted: async function() {

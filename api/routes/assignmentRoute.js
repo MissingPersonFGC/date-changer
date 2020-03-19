@@ -34,4 +34,53 @@ router.route("/").get(async (req, res) => {
   }
 });
 
+router.route("/").put(async (req, res) => {
+  const {
+    apiKey: access_token,
+    assignment,
+    override,
+    course,
+    extension,
+    students
+  } = req.body;
+  try {
+    if (!override) {
+      const result = await axios({
+        method: "PUT",
+        url: `https://canvas.instructure.com/api/v1/courses/${course}/assignments/${assignment.id}`,
+        params: {
+          access_token,
+          assignment: {
+            due_at: assignment.due_at,
+            lock_at: assignment.lock_at,
+            unlock_at: assignment.lock_at
+          }
+        }
+      });
+      res.status(201).json({
+        data: result
+      });
+    } else {
+      const result = await axios({
+        method: "POST",
+        url: `https://canvas.instructure.com/api/v1/courses/${course}/assignments/${assignment.id}/overrides`,
+        params: {
+          access_token,
+          assignment_override: {
+            student_ids: students,
+            title: "Course Extension Date",
+            due_at: extension,
+            lock_at: extension
+          }
+        }
+      });
+      res.status(201).json({
+        data: result
+      });
+    }
+  } catch (e) {
+    res.status(401).send(e);
+  }
+});
+
 exports.router = router;
