@@ -75,6 +75,12 @@
               {{student.sortable_name}}
             </div>
           </div>
+          <button
+            class="submit"
+            @click.prevent="submitDates"
+          >
+            Submit Extension
+          </button>
         </div>
       </div>
       <div
@@ -132,7 +138,10 @@
           </div>
         </div>
       </div>
-      <button class="submit">
+      <button
+        class="submit"
+        @click.prevent="submitDates"
+      >
         Submit Dates
       </button>
     </div>
@@ -225,9 +234,74 @@ export default {
         this.students = students;
         this.loading = false;
       } catch (e) {
+        this.loading = false;
         this.error = e.message;
       }
       this.course = id;
+    },
+    submitDates: async function() {
+      this.loading = true;
+      this.error = null;
+      this.success = false;
+      let putError = false;
+      const {
+        teacher,
+        course,
+        setExtension,
+        assignments,
+        extension,
+        selectedStudents
+      } = this.$data;
+      try {
+        if (!setExtension) {
+          await assignments.forEach(async assignment => {
+            if (!putError) {
+              await axios
+                .put("/api/assignments", {
+                  data: {
+                    apiKey,
+                    course,
+                    override: setExtension,
+                    assignments
+                  }
+                })
+                .then(res => {
+                  console.log(res.data.data);
+                });
+            }
+          });
+          if (!putError) {
+            this.loading = false;
+            this.success = true;
+          }
+        } else {
+          await assignments.forEach(async assignment => {
+            if (!putError) {
+              await axios
+                .put("/api/assignments", {
+                  data: {
+                    apiKey,
+                    course,
+                    override: setExtension,
+                    assignments,
+                    students: selectedStudents,
+                    extension
+                  }
+                })
+                .then(res => {
+                  console.log(res.data.data);
+                });
+            }
+          });
+          if (!putError) {
+            this.loading = false;
+            this.success = true;
+          }
+        }
+      } catch (e) {
+        this.loading = false;
+        this.error = e.message;
+      }
     }
   }
 };
