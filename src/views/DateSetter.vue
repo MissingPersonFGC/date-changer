@@ -173,6 +173,7 @@ export default {
       courses: [],
       course: "",
       assignments: [],
+      tests: [],
       setExtension: false,
       students: [],
       loading: false,
@@ -182,7 +183,8 @@ export default {
       startDate: "",
       endDate: "",
       extension: "",
-      holidays: []
+      holidays: [],
+      showTests: false
     };
   },
   mounted: async function() {
@@ -345,7 +347,11 @@ export default {
               parsedArray.push(obj);
             }
           });
-          console.log(parsedArray);
+          const holidays = [];
+          parsedArray.forEach(holiday => {
+            holidays.push(holiday.date);
+          });
+          this.holidays = holidays;
         })
         .catch(err => {
           console.error(err);
