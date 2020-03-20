@@ -7,8 +7,13 @@
     ></div>
     <h1>Assignment Date Editor</h1>
     <div class="selection">
-      <!-- <label>Upload permanent zero/holiday calendar:</label>
-      <input type="file"> -->
+      <label>Upload holiday calendar:</label>
+      <input
+        type="file"
+        @change="parseCSV"
+        multiple="false"
+        accept=".csv"
+      />
       <p
         v-if="error"
         class="error"
@@ -176,7 +181,8 @@ export default {
       selectedStudents: [],
       startDate: "",
       endDate: "",
-      extension: ""
+      extension: "",
+      holidays: []
     };
   },
   mounted: async function() {
@@ -308,6 +314,42 @@ export default {
         this.loading = false;
         this.error = e.message;
       }
+    },
+    parseCSV: async function(e) {
+      const { files } = e.target || e.dataTransfer;
+      const file = await files[0];
+      let csvData;
+      const reader = new FileReader();
+      const promise = new Promise((resolve, reject) => {
+        reader.onload = async e => {
+          resolve((csvData = reader.result));
+        };
+        reader.readAsText(file);
+      });
+      promise
+        .then(res => {
+          const lines = csvData.split(/\r\n|\n/);
+          lines.pop();
+          const arr = [];
+          lines.forEach(line => {
+            const arr2 = line.split(",");
+            arr.push(arr2);
+          });
+          const parsedArray = [];
+          arr.forEach((line, index) => {
+            if (index > 0) {
+              const obj = {};
+              line.forEach((item, index2) => {
+                obj[`${arr[0][index2]}`] = item;
+              });
+              parsedArray.push(obj);
+            }
+          });
+          console.log(parsedArray);
+        })
+        .catch(err => {
+          console.error(err);
+        });
     }
   }
 };
