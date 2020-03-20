@@ -249,9 +249,9 @@ export default {
         course,
         setExtension,
         assignments,
-        extension,
         selectedStudents
       } = this.$data;
+      let { extension } = this.$data;
       try {
         if (!setExtension) {
           await assignments.forEach(async assignment => {
@@ -276,6 +276,7 @@ export default {
           }
         } else {
           await assignments.forEach(async assignment => {
+            extension = `${extension}T11:59:00+04:00`;
             if (!putError) {
               await axios
                 .put("/api/assignments", {

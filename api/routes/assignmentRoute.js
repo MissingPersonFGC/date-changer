@@ -61,6 +61,7 @@ router.route("/").put(async (req, res) => {
         data: result
       });
     } else {
+      const title = `Course Extension Date - ${Date.now()}`;
       const result = await axios({
         method: "POST",
         url: `https://canvas.instructure.com/api/v1/courses/${course}/assignments/${assignment.id}/overrides`,
@@ -68,7 +69,7 @@ router.route("/").put(async (req, res) => {
           access_token,
           assignment_override: {
             student_ids: students,
-            title: "Course Extension Date",
+            title,
             due_at: extension,
             lock_at: extension
           }
