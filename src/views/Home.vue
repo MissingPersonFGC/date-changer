@@ -1,6 +1,9 @@
 <template>
   <div class="home">
-    <Auth v-if="!user" :setUser="setUser" />
+    <Auth
+      v-if="!user"
+      :setUser="setUser"
+    />
     <DateSetter v-if="user" />
   </div>
 </template>
@@ -8,8 +11,8 @@
 <script>
 import "vue-datetime/dist/vue-datetime.css";
 import "vue-select/dist/vue-select.css";
-import Auth from './Auth';
-import DateSetter from './DateSetter';
+import Auth from "./Auth";
+import DateSetter from "./DateSetter";
 // @ is an alias to /src
 
 export default {
@@ -115,5 +118,31 @@ button.submit:hover {
 .error span {
   color: red;
   font-weight: bold;
+}
+
+@keyframes rotation {
+  from {
+    transform: rotateZ(0deg);
+  }
+  to {
+    transform: rotateZ(360deg);
+  }
+}
+
+.loading {
+  position: static;
+  top: 10px;
+  right: 0px;
+  width: 20px;
+  height: 20px;
+  border-radius: 20px;
+  border-top: 3px solid skyblue;
+  border-right: 3px solid black;
+  border-bottom: 3px solid darkgray;
+  border-left: 3px solid darkblue;
+  background: white;
+}
+.loading[aria-busy="true"] {
+  animation: rotation 0.5s linear infinite;
 }
 </style>

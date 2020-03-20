@@ -1,5 +1,10 @@
 <template>
-  <div class="home">
+  <div class="date-setter">
+    <div
+      class="loading"
+      v-if="loading"
+      :aria-busy="loading"
+    ></div>
     <h1>Assignment Date Editor</h1>
     <div class="selection">
       <!-- <label>Upload permanent zero/holiday calendar:</label>
@@ -309,6 +314,9 @@ export default {
 </script>
 
 <style>
+.date-setter {
+  position: relative;
+}
 .selection {
   max-width: 640px;
   width: 100%;
