@@ -26,6 +26,8 @@
           <datetime
             type="date"
             v-model="startDate"
+            zone="Asia/Dubai"
+            value-zone="Asia/Dubai"
           />
         </div>
         <div>
@@ -33,6 +35,8 @@
           <datetime
             type="date"
             v-model="endDate"
+            zone="Asia/Dubai"
+            value-zone="Asia/Dubai"
           />
         </div>
       </div>
@@ -120,12 +124,16 @@
             <datetime
               type="date"
               v-model="assignment.unlock_at"
+              zone="Asia/Dubai"
+              value-zone="Asia/Dubai"
             />
           </div>
           <div class="due">
             <datetime
               type="date"
               v-model="assignment.due_at"
+              zone="Asia/Dubai"
+              value-zone="Asia/Dubai"
             />
           </div>
           <div
@@ -135,6 +143,8 @@
             <datetime
               type="date"
               v-model="assignment.lock_at"
+              zone="Asia/Dubai"
+              value-zone="Asia/Dubai"
             />
           </div>
           <div
@@ -162,7 +172,6 @@
 import "vue-datetime/dist/vue-datetime.css";
 import "vue-select/dist/vue-select.css";
 import axios from "axios";
-// @ is an alias to /src
 
 export default {
   name: "date-setter",
@@ -222,7 +231,18 @@ export default {
     setCourse: async function(e) {
       this.loading = true;
       this.error = null;
-      const { teacher } = this.$data;
+      const { teacher, startDate, endDate } = this.$data;
+      const calculateDateSpan = (start, end) => {
+        const dt1 = new Date(start);
+        const dt2 = new Date(end);
+        return Math.floor(
+          (Date.UTC(dt2.getFullYear(), dt2.getMonth(), dt2.getDate()) -
+            Date.UTC(dt1.getFullYear(), dt1.getMonth(), dt1.getDate())) /
+            (1000 * 60 * 60 * 24)
+        );
+      };
+      const initialDateRange = calculateDateSpan(startDate, endDate);
+      console.log(initialDateRange);
       const { id } = e;
       try {
         const res = await axios({
