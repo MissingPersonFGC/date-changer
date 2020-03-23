@@ -28,6 +28,7 @@
             v-model="startDate"
             zone="Asia/Dubai"
             value-zone="Asia/Dubai"
+            input-id="course-start-date"
           />
         </div>
         <div>
@@ -37,6 +38,7 @@
             v-model="endDate"
             zone="Asia/Dubai"
             value-zone="Asia/Dubai"
+            input-id="course-end-date"
           />
         </div>
       </div>
@@ -72,7 +74,12 @@
         >
           <div class="set-extension">
             <p>Extension end date:</p>
-            <datetime type="date" />
+            <datetime
+              type="date"
+              zone="Asia/Dubai"
+              value-zone="Asia/Dubai"
+              input-id="course-extension-date"
+            />
           </div>
           <p>Select student(s):</p>
           <div class="student-grid">
@@ -105,14 +112,7 @@
           <div class="name">Assignment Name:</div>
           <div class="unlock">Start Date:</div>
           <div class="due">Due Date:</div>
-          <div
-            class="permanent-zero"
-            v-if="!setExtension"
-          >End Date:</div>
-          <div
-            class="extension"
-            v-if="setExtension"
-          >New End Date:</div>
+          <div class="permanent-zero">End Date:</div>
         </div>
         <div
           class="grid"
@@ -126,6 +126,7 @@
               v-model="assignment.unlock_at"
               zone="Asia/Dubai"
               value-zone="Asia/Dubai"
+              :input-id="assignment.id + '-unlock-date'"
             />
           </div>
           <div class="due">
@@ -134,26 +135,16 @@
               v-model="assignment.due_at"
               zone="Asia/Dubai"
               value-zone="Asia/Dubai"
+              :input-id="assignment.id + '-due-date'"
             />
           </div>
-          <div
-            class="permanent-zero"
-            v-if="!setExtension"
-          >
+          <div class="permanent-zero">
             <datetime
               type="date"
               v-model="assignment.lock_at"
               zone="Asia/Dubai"
               value-zone="Asia/Dubai"
-            />
-          </div>
-          <div
-            class="extension"
-            v-if="setExtension"
-          >
-            <datetime
-              type="date"
-              v-model="extension"
+              :input-id="assignment.id + '-lock-date'"
             />
           </div>
         </div>
