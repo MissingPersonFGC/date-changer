@@ -295,9 +295,18 @@ export default {
             course: id
           }
         });
-        const { assignments } = res.data;
+        const tests = [];
+        const assignments = [];
+        res.data.assignments.forEach(assignment => {
+          if (assignment.is_quiz_assignment) {
+            tests.push(assignment);
+          } else {
+            assignments.push(assignment);
+          }
+        });
         const { students } = studentRes.data;
         this.assignments = assignments;
+        this.tests = tests;
         this.students = students;
         this.loading = false;
       } catch (e) {
