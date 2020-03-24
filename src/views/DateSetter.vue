@@ -167,6 +167,59 @@
         Submit Dates
       </button>
     </div>
+    <input
+      type="checkbox"
+      v-model="showTests"
+      v-if="assignments.length > 0 && !setExtension"
+    > Show tests & quizzes
+    <div
+      class="assignments"
+      v-if="tests.length > 0 && !setExtension && showTests"
+    >
+      <h2>Tests & Quizzes</h2>
+      <div class="grid-container">
+        <div class="grid grid-header">
+          <div class="name">Test/Quiz Name:</div>
+          <div class="unlock">Start Date:</div>
+          <div class="due">Due Date:</div>
+          <div class="permanent-zero">End Date:</div>
+        </div>
+        <div
+          class="grid"
+          v-for="test in tests"
+          :key="test.id"
+        >
+          <div class="name">{{test.name}}</div>
+          <div class="unlock">
+            <datetime
+              type="date"
+              v-model="test.unlock_at"
+              zone="Asia/Dubai"
+              value-zone="Asia/Dubai"
+              :input-id="test.id + '-unlock-date'"
+            />
+          </div>
+          <div class="due">
+            <datetime
+              type="date"
+              v-model="test.due_at"
+              zone="Asia/Dubai"
+              value-zone="Asia/Dubai"
+              :input-id="test.id + '-due-date'"
+            />
+          </div>
+          <div class="permanent-zero">
+            <datetime
+              type="date"
+              v-model="test.lock_at"
+              zone="Asia/Dubai"
+              value-zone="Asia/Dubai"
+              :input-id="test.id + '-lock-date'"
+            />
+          </div>
+        </div>
+      </div>
+    </div>
   </div>
 </template>
 
