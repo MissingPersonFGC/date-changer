@@ -1,10 +1,9 @@
-const express = require('express');
+const express = require("express");
 const router = express.Router();
-const axios = require('axios');
+const axios = require("axios");
 
-router.route('/').get(async (req, res) => {
+router.route("/").get(async (req, res) => {
   const { apiKey: access_token, course } = req.query;
-  console.log('running')
   try {
     const results = await axios({
       method: "GET",
@@ -14,7 +13,7 @@ router.route('/').get(async (req, res) => {
       },
       params: {
         access_token,
-        enrollment_type: ['student'],
+        enrollment_type: ["student"],
         per_page: 100
       }
     });
@@ -24,6 +23,6 @@ router.route('/').get(async (req, res) => {
   } catch (e) {
     res.status(400).send(e);
   }
-})
+});
 
 exports.router = router;
