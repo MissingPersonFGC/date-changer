@@ -22,7 +22,7 @@
       </p>
       <div class="date-grid">
         <div>
-          <p>Set start date of course:</p>
+          <p>Access date:</p>
           <datetime
             type="date"
             v-model="startDate"
@@ -32,7 +32,17 @@
           />
         </div>
         <div>
-          <p>Set end date of course:</p>
+          <p>Last date to assign due dates:</p>
+          <datetime
+            type="date"
+            v-model="dueDateLimit"
+            zone="Asia/Dubai"
+            value-zone="Asia/Dubai"
+            input-id="course-due-date-limit"
+          />
+        </div>
+        <div>
+          <p>Last date to submit work:</p>
           <datetime
             type="date"
             v-model="endDate"
@@ -42,11 +52,12 @@
           />
         </div>
       </div>
-      <p>Select a teacher:</p>
+      <p v-if="startDate !== '' && endDate !== ''">Select a teacher:</p>
       <v-select
         label="fullName"
         :options="teachers"
         @input="setTeacher"
+        v-if="startDate !== '' && endDate !== ''"
       ></v-select>
       <p v-if="teacher !== '' && courses.length > 0">Select a course:</p>
       <v-select
@@ -184,7 +195,8 @@ export default {
       endDate: "",
       extension: "",
       holidays: [],
-      showTests: false
+      showTests: false,
+      dueDateLimit: ""
     };
   },
   mounted: async function() {
@@ -222,7 +234,7 @@ export default {
     setCourse: async function(e) {
       this.loading = true;
       this.error = null;
-      const { teacher, startDate, endDate } = this.$data;
+      const { teacher, startDate, endDate, holidays } = this.$data;
       const calculateDateSpan = (start, end) => {
         const dt1 = new Date(start);
         const dt2 = new Date(end);
@@ -233,7 +245,38 @@ export default {
         );
       };
       const initialDateRange = calculateDateSpan(startDate, endDate);
-      console.log(initialDateRange);
+      for (
+        let i = new Date(startDate);
+        i <= new Date(endDate);
+        i.setDate(i.getDate() + 1)
+      ) {
+        const thisDate = i.toLocaleString("en-US", {
+          timeZone: "Asia/Dubai",
+          weekday: "long",
+          year: "numeric",
+          day: "numeric",
+          month: "numeric"
+        });
+        if (
+          thisDate.indexOf("Friday") !== -1 ||
+          thisDate.indexOf("Saturday") !== -1
+        ) {
+          const arr = thisDate.split(" ");
+          const dateArr = arr[1].split("/");
+          if (dateArr[0].length === 1) {
+            dateArr[0] = `0${dateArr[0]}`;
+          }
+          if (dateArr[1].length === 1) {
+            dateArr[1] = `0${dateArr[1]}`;
+          }
+          const formattedDate = `${dateArr[2]}-${dateArr[0]}-${dateArr[1]}T00:00:00.000+04:00`;
+          holidays.push(formattedDate);
+        }
+        holidays.sort((x, y) => {
+          return x < y;
+        });
+        this.holidays = holidays;
+      }
       const { id } = e;
       try {
         const res = await axios({
@@ -360,6 +403,7 @@ export default {
           });
           const holidays = [];
           parsedArray.forEach(holiday => {
+            holiday.date = `${holiday.date}T00:00:00.000+04:00`;
             holidays.push(holiday.date);
           });
           this.holidays = holidays;
@@ -397,7 +441,7 @@ export default {
 .grid-container .grid {
   display: grid;
   grid-gap: 10px;
-  grid-template-columns: 2fr repeat(3, 1fr);
+  grid-template-columns: 7fr repeat(3, 1fr) !important;
 }
 
 .grid > div {
@@ -416,7 +460,7 @@ export default {
   color: white;
 }
 .grid .vdatetime-input {
-  width: 88%;
+  width: 75% !important;
   padding: 12px 15px;
   border: 0;
 }
