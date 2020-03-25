@@ -289,7 +289,13 @@ export default {
     setCourse: async function(e) {
       this.loading = true;
       this.error = null;
-      const { teacher, startDate, endDate, holidays } = this.$data;
+      const {
+        teacher,
+        startDate,
+        endDate,
+        dueDateLimit,
+        holidays
+      } = this.$data;
       const calculateDateSpan = (start, end) => {
         const dt1 = new Date(start);
         const dt2 = new Date(end);
@@ -299,7 +305,7 @@ export default {
             (1000 * 60 * 60 * 24)
         );
       };
-      const initialDateRange = calculateDateSpan(startDate, endDate);
+      const initialDateRange = calculateDateSpan(startDate, dueDateLimit);
       for (
         let i = new Date(startDate);
         i <= new Date(endDate);
