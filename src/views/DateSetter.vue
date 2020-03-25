@@ -338,6 +338,8 @@ export default {
         });
         this.holidays = holidays;
       }
+      const finalDateRange = initialDateRange - holidays.length;
+      console.log(initialDateRange, holidays.length, finalDateRange);
       const { id } = e;
       try {
         const res = await axios({
@@ -367,6 +369,10 @@ export default {
         });
         const { students } = studentRes.data;
         const totalAssignments = assignments.length;
+        const assignmentInterval = Math.floor(
+          finalDateRange / totalAssignments
+        );
+        console.log(assignmentInterval);
         this.assignments = assignments;
         this.tests = tests;
         this.students = students;
