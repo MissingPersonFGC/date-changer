@@ -171,7 +171,8 @@
       type="checkbox"
       v-model="showTests"
       v-if="assignments.length > 0 && !setExtension"
-    > Show tests & quizzes
+    >
+    <label v-if="showTests">Show tests & quizzes</label>
     <div
       class="assignments"
       v-if="tests.length > 0 && !setExtension && showTests"
@@ -358,6 +359,7 @@ export default {
           }
         });
         const { students } = studentRes.data;
+        const totalAssignments = assignments.length;
         this.assignments = assignments;
         this.tests = tests;
         this.students = students;
