@@ -163,6 +163,7 @@
       <button
         class="submit"
         @click.prevent="submitDates"
+        v-if="!setExtension"
       >
         Submit Dates
       </button>
