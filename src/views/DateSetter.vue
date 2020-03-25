@@ -371,6 +371,14 @@ export default {
         const assignmentInterval = Math.floor(
           finalDateRange / totalAssignments
         );
+        let assignmentIndex = 0;
+        let currentDate = new Date(startDate + 2);
+        const assignDates = int => {
+          // format current date to readable format in UAEST.
+          // check current date against array.
+          // if array contains date, check again at an interval of 1
+          // if not, assign date, rerun loop at interval of 2, and increase the assignment index.
+        };
         this.assignments = assignments;
         this.tests = tests;
         this.students = students;
