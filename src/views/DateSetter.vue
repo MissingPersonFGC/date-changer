@@ -395,13 +395,11 @@ export default {
                   month: "numeric"
                 }) === currentDate
             );
-            console.log(index);
             // if array contains date, check again at an interval of 1
             if (index !== -1) {
               assignDates(1);
             } else {
               // if not, assign date, rerun loop at interval of 2, and increase the assignment index.
-              console.log(currentDate);
               const arr = currentDate.split("/");
               if (arr[0].length === 1) {
                 arr[0] = `0${arr[0]}`;
