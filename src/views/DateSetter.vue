@@ -372,13 +372,52 @@ export default {
           finalDateRange / totalAssignments
         );
         let assignmentIndex = 0;
-        let currentDate = new Date(startDate + 2);
+        let currentDate = new Date(startDate);
         const assignDates = int => {
-          // format current date to readable format in UAEST.
-          // check current date against array.
-          // if array contains date, check again at an interval of 1
-          // if not, assign date, rerun loop at interval of 2, and increase the assignment index.
+          // check if assignment index is less than the length of the assignments array.
+          if (assignmentIndex < assignments.length) {
+            // format current date to readable format in UAEST.
+            currentDate = new Date(currentDate + int);
+            currentDate = currentDate.toLocaleString("en-US", {
+              timeZone: "Asia/Dubai",
+              year: "numeric",
+              day: "numeric",
+              month: "numeric"
+            });
+            // check current date against array.
+            const index = holidays.findIndex(
+              x =>
+                x.toLocaleString("en-US", {
+                  timeZone: "Asia/Dubai",
+                  weekday: "long",
+                  year: "numeric",
+                  day: "numeric",
+                  month: "numeric"
+                }) === currentDate
+            );
+            console.log(index);
+            // if array contains date, check again at an interval of 1
+            if (index !== -1) {
+              assignDates(1);
+            } else {
+              // if not, assign date, rerun loop at interval of 2, and increase the assignment index.
+              console.log(currentDate);
+              const arr = currentDate.split("/");
+              if (arr[0].length === 1) {
+                arr[0] = `0${arr[0]}`;
+              }
+              if (arr[1].length === 1) {
+                arr[1] = `0${arr[1]}`;
+              }
+              const formattedDate = `${arr[2]}-${arr[0]}-${arr[1]}T23:59:00.000+04:00`;
+              assignments[assignmentIndex].due_at = formattedDate;
+              assignmentIndex = assignmentIndex++;
+              assignDates(assignmentInterval);
+            }
+          }
         };
+        // call assignDates here with the assignment interval
+        assignDates(assignmentInterval);
         this.assignments = assignments;
         this.tests = tests;
         this.students = students;
