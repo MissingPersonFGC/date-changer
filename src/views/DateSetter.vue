@@ -333,12 +333,26 @@ export default {
           const formattedDate = `${dateArr[2]}-${dateArr[0]}-${dateArr[1]}T00:00:00.000+04:00`;
           holidays.push(formattedDate);
         }
-        holidays.sort((x, y) => {
-          return x < y;
-        });
-        this.holidays = holidays;
       }
-      const finalDateRange = initialDateRange - holidays.length;
+      holidays.sort((x, y) => {
+        return x < y;
+      });
+      this.holidays = holidays;
+      const holidaysMidPoint = [];
+      holidays.forEach(holiday => {
+        const dt1 = new Date(startDate);
+        const dt2 = new Date(holiday);
+        const dt3 = new Date(endDate);
+        if (
+          Date.UTC(dt2.getFullYear(), dt2.getMonth(), dt2.getDate()) >=
+            Date.UTC(dt1.getFullYear(), dt1.getMonth(), dt1.getDate()) &&
+          Date.UTC(dt2.getFullYear(), dt2.getMonth(), dt2.getDate()) <=
+            Date.UTC(dt3.getFullYear(), dt3.getMonth(), dt3.getDate())
+        ) {
+          holidaysMidPoint.push(holiday);
+        }
+      });
+      const finalDateRange = initialDateRange - holidaysMidPoint.length;
       const { id } = e;
       try {
         const res = await axios({
