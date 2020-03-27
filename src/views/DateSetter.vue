@@ -414,33 +414,53 @@ export default {
               // create loop for assigning perm zeroes
               const assignPermanentZero = interval => {
                 let permZeroDate = new Date(currentDate) + interval;
-                permZeroDate = permZeroDate.toLocaleString("en-US", {
-                  timeZone: "Asia/Dubai",
-                  year: "numeric",
-                  day: "numeric",
-                  month: "numeric"
-                });
-                const permZeroIndex = holidays.findIndex(
-                  x =>
-                    x.toLocaleString("en-US", {
-                      timeZone: "Asia/Dubai",
-                      year: "numeric",
-                      day: "numeric",
-                      month: "numeric"
-                    }) === permZeroDate
-                );
-                if (permZeroIndex === -1) {
-                  assignPermanentZero(interval + 1);
-                } else {
-                  const permZeroArr = permZeroDate.split("/");
-                  if (permZeroArr[0].length === 1) {
-                    permZeroArr[0] = `0${permZeroArr[0]}`;
+                const difference = calculateDateSpan(permZeroDate, endDate);
+                if (difference <= 0) {
+                  let dt = new Date(endDate);
+                  dt.toLocaleString("en-US", {
+                    timeZone: "Asia/Dubai",
+                    year: "numeric",
+                    day: "numeric",
+                    month: "numeric"
+                  });
+                  const dtArr = dt.split("/");
+                  if (dtArr[0].length === 1) {
+                    dtArr[0] = `0${dtArr[0]}`;
                   }
-                  if (permZeroArr[1].length === 1) {
-                    permZeroArr[1] = `0${permZeroArr[1]}`;
+                  if (dtArr[1].length === 1) {
+                    dtArr[1] = `0${dtArr[1]}`;
                   }
-                  const formattedPermZero = `${permZeroArr[2]}-${permZeroArr[0]}-${permZeroArr[1]}T23:59:00.000+04:00`;
+                  const formattedPermZero = `${dtArr[2]}-${dtArr[0]}-${dtArr[1]}T23:59:00.000+04:00`;
                   assignment.lock_at = formattedPermZero;
+                } else {
+                  permZeroDate = permZeroDate.toLocaleString("en-US", {
+                    timeZone: "Asia/Dubai",
+                    year: "numeric",
+                    day: "numeric",
+                    month: "numeric"
+                  });
+                  const permZeroIndex = holidays.findIndex(
+                    x =>
+                      x.toLocaleString("en-US", {
+                        timeZone: "Asia/Dubai",
+                        year: "numeric",
+                        day: "numeric",
+                        month: "numeric"
+                      }) === permZeroDate
+                  );
+                  if (permZeroIndex === -1) {
+                    assignPermanentZero(interval + 1);
+                  } else {
+                    const permZeroArr = permZeroDate.split("/");
+                    if (permZeroArr[0].length === 1) {
+                      permZeroArr[0] = `0${permZeroArr[0]}`;
+                    }
+                    if (permZeroArr[1].length === 1) {
+                      permZeroArr[1] = `0${permZeroArr[1]}`;
+                    }
+                    const formattedPermZero = `${permZeroArr[2]}-${permZeroArr[0]}-${permZeroArr[1]}T23:59:00.000+04:00`;
+                    assignment.lock_at = formattedPermZero;
+                  }
                 }
               };
               // call the function with the initial interval of 30.
