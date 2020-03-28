@@ -377,6 +377,10 @@ export default {
           if (assignment.is_quiz_assignment) {
             tests.push(assignment);
           } else {
+            assignment.old_unlock_at = assignment.unlock_at;
+            assignment.unlock_at = startDate;
+            assignment.old_due_at = assignment.due_at;
+            assignment.old_lock_at = assignment.lock_at;
             assignments.push(assignment);
           }
         });
