@@ -41,18 +41,7 @@ const historySchema = new Schema({
     enum: ["Dates", "Extension"],
     required: true
   },
-  unlockDate: {
-    type: Date
-  },
-  lockDate: {
-    type: Date
-  },
-  dueDate: {
-    type: Date
-  },
-  extensionDate: {
-    type: Date
-  },
+  assignmentChanges: {},
   students: {
     type: [String]
   }

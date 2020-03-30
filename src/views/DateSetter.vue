@@ -393,10 +393,10 @@ export default {
         let currentDate = new Date(startDate);
         const assignDates = int => {
           // check if assignment index is less than the length of the assignments array.
-          if (assignmentIndex < assignments.length) {
+          if (assignmentIndex < totalAssignments) {
             // format current date to readable format in UAEST.
-            currentDate = new Date(currentDate + int);
-            currentDate = currentDate.toLocaleString("en-US", {
+            currentDate.setDate(currentDate.getDate() + int);
+            const currentFormattedDate = currentDate.toLocaleString("en-US", {
               timeZone: "Asia/Dubai",
               year: "numeric",
               day: "numeric",
@@ -407,18 +407,18 @@ export default {
               x =>
                 x.toLocaleString("en-US", {
                   timeZone: "Asia/Dubai",
-                  weekday: "long",
                   year: "numeric",
                   day: "numeric",
                   month: "numeric"
-                }) === currentDate
+                }) === currentFormattedDate
             );
             // if array contains date, check again at an interval of 1
             if (index !== -1) {
               assignDates(1);
             } else {
               // if not, assign date, rerun loop at interval of 2, and increase the assignment index.
-              const arr = currentDate.split("/");
+              const arr = currentFormattedDate.split("/");
+              console.log(arr);
               if (arr[0].length === 1) {
                 arr[0] = `0${arr[0]}`;
               }
@@ -427,7 +427,7 @@ export default {
               }
               const formattedDate = `${arr[2]}-${arr[0]}-${arr[1]}T23:59:00.000+04:00`;
               assignments[assignmentIndex].due_at = formattedDate;
-              assignmentIndex = assignmentIndex++;
+              assignmentIndex = assignmentIndex + 1;
               assignDates(assignmentInterval);
               // create loop for assigning perm zeroes
               const assignPermanentZero = interval => {
@@ -492,11 +492,12 @@ export default {
         this.tests = tests;
         this.students = students;
         this.loading = false;
+        this.course = id;
       } catch (e) {
         this.loading = false;
         this.error = e.message;
+        console.error(e);
       }
-      this.course = id;
     },
     submitDates: async function() {
       this.loading = true;
