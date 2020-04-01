@@ -342,7 +342,7 @@ export default {
       holidays.forEach(holiday => {
         const dt1 = new Date(startDate);
         const dt2 = new Date(holiday);
-        const dt3 = new Date(endDate);
+        const dt3 = new Date(dueDateLimit);
         if (
           Date.UTC(dt2.getFullYear(), dt2.getMonth(), dt2.getDate()) >=
             Date.UTC(dt1.getFullYear(), dt1.getMonth(), dt1.getDate()) &&
@@ -389,12 +389,60 @@ export default {
         const assignmentInterval = Math.floor(
           finalDateRange / totalAssignments
         );
-        let assignmentIndex = 0;
         let currentDate = new Date(startDate);
-        const assignDates = async int => {
-          // check if assignment index is less than the length of the assignments array.
-          if (assignmentIndex < totalAssignments) {
-            // format current date to readable format in UAEST.
+        for (let i = 0; i < totalAssignments; i++) {
+          const assignPermanentZero = int => {
+            const permZeroDate = new Date(currentDate.getDate() + int);
+            const difference = calculateDateSpan(permZeroDate, endDate);
+            if (difference <= 0) {
+              let dt = new Date(endDate);
+              dt.toLocaleString("en-US", {
+                timeZone: "Asia/Dubai",
+                year: "numeric",
+                day: "numeric",
+                month: "numeric"
+              });
+              const dtArr = dt.split("/");
+              if (dtArr[0].length === 1) {
+                dtArr[0] = `0${dtArr[0]}`;
+              }
+              if (dtArr[1].length === 1) {
+                dtArr[1] = `0${dtArr[1]}`;
+              }
+              const formattedPermZero = `${dtArr[2]}-${dtArr[0]}-${dtArr[1]}T23:59:00.000+04:00`;
+              assignments[i].lock_at = formattedPermZero;
+            } else {
+              const formZeroDate = permZeroDate.toLocaleString("en-US", {
+                timeZone: "Asia/Dubai",
+                year: "numeric",
+                day: "numeric",
+                month: "numeric"
+              });
+              const permZeroIndex = holidays.findIndex(
+                x =>
+                  x.toLocaleString("en-US", {
+                    timeZone: "Asia/Dubai",
+                    year: "numeric",
+                    day: "numeric",
+                    month: "numeric"
+                  }) === permZeroDate
+              );
+              if (permZeroIndex !== -1) {
+                assignPermanentZero(int + 1);
+              } else {
+                const permZeroArr = formZeroDate.split("/");
+                if (permZeroArr[0].length === 1) {
+                  permZeroArr[0] = `0${permZeroArr[0]}`;
+                }
+                if (permZeroArr[1].length === 1) {
+                  permZeroArr[1] = `0${permZeroArr[1]}`;
+                }
+                const formattedPermZero = `${permZeroArr[2]}-${permZeroArr[0]}-${permZeroArr[1]}T23:59:00.000+04:00`;
+                assignments[i].lock_at = formattedPermZero;
+              }
+            }
+          };
+          const assignDates = int => {
             currentDate.setDate(currentDate.getDate() + int);
             const currentFormattedDate = currentDate.toLocaleString("en-US", {
               timeZone: "Asia/Dubai",
@@ -402,7 +450,6 @@ export default {
               day: "numeric",
               month: "numeric"
             });
-            // check current date against array.
             const index = holidays.findIndex(
               x =>
                 x.toLocaleString("en-US", {
@@ -412,11 +459,9 @@ export default {
                   month: "numeric"
                 }) === currentFormattedDate
             );
-            // if array contains date, check again at an interval of 1
             if (index !== -1) {
               assignDates(1);
             } else {
-              // if not, assign date, rerun loop at interval of 2, and increase the assignment index.
               const arr = currentFormattedDate.split("/");
               if (arr[0].length === 1) {
                 arr[0] = `0${arr[0]}`;
@@ -425,68 +470,108 @@ export default {
                 arr[1] = `0${arr[1]}`;
               }
               const formattedDate = `${arr[2]}-${arr[0]}-${arr[1]}T23:59:00.000+04:00`;
-              assignments[assignmentIndex].due_at = formattedDate;
-              // create loop for assigning perm zeroes
-              const assignPermanentZero = interval => {
-                let permZeroDate = new Date(currentDate) + interval;
-                const difference = calculateDateSpan(permZeroDate, endDate);
-                if (difference <= 0) {
-                  let dt = new Date(endDate);
-                  dt.toLocaleString("en-US", {
-                    timeZone: "Asia/Dubai",
-                    year: "numeric",
-                    day: "numeric",
-                    month: "numeric"
-                  });
-                  const dtArr = dt.split("/");
-                  if (dtArr[0].length === 1) {
-                    dtArr[0] = `0${dtArr[0]}`;
-                  }
-                  if (dtArr[1].length === 1) {
-                    dtArr[1] = `0${dtArr[1]}`;
-                  }
-                  const formattedPermZero = `${dtArr[2]}-${dtArr[0]}-${dtArr[1]}T23:59:00.000+04:00`;
-                  assignment.lock_at = formattedPermZero;
-                } else {
-                  permZeroDate = permZeroDate.toLocaleString("en-US", {
-                    timeZone: "Asia/Dubai",
-                    year: "numeric",
-                    day: "numeric",
-                    month: "numeric"
-                  });
-                  const permZeroIndex = holidays.findIndex(
-                    x =>
-                      x.toLocaleString("en-US", {
-                        timeZone: "Asia/Dubai",
-                        year: "numeric",
-                        day: "numeric",
-                        month: "numeric"
-                      }) === permZeroDate
-                  );
-                  if (permZeroIndex === -1) {
-                    assignPermanentZero(interval + 1);
-                  } else {
-                    const permZeroArr = permZeroDate.split("/");
-                    if (permZeroArr[0].length === 1) {
-                      permZeroArr[0] = `0${permZeroArr[0]}`;
-                    }
-                    if (permZeroArr[1].length === 1) {
-                      permZeroArr[1] = `0${permZeroArr[1]}`;
-                    }
-                    const formattedPermZero = `${permZeroArr[2]}-${permZeroArr[0]}-${permZeroArr[1]}T23:59:00.000+04:00`;
-                    assignment.lock_at = formattedPermZero;
-                  }
-                }
-              };
-              // call the function with the initial interval of 30.
-              await assignPermanentZero(30);
-              assignmentIndex = assignmentIndex + 1;
-              assignDates(assignmentInterval);
+              assignments[i].due_at = formattedDate;
+              assignPermanentZero(30);
             }
-          }
-        };
-        // call assignDates here with the assignment interval
-        assignDates(assignmentInterval);
+          };
+          assignDates(assignmentInterval);
+        }
+        // const assignDates = async int => {
+        //   // check if assignment index is less than the length of the assignments array.
+        //   if (assignmentIndex < totalAssignments) {
+        //     // format current date to readable format in UAEST.
+        //     currentDate.setDate(currentDate.getDate() + int);
+        //     const currentFormattedDate = currentDate.toLocaleString("en-US", {
+        //       timeZone: "Asia/Dubai",
+        //       year: "numeric",
+        //       day: "numeric",
+        //       month: "numeric"
+        //     });
+        //     // check current date against array.
+        //     const index = holidays.findIndex(
+        //       x =>
+        //         x.toLocaleString("en-US", {
+        //           timeZone: "Asia/Dubai",
+        //           year: "numeric",
+        //           day: "numeric",
+        //           month: "numeric"
+        //         }) === currentFormattedDate
+        //     );
+        //     // if array contains date, check again at an interval of 1
+        //     if (index !== -1) {
+        //       assignDates(1);
+        //     } else {
+        //       // if not, assign date, rerun loop at interval of 2, and increase the assignment index.
+        //       const arr = currentFormattedDate.split("/");
+        //       if (arr[0].length === 1) {
+        //         arr[0] = `0${arr[0]}`;
+        //       }
+        //       if (arr[1].length === 1) {
+        //         arr[1] = `0${arr[1]}`;
+        //       }
+        //       const formattedDate = `${arr[2]}-${arr[0]}-${arr[1]}T23:59:00.000+04:00`;
+        //       assignments[assignmentIndex].due_at = formattedDate;
+        //       // create loop for assigning perm zeroes
+        //       const assignPermanentZero = interval => {
+        //         let permZeroDate = new Date(currentDate) + interval;
+        //         const difference = calculateDateSpan(permZeroDate, endDate);
+        //         if (difference <= 0) {
+        //           let dt = new Date(endDate);
+        //           dt.toLocaleString("en-US", {
+        //             timeZone: "Asia/Dubai",
+        //             year: "numeric",
+        //             day: "numeric",
+        //             month: "numeric"
+        //           });
+        //           const dtArr = dt.split("/");
+        //           if (dtArr[0].length === 1) {
+        //             dtArr[0] = `0${dtArr[0]}`;
+        //           }
+        //           if (dtArr[1].length === 1) {
+        //             dtArr[1] = `0${dtArr[1]}`;
+        //           }
+        //           const formattedPermZero = `${dtArr[2]}-${dtArr[0]}-${dtArr[1]}T23:59:00.000+04:00`;
+        //           assignment.lock_at = formattedPermZero;
+        //         } else {
+        //           permZeroDate = permZeroDate.toLocaleString("en-US", {
+        //             timeZone: "Asia/Dubai",
+        //             year: "numeric",
+        //             day: "numeric",
+        //             month: "numeric"
+        //           });
+        //           const permZeroIndex = holidays.findIndex(
+        //             x =>
+        //               x.toLocaleString("en-US", {
+        //                 timeZone: "Asia/Dubai",
+        //                 year: "numeric",
+        //                 day: "numeric",
+        //                 month: "numeric"
+        //               }) === permZeroDate
+        //           );
+        //           if (permZeroIndex !== -1) {
+        //             assignPermanentZero(interval + 1);
+        //           } else {
+        //             const permZeroArr = permZeroDate.split("/");
+        //             if (permZeroArr[0].length === 1) {
+        //               permZeroArr[0] = `0${permZeroArr[0]}`;
+        //             }
+        //             if (permZeroArr[1].length === 1) {
+        //               permZeroArr[1] = `0${permZeroArr[1]}`;
+        //             }
+        //             const formattedPermZero = `${permZeroArr[2]}-${permZeroArr[0]}-${permZeroArr[1]}T23:59:00.000+04:00`;
+        //             assignment.lock_at = formattedPermZero;
+        //           }
+        //         }
+        //       };
+        //       // call the function with the initial interval of 30.
+        //       await assignPermanentZero(30);
+        //       assignmentIndex = assignmentIndex + 1;
+        //       assignDates(assignmentInterval);
+        //     }
+        //   }
+        // };
+        // // call assignDates here with the assignment interval
+        // assignDates(assignmentInterval);
         this.assignments = assignments;
         this.tests = tests;
         this.students = students;
