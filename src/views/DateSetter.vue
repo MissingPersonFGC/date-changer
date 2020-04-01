@@ -391,7 +391,7 @@ export default {
         );
         let assignmentIndex = 0;
         let currentDate = new Date(startDate);
-        const assignDates = int => {
+        const assignDates = async int => {
           // check if assignment index is less than the length of the assignments array.
           if (assignmentIndex < totalAssignments) {
             // format current date to readable format in UAEST.
@@ -418,7 +418,6 @@ export default {
             } else {
               // if not, assign date, rerun loop at interval of 2, and increase the assignment index.
               const arr = currentFormattedDate.split("/");
-              console.log(arr);
               if (arr[0].length === 1) {
                 arr[0] = `0${arr[0]}`;
               }
@@ -427,8 +426,6 @@ export default {
               }
               const formattedDate = `${arr[2]}-${arr[0]}-${arr[1]}T23:59:00.000+04:00`;
               assignments[assignmentIndex].due_at = formattedDate;
-              assignmentIndex = assignmentIndex + 1;
-              assignDates(assignmentInterval);
               // create loop for assigning perm zeroes
               const assignPermanentZero = interval => {
                 let permZeroDate = new Date(currentDate) + interval;
@@ -482,7 +479,9 @@ export default {
                 }
               };
               // call the function with the initial interval of 30.
-              assignPermanentZero(30);
+              await assignPermanentZero(30);
+              assignmentIndex = assignmentIndex + 1;
+              assignDates(assignmentInterval);
             }
           }
         };
@@ -509,9 +508,10 @@ export default {
         course,
         setExtension,
         assignments,
-        selectedStudents
+        selectedStudents,
+        extension: extensionDate
       } = this.$data;
-      let { extension } = this.$data;
+      const arr = extensionDate.split("T");
       try {
         if (!setExtension) {
           await assignments.forEach(async assignment => {
@@ -536,7 +536,7 @@ export default {
           }
         } else {
           await assignments.forEach(async assignment => {
-            extension = `${extension}T11:59:00+04:00`;
+            extension = `${arr[0]}T11:59:00+04:00`;
             if (!putError) {
               await axios
                 .put("/api/assignments", {
