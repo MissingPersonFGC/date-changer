@@ -392,7 +392,7 @@ export default {
         let currentDate = new Date(startDate);
         for (let i = 0; i < totalAssignments; i++) {
           const assignPermanentZero = int => {
-            const permZeroDate = new Date(currentDate.getDate() + int);
+            const permZeroDate = new Date(currentDate) + int;
             const difference = calculateDateSpan(permZeroDate, endDate);
             if (difference <= 0) {
               let dt = new Date(endDate);
