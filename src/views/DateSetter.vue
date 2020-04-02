@@ -391,8 +391,12 @@ export default {
         );
         let currentDate = new Date(startDate);
         for (let i = 0; i < totalAssignments; i++) {
-          const assignPermanentZero = int => {
-            const permZeroDate = new Date(currentDate) + int;
+          const assignPermanentZero = (int, date) => {
+            console.log(typeof int);
+            console.log(date);
+            let permZeroDate = new Date(date);
+            permZeroDate.setDate(permZeroDate.getDate() + int);
+            console.log(permZeroDate);
             const difference = calculateDateSpan(permZeroDate, endDate);
             if (difference <= 0) {
               let dt = new Date(endDate);
@@ -425,19 +429,19 @@ export default {
                     year: "numeric",
                     day: "numeric",
                     month: "numeric"
-                  }) === permZeroDate
+                  }) === formZeroDate
               );
               if (permZeroIndex !== -1) {
                 assignPermanentZero(int + 1);
               } else {
-                const permZeroArr = formZeroDate.split("/");
-                if (permZeroArr[0].length === 1) {
-                  permZeroArr[0] = `0${permZeroArr[0]}`;
+                const arr = formZeroDate.split("/");
+                if (arr[0].length === 1) {
+                  arr[0] = `0${arr[0]}`;
                 }
-                if (permZeroArr[1].length === 1) {
-                  permZeroArr[1] = `0${permZeroArr[1]}`;
+                if (arr[1].length === 1) {
+                  arr[1] = `0${arr[1]}`;
                 }
-                const formattedPermZero = `${permZeroArr[2]}-${permZeroArr[0]}-${permZeroArr[1]}T23:59:00.000+04:00`;
+                const formattedPermZero = `${arr[2]}-${arr[0]}-${arr[1]}T23:59:00.000+04:00`;
                 assignments[i].lock_at = formattedPermZero;
               }
             }
@@ -471,7 +475,7 @@ export default {
               }
               const formattedDate = `${arr[2]}-${arr[0]}-${arr[1]}T23:59:00.000+04:00`;
               assignments[i].due_at = formattedDate;
-              assignPermanentZero(30);
+              assignPermanentZero(30, formattedDate);
             }
           };
           assignDates(assignmentInterval);
