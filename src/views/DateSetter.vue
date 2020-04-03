@@ -173,7 +173,12 @@
       v-model="showTests"
       v-if="assignments.length > 0 && !setExtension"
     >
-    <label v-if="showTests">Show tests & quizzes</label>
+    <div
+      class="assignments"
+      v-if="assignments.length > 0 && !setExtension"
+    >
+      <label>Show tests & quizzes</label>
+    </div>
     <div
       class="assignments"
       v-if="tests.length > 0 && !setExtension && showTests"
