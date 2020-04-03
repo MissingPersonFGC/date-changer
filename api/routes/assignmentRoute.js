@@ -1,6 +1,7 @@
 const express = require("express");
 const router = express.Router();
 const axios = require("axios");
+const historyService = require("../services/historyService");
 
 router.route("/").get(async (req, res) => {
   const { apiKey: access_token, course } = req.query;
@@ -53,12 +54,31 @@ router.route("/").put(async (req, res) => {
           assignment: {
             due_at: assignment.due_at,
             lock_at: assignment.lock_at,
-            unlock_at: assignment.lock_at
+            unlock_at: assignment.unlock_at
           }
         }
       });
+      const assignHistory = {
+        date: Date.now(),
+        user,
+        course,
+        teacher,
+        assignment: assignment.id,
+        assignmentName: assignment.title,
+        editType: "Dates",
+        oldUnlock: assignment.old_unlock_at,
+        oldDue: assignment.old_due_at,
+        oldLock: assignment.old_lock_at,
+        newUnlock: assignment.unlock_at,
+        newDue: assignment.due_at,
+        newLock: assignment.lock_at
+      };
+      const tracker = await historyService.saveHistory(assignHistory);
       res.status(201).json({
-        data: result
+        data: {
+          result,
+          tracker
+        }
       });
     } else {
       const title = `Course Extension Date - ${Date.now()}`;
