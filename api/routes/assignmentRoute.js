@@ -95,8 +95,24 @@ router.route("/").put(async (req, res) => {
           }
         }
       });
+      const overrideHistory = {
+        date: Date.now(),
+        user,
+        course,
+        teacher,
+        assignment: assignment.id,
+        assign: assignment.title,
+        editType: "Extension",
+        overrideNumber: result.id,
+        studentIds: students,
+        extensionDate: extension
+      };
+      const tracker = await historyService.saveHistory(overrideHistory);
       res.status(201).json({
-        data: result
+        data: {
+          result,
+          tracker
+        }
       });
     }
   } catch (e) {
