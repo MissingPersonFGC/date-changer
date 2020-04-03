@@ -419,17 +419,17 @@ export default {
                 day: "numeric",
                 month: "numeric"
               });
-              const permZeroIndex = holidays.findIndex(
-                x =>
-                  x.toLocaleString("en-US", {
-                    timeZone: "Asia/Dubai",
-                    year: "numeric",
-                    day: "numeric",
-                    month: "numeric"
-                  }) === formZeroDate
-              );
+              const arr1 = formZeroDate.split("/");
+              if (arr1[0].length === 1) {
+                arr1[0] = `0${arr1[0]}`;
+              }
+              if (arr1[1].length === 1) {
+                arr1[1] = `0${arr1[1]}`;
+              }
+              const earlyFormat = `${arr1[2]}-${arr1[0]}-${arr1[1]}T00:00:00.000+04:00`;
+              const permZeroIndex = holidays.findIndex(x => x === earlyFormat);
               if (permZeroIndex !== -1) {
-                assignPermanentZero(int + 1);
+                assignPermanentZero(int + 1, date);
               } else {
                 const arr = formZeroDate.split("/");
                 if (arr[0].length === 1) {
@@ -451,15 +451,15 @@ export default {
               day: "numeric",
               month: "numeric"
             });
-            const index = holidays.findIndex(
-              x =>
-                x.toLocaleString("en-US", {
-                  timeZone: "Asia/Dubai",
-                  year: "numeric",
-                  day: "numeric",
-                  month: "numeric"
-                }) === currentFormattedDate
-            );
+            const arr1 = currentFormattedDate.split("/");
+            if (arr1[0].length === 1) {
+              arr1[0] = `0${arr1[0]}`;
+            }
+            if (arr1[1].length === 1) {
+              arr1[1] = `0${arr1[1]}`;
+            }
+            const earlyFormat = `${arr1[2]}-${arr1[0]}-${arr1[1]}T00:00:00.000+04:00`;
+            const index = holidays.findIndex(x => x === earlyFormat);
             if (index !== -1) {
               assignDates(1);
             } else {
