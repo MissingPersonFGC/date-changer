@@ -64,6 +64,9 @@ const historySchema = new Schema({
   },
   students: {
     type: [String]
+  },
+  extensionDate: {
+    type: Date
   }
 });
 
