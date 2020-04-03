@@ -42,7 +42,9 @@ router.route("/").put(async (req, res) => {
     override,
     course,
     extension,
-    students
+    students,
+    user,
+    teacher
   } = req.body;
   try {
     if (!override) {
