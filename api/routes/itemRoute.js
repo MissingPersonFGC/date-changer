@@ -1,6 +1,10 @@
 const express = require("express");
 const router = express.Router();
 const axios = require("axios");
+const middleWare = require("../middleware");
+const { applyMiddleware } = require("../utils");
+
+applyMiddleware(middleWare, router);
 
 router.route("/").put(async (req, res) => {
   const {

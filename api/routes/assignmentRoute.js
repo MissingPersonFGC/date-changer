@@ -2,6 +2,10 @@ const express = require("express");
 const router = express.Router();
 const axios = require("axios");
 const historyService = require("../services/historyService");
+const middleWare = require("../middleware");
+const { applyMiddleware } = require("../utils");
+
+applyMiddleware(middleWare, router);
 
 router.route("/").get(async (req, res) => {
   const { apiKey: access_token, course } = req.query;

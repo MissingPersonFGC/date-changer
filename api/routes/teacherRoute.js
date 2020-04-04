@@ -1,6 +1,10 @@
 const express = require("express");
 const router = express.Router();
 const teacherService = require("../services/teacherService");
+const middleWare = require("../middleware");
+const { applyMiddleware } = require("../utils");
+
+applyMiddleware(middleWare, router);
 
 router.route("/bulk").post(async (req, res) => {
   const arr = req.body.teachers;

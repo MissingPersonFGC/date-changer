@@ -2,6 +2,10 @@ const express = require("express");
 const router = express.Router();
 const userService = require("../services/userService");
 const tokenService = require("../utils/tokenService");
+const middleWare = require("../middleware");
+const { applyMiddleware } = require("../utils");
+
+applyMiddleware(middleWare, router);
 
 router.route("/signup").post(async (req, res, next) => {
   try {
