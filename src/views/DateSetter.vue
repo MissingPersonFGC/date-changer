@@ -225,6 +225,7 @@
             />
           </div>
         </div>
+        <button @click.prevent="submitTests">Submit Tests</button>
       </div>
     </div>
   </div>
@@ -627,6 +628,44 @@ export default {
         .catch(err => {
           console.error(err);
         });
+    },
+    submitTests: async function() {
+      this.loading = true;
+      this.error = null;
+      this.success = false;
+      let putError = false;
+      const { teacher, course, setExtension, tests } = this.$data;
+      const user = localStorage.getItem("icadDateId");
+      const teacherIndex = this.$data.teachers.findIndex(
+        x => x.apiKey === teacher
+      );
+      try {
+        await tests.forEach(async test => {
+          if (!putError) {
+            await axios
+              .put("/api/assignments", {
+                data: {
+                  apiKey,
+                  course,
+                  override: false,
+                  assignment: test,
+                  user,
+                  teacher: this.$data.teachers[teacherIndex]._id
+                }
+              })
+              .then(res => {
+                console.log(res.data.data);
+              });
+          }
+        });
+        if (!putError) {
+          this.loading = false;
+          this.success = true;
+        }
+      } catch (e) {
+        this.loading = false;
+        this.error = e.message;
+      }
     }
   }
 };
