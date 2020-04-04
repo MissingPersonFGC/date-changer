@@ -536,8 +536,28 @@ export default {
             this.success = true;
           }
         } else {
+          extension = `${arr[0]}T11:59:00+04:00`;
           await assignments.forEach(async assignment => {
-            extension = `${arr[0]}T11:59:00+04:00`;
+            if (!putError) {
+              await axios
+                .put("/api/assignments", {
+                  data: {
+                    apiKey,
+                    course,
+                    override: setExtension,
+                    assignment,
+                    students: selectedStudents,
+                    extension,
+                    user,
+                    teacher: this.$data.teachers[teacherIndex]._id
+                  }
+                })
+                .then(res => {
+                  console.log(res.data.data);
+                });
+            }
+          });
+          await tests.forEach(async assignment => {
             if (!putError) {
               await axios
                 .put("/api/assignments", {
