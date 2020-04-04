@@ -47,5 +47,48 @@
         }
       }
     }
+  },
+  "now": {
+    "alias": "date-setter",
+    "name": "icad-dubai-dates",
+    "env": {
+      "PORT": "4000",
+      "SECRET": "@secret",
+      "MONGODB_URI": "@mongodb_uri"
+    },
+    "routes": [
+      {
+        "src": "/",
+        "dest": "index.html"
+      },
+      {
+        "src": "/api/modules/(.+)",
+        "dest": "/api/modules.js"
+      },
+      {
+        "src": "/api/users/(.+)",
+        "dest": "/api/users.js"
+      },
+      {
+        "src": "/api/teachers/(.+)",
+        "dest": "/api/teachers.js"
+      },
+      {
+        "src": "/api/assignments/(.+)",
+        "dest": "/api/assignments.js"
+      },
+      {
+        "src": "/api/courses/(.+)",
+        "dest": "/api/courses.js"
+      },
+      {
+        "src": "/api/students/(.+)",
+        "dest": "/api/students.js"
+      },
+      {
+        "src": "/api/items/(.+)",
+        "dest": "/api/items.js"
+      }
+    ]
   }
 }
