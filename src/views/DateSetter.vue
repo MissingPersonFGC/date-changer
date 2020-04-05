@@ -156,66 +156,6 @@
         Submit Dates
       </button>
     </div>
-    <div
-      class="assignments"
-      v-if="assignments.length > 0 && !setExtension"
-    >
-      <input
-        type="checkbox"
-        v-model="showTests"
-        v-if="assignments.length > 0 && !setExtension"
-      />
-      <label>Show tests & quizzes</label>
-    </div>
-    <div
-      class="assignments"
-      v-if="tests.length > 0 && !setExtension && showTests"
-    >
-      <h2>Tests & Quizzes</h2>
-      <div class="grid-container">
-        <div class="grid grid-header">
-          <div class="name">Test/Quiz Name:</div>
-          <div class="unlock">Start Date:</div>
-          <div class="due">Due Date:</div>
-          <div class="permanent-zero">End Date:</div>
-        </div>
-        <div
-          class="grid"
-          v-for="test in tests"
-          :key="test.id"
-        >
-          <div class="name">{{ test.name }}</div>
-          <div class="unlock">
-            <datetime
-              type="date"
-              v-model="test.unlock_at"
-              zone="Asia/Dubai"
-              value-zone="Asia/Dubai"
-              :input-id="test.id + '-unlock-date'"
-            />
-          </div>
-          <div class="due">
-            <datetime
-              type="date"
-              v-model="test.due_at"
-              zone="Asia/Dubai"
-              value-zone="Asia/Dubai"
-              :input-id="test.id + '-due-date'"
-            />
-          </div>
-          <div class="permanent-zero">
-            <datetime
-              type="date"
-              v-model="test.lock_at"
-              zone="Asia/Dubai"
-              value-zone="Asia/Dubai"
-              :input-id="test.id + '-lock-date'"
-            />
-          </div>
-        </div>
-        <button @click.prevent="submitTests">Submit Tests</button>
-      </div>
-    </div>
   </div>
 </template>
 
@@ -233,7 +173,6 @@ export default {
       courses: [],
       course: "",
       assignments: [],
-      tests: [],
       setExtension: false,
       students: [],
       loading: false,
@@ -384,15 +323,11 @@ export default {
         const tests = [];
         const assignments = [];
         res.data.assignments.forEach(assignment => {
-          if (assignment.is_quiz_assignment) {
-            tests.push(assignment);
-          } else {
-            assignment.old_unlock_at = assignment.unlock_at;
-            assignment.unlock_at = startDate;
-            assignment.old_due_at = assignment.due_at;
-            assignment.old_lock_at = assignment.lock_at;
-            assignments.push(assignment);
-          }
+          assignment.old_unlock_at = assignment.unlock_at;
+          assignment.unlock_at = startDate;
+          assignment.old_due_at = assignment.due_at;
+          assignment.old_lock_at = assignment.lock_at;
+          assignments.push(assignment);
         });
         const { students } = studentRes.data;
         const totalAssignments = assignments.length;
@@ -543,26 +478,6 @@ export default {
                 });
             }
           });
-          await tests.forEach(async assignment => {
-            if (!putError) {
-              await axios
-                .put("/api/assignments", {
-                  data: {
-                    apiKey,
-                    course,
-                    override: setExtension,
-                    assignment,
-                    students: selectedStudents,
-                    extension,
-                    user,
-                    teacher: this.$data.teachers[teacherIndex]._id
-                  }
-                })
-                .then(res => {
-                  console.log(res.data.data);
-                });
-            }
-          });
           if (!putError) {
             this.loading = false;
             this.success = true;
@@ -613,44 +528,6 @@ export default {
         .catch(err => {
           console.error(err);
         });
-    },
-    submitTests: async function() {
-      this.loading = true;
-      this.error = null;
-      this.success = false;
-      let putError = false;
-      const { teacher, course, setExtension, tests } = this.$data;
-      const user = localStorage.getItem("icadDateId");
-      const teacherIndex = this.$data.teachers.findIndex(
-        x => x.apiKey === teacher
-      );
-      try {
-        await tests.forEach(async test => {
-          if (!putError) {
-            await axios
-              .put("/api/assignments", {
-                data: {
-                  apiKey,
-                  course,
-                  override: false,
-                  assignment: test,
-                  user,
-                  teacher: this.$data.teachers[teacherIndex]._id
-                }
-              })
-              .then(res => {
-                console.log(res.data.data);
-              });
-          }
-        });
-        if (!putError) {
-          this.loading = false;
-          this.success = true;
-        }
-      } catch (e) {
-        this.loading = false;
-        this.error = e.message;
-      }
     }
   }
 };
