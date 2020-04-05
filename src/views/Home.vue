@@ -1,9 +1,6 @@
 <template>
   <div class="home">
-    <Auth
-      v-if="!user"
-      :setUser="setUser"
-    />
+    <Auth v-if="!user" :setUser="setUser" />
     <DateSetter v-if="user" />
   </div>
 </template>
@@ -141,6 +138,7 @@ button.submit:hover {
   border-bottom: 3px solid darkgray;
   border-left: 3px solid darkblue;
   background: white;
+  z-index: 5;
 }
 .loading[aria-busy="true"] {
   animation: rotation 0.5s linear infinite;

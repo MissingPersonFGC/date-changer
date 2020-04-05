@@ -17,9 +17,7 @@
       <p
         v-if="error"
         class="error"
-      >
-        <span>Error:</span> {{error}}
-      </p>
+      ><span>Error:</span> {{ error }}</p>
       <div class="date-grid">
         <div>
           <p>Access date:</p>
@@ -29,16 +27,6 @@
             zone="Asia/Dubai"
             value-zone="Asia/Dubai"
             input-id="course-start-date"
-          />
-        </div>
-        <div>
-          <p>Last date to assign due dates:</p>
-          <datetime
-            type="date"
-            v-model="dueDateLimit"
-            zone="Asia/Dubai"
-            value-zone="Asia/Dubai"
-            input-id="course-due-date-limit"
           />
         </div>
         <div>
@@ -77,7 +65,7 @@
           type="checkbox"
           v-model="setExtension"
           name="setExtension"
-        >
+        />
         <label for="setExtension">Set new end dates for students with an extension</label>
         <div
           v-if="setExtension"
@@ -103,8 +91,8 @@
                 type="checkbox"
                 :value="student.id"
                 v-model="selectedStudents"
-              >
-              {{student.sortable_name}}
+              />
+              {{ student.sortable_name }}
             </div>
           </div>
           <button
@@ -130,7 +118,7 @@
           v-for="assignment in assignments"
           :key="assignment.id"
         >
-          <div class="name">{{assignment.name}}</div>
+          <div class="name">{{ assignment.name }}</div>
           <div class="unlock">
             <datetime
               type="date"
@@ -168,15 +156,15 @@
         Submit Dates
       </button>
     </div>
-    <input
-      type="checkbox"
-      v-model="showTests"
-      v-if="assignments.length > 0 && !setExtension"
-    >
     <div
       class="assignments"
       v-if="assignments.length > 0 && !setExtension"
     >
+      <input
+        type="checkbox"
+        v-model="showTests"
+        v-if="assignments.length > 0 && !setExtension"
+      />
       <label>Show tests & quizzes</label>
     </div>
     <div
@@ -196,7 +184,7 @@
           v-for="test in tests"
           :key="test.id"
         >
-          <div class="name">{{test.name}}</div>
+          <div class="name">{{ test.name }}</div>
           <div class="unlock">
             <datetime
               type="date"
@@ -256,8 +244,7 @@ export default {
       endDate: "",
       extension: "",
       holidays: [],
-      showTests: false,
-      dueDateLimit: ""
+      showTests: false
     };
   },
   mounted: async function() {
@@ -311,7 +298,8 @@ export default {
             (1000 * 60 * 60 * 24)
         );
       };
-      const initialDateRange = calculateDateSpan(startDate, dueDateLimit);
+      const initialDateRange = calculateDateSpan(startDate, endDate);
+      const availableDates = [];
       for (
         let i = new Date(startDate);
         i <= new Date(endDate);
@@ -337,7 +325,24 @@ export default {
             dateArr[1] = `0${dateArr[1]}`;
           }
           const formattedDate = `${dateArr[2]}-${dateArr[0]}-${dateArr[1]}T00:00:00.000+04:00`;
-          holidays.push(formattedDate);
+          const index = holidays.findIndex(x => x === formattedDate);
+          if (index === -1) {
+            holidays.push(formattedDate);
+          }
+        } else {
+          const arr = thisDate.split(" ");
+          const dateArr = arr[1].split("/");
+          if (dateArr[0].length === 1) {
+            dateArr[0] = `0${dateArr[0]}`;
+          }
+          if (dateArr[1].length === 1) {
+            dateArr[1] = `0${dateArr[1]}`;
+          }
+          const formattedDate = `${dateArr[2]}-${dateArr[0]}-${dateArr[1]}T00:00:00.000+04:00`;
+          const index = holidays.findIndex(x => x === formattedDate);
+          if (index === -1) {
+            availableDates.push(formattedDate);
+          }
         }
       }
       holidays.sort((x, y) => {
@@ -348,7 +353,7 @@ export default {
       holidays.forEach(holiday => {
         const dt1 = new Date(startDate);
         const dt2 = new Date(holiday);
-        const dt3 = new Date(dueDateLimit);
+        const dt3 = new Date(endDate);
         if (
           Date.UTC(dt2.getFullYear(), dt2.getMonth(), dt2.getDate()) >=
             Date.UTC(dt1.getFullYear(), dt1.getMonth(), dt1.getDate()) &&
@@ -359,6 +364,7 @@ export default {
         }
       });
       const finalDateRange = initialDateRange - holidaysMidPoint.length;
+      console.log(availableDates.length, finalDateRange);
       const { id } = e;
       try {
         const res = await axios({
@@ -402,14 +408,14 @@ export default {
             permZeroDate.setDate(permZeroDate.getDate() + int);
             const difference = calculateDateSpan(permZeroDate, endDate);
             if (difference <= 0) {
-              let dt = new Date(endDate);
-              dt.toLocaleString("en-US", {
+              const dt = new Date(endDate);
+              const formatted = dt.toLocaleString("en-US", {
                 timeZone: "Asia/Dubai",
                 year: "numeric",
                 day: "numeric",
                 month: "numeric"
               });
-              const dtArr = dt.split("/");
+              const dtArr = formatted.split("/");
               if (dtArr[0].length === 1) {
                 dtArr[0] = `0${dtArr[0]}`;
               }
@@ -508,7 +514,6 @@ export default {
         extension: extensionDate
       } = this.$data;
       const user = localStorage.getItem("icadDateId");
-      const arr = extensionDate.split("T");
       const teacherIndex = this.$data.teachers.findIndex(
         x => x.apiKey === teacher
       );
@@ -537,6 +542,7 @@ export default {
             this.success = true;
           }
         } else {
+          const arr = extensionDate.split("T");
           extension = `${arr[0]}T11:59:00+04:00`;
           await assignments.forEach(async assignment => {
             if (!putError) {
