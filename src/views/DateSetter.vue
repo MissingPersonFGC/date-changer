@@ -363,8 +363,6 @@ export default {
           holidaysMidPoint.push(holiday);
         }
       });
-      const finalDateRange = initialDateRange - holidaysMidPoint.length;
-      console.log(availableDates.length, finalDateRange);
       const { id } = e;
       try {
         const res = await axios({
@@ -399,9 +397,15 @@ export default {
         const { students } = studentRes.data;
         const totalAssignments = assignments.length;
         const assignmentInterval = Math.floor(
-          finalDateRange / totalAssignments
+          availableDates.length - 1 / totalAssignments
         );
+        let assignmentOverlap = null;
+        if (totalAssignments - (availableDates.length - 1) >= 1) {
+          assignmentOverlap = totalAssignments - (availableDates.length - 1);
+        }
         let currentDate = new Date(startDate);
+        let dateIndex = 0;
+        let repeatDate = false;
         for (let i = 0; i < totalAssignments; i++) {
           const assignPermanentZero = (int, date) => {
             let permZeroDate = new Date(date);
@@ -456,36 +460,11 @@ export default {
             }
           };
           const assignDates = int => {
-            currentDate.setDate(currentDate.getDate() + int);
-            const currentFormattedDate = currentDate.toLocaleString("en-US", {
-              timeZone: "Asia/Dubai",
-              year: "numeric",
-              day: "numeric",
-              month: "numeric"
-            });
-            const arr1 = currentFormattedDate.split("/");
-            if (arr1[0].length === 1) {
-              arr1[0] = `0${arr1[0]}`;
-            }
-            if (arr1[1].length === 1) {
-              arr1[1] = `0${arr1[1]}`;
-            }
-            const earlyFormat = `${arr1[2]}-${arr1[0]}-${arr1[1]}T00:00:00.000+04:00`;
-            const index = holidays.findIndex(x => x === earlyFormat);
-            if (index !== -1) {
-              assignDates(1);
-            } else {
-              const arr = currentFormattedDate.split("/");
-              if (arr[0].length === 1) {
-                arr[0] = `0${arr[0]}`;
-              }
-              if (arr[1].length === 1) {
-                arr[1] = `0${arr[1]}`;
-              }
-              const formattedDate = `${arr[2]}-${arr[0]}-${arr[1]}T23:59:00.000+04:00`;
-              assignments[i].due_at = formattedDate;
-              assignPermanentZero(30, formattedDate);
-            }
+            dateIndex = dateIndex + int;
+            const arr = availableDates[int].split("T");
+            const formattedDate = `${arr[0]}-23:59:00.000+04:00`;
+            assignments[i].due_at = formattedDate;
+            assignPermanentZero(30, formattedDate);
           };
           assignDates(assignmentInterval);
         }
