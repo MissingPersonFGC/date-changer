@@ -408,7 +408,6 @@ export default {
           if (numCeiledAss > 0) {
             assignDates(ceiledInterval);
             numCeiledAss -= 1;
-            console.log(numCeiledAss);
           } else {
             assignDates(flooredInterval);
             numFlooredAss -= 1;
