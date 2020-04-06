@@ -163,6 +163,7 @@
 import "vue-datetime/dist/vue-datetime.css";
 import "vue-select/dist/vue-select.css";
 import axios from "axios";
+import { Settings } from "luxon";
 
 export default {
   name: "date-setter",
@@ -237,7 +238,6 @@ export default {
             (1000 * 60 * 60 * 24)
         );
       };
-      const initialDateRange = calculateDateSpan(startDate, endDate);
       const availableDates = [];
       for (
         let i = new Date(startDate);
@@ -331,13 +331,17 @@ export default {
         });
         const { students } = studentRes.data;
         const totalAssignments = assignments.length;
-        const assignmentInterval = Math.floor(
-          availableDates.length - 1 / totalAssignments
+        const flooredInterval = Math.floor(
+          (availableDates.length - 1) / totalAssignments
         );
-        let assignmentOverlap = null;
-        if (totalAssignments - (availableDates.length - 1) >= 1) {
-          assignmentOverlap = totalAssignments - (availableDates.length - 1);
-        }
+        const ceiledInterval = Math.ceil(
+          (availableDates.length - 1) / totalAssignments
+        );
+        const rawInterval = (availableDates.length - 1) / totalAssignments;
+        const flooredDeviation = ceiledInterval - rawInterval;
+        const ceiledDeviation = rawInterval - flooredInterval;
+        let numFlooredAss = Math.floor(totalAssignments * flooredDeviation);
+        let numCeiledAss = Math.ceil(totalAssignments * ceiledDeviation);
         let currentDate = new Date(startDate);
         let dateIndex = 0;
         let repeatDate = false;
@@ -396,12 +400,19 @@ export default {
           };
           const assignDates = int => {
             dateIndex = dateIndex + int;
-            const arr = availableDates[int].split("T");
-            const formattedDate = `${arr[0]}-23:59:00.000+04:00`;
+            const arr = availableDates[dateIndex].split("T");
+            const formattedDate = `${arr[0]}T23:59:00.000+04:00`;
             assignments[i].due_at = formattedDate;
             assignPermanentZero(30, formattedDate);
           };
-          assignDates(assignmentInterval);
+          if (numCeiledAss > 0) {
+            assignDates(ceiledInterval);
+            numCeiledAss -= 1;
+            console.log(numCeiledAss);
+          } else {
+            assignDates(flooredInterval);
+            numFlooredAss -= 1;
+          }
         }
         this.assignments = assignments;
         this.tests = tests;
