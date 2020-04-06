@@ -350,7 +350,7 @@ export default {
             let permZeroDate = new Date(date);
             permZeroDate.setDate(permZeroDate.getDate() + int);
             const difference = calculateDateSpan(permZeroDate, endDate);
-            if (difference <= 0) {
+            if (difference <= 0 || assignments[i].is_quiz_assignment) {
               const dt = new Date(endDate);
               const formatted = dt.toLocaleString("en-US", {
                 timeZone: "Asia/Dubai",
