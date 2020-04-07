@@ -463,6 +463,16 @@ export default {
         if (!setExtension) {
           await assignments.forEach(async assignment => {
             if (!putError) {
+              const index = assignment.due_at.indexOf("T00:00");
+              const index2 = assignment.lock_at.indexOf("T00:00");
+              if (index !== -1) {
+                const arr = assignment.due_at.split("T");
+                assignment.due_at = `${arr[0]}T23:59:00.000+04:00`;
+              }
+              if (index2 !== -1) {
+                const arr = assignment.lock_at.split("T");
+                assignment.lock_at = `${arr[0]}T23:59:00.000+04:00`;
+              }
               await axios
                 .put("/api/assignments", {
                   data: {
