@@ -60,9 +60,9 @@
       v-if="course !== ''"
     >
       <h2>Assignments</h2>
-      <h3>Grand Total of Assignments: {{assignments.length}}</h3>
-      <h3>Number of Assignments & Discussions: {{assignmentTotal}}</h3>
-      <h3>Number of Tests & Quizzes: {{quizTotal}}</h3>
+      <h3>Grand Total of Assignments: {{ assignments.length }}</h3>
+      <h3>Number of Assignments & Discussions: {{ assignmentTotal }}</h3>
+      <h3>Number of Tests & Quizzes: {{ quizTotal }}</h3>
       <p v-if="!setExtension">
         Please review the assignments below and make sure that the dates are correct. Also, set the due date and end date for the semester exam before submitting the dates.
       </p>
@@ -166,7 +166,7 @@
           type="checkbox"
           v-model="acknowledgeNotice"
         >
-        I acknowledge that I have checked <span>all</span> start dates, due dates, and lock dates on each assignment. <span class="extraemphasis">I have also manually set the due and lock dates on the semester exam.</span>
+        I acknowledge that I have checked <span>all</span> start dates, due dates, and end dates on each assignment. <span class="extraemphasis">I have also manually set the due and end dates on the semester exam.</span>
       </p>
       <button
         class="submit"
@@ -673,5 +673,26 @@ button.submit:hover {
 .date-grid {
   display: flex;
   justify-content: space-between;
+}
+
+p.notice {
+  font-weight: bold;
+}
+
+p.notice span {
+  color: orangered;
+}
+
+p.agreement {
+  font-weight: bold;
+}
+
+p.agreement span:not(.extraemphasis) {
+  text-transform: uppercase;
+  text-decoration: underline;
+}
+
+p.agreement .extraemphasis {
+  color: orangered;
 }
 </style>
