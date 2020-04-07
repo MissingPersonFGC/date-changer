@@ -368,8 +368,16 @@ export default {
           (availableDates.length - 1) / totalAssignments
         );
         const rawInterval = (availableDates.length - 1) / totalAssignments;
-        const flooredDeviation = ceiledInterval - rawInterval;
-        const ceiledDeviation = rawInterval - flooredInterval;
+        let flooredDeviation;
+        let ceiledDeviation;
+        console.log(rawInterval);
+        if (ceiledInterval - rawInterval < 0.5) {
+          flooredDeviation = ceiledInterval - rawInterval;
+          ceiledDeviation = rawInterval - flooredInterval;
+        } else {
+          flooredDeviation = rawInterval - flooredInterval;
+          ceiledDeviation = ceiledDeviation - rawInterval;
+        }
         let numFlooredAss = Math.floor(totalAssignments * flooredDeviation);
         let numCeiledAss = Math.ceil(totalAssignments * ceiledDeviation);
         let currentDate = new Date(startDate);
