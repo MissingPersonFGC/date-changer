@@ -59,7 +59,14 @@
       class="assignments"
       v-if="course !== ''"
     >
-      <h2>Assignments</h2>
+      <h2>Assignments ({{assignments.length}} total)</h2>
+      <p v-if="!setExtension">
+        Please review the assignments below and make sure that the dates are correct. Also, set the due date and end date for the semester exam before submitting the dates.
+      </p>
+      <p
+        class="notice"
+        v-if="!setExtension"
+      ><span>NOTE:</span> The submit button will NOT enable until you have manually set the due and end date for the semester exam, and checked the box above the submit button.</p>
       <div class="set-extension">
         <input
           type="checkbox"
@@ -149,7 +156,7 @@
         </div>
       </div>
       <p
-        class="notice"
+        class="agreement"
         v-if="!setExtension"
       >
         <input
