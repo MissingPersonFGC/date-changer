@@ -59,7 +59,10 @@
       class="assignments"
       v-if="course !== ''"
     >
-      <h2>Assignments ({{assignments.length}} total)</h2>
+      <h2>Assignments</h2>
+      <h3>Grand Total of Assignments: {{assignments.length}}</h3>
+      <h3>Number of Assignments & Discussions: {{assignmentTotal}}</h3>
+      <h3>Number of Tests & Quizzes: {{quizTotal}}</h3>
       <p v-if="!setExtension">
         Please review the assignments below and make sure that the dates are correct. Also, set the due date and end date for the semester exam before submitting the dates.
       </p>
@@ -202,7 +205,9 @@ export default {
       endDate: "",
       extension: "",
       holidays: [],
-      acknowledgeNotice: false
+      acknowledgeNotice: false,
+      quizTotal: 0,
+      assignmentTotal: 0
     };
   },
   mounted: async function() {
@@ -340,12 +345,19 @@ export default {
         });
         const tests = [];
         const assignments = [];
+        let assignmentTotal = 0;
+        let quizTotal = 0;
         res.data.assignments.forEach(assignment => {
           assignment.old_unlock_at = assignment.unlock_at;
           assignment.unlock_at = startDate;
           assignment.old_due_at = assignment.due_at;
           assignment.old_lock_at = assignment.lock_at;
           assignments.push(assignment);
+          if (assignment.is_quiz_assignment) {
+            quizTotal += 1;
+          } else {
+            assignmentTotal += 1;
+          }
         });
         const { students } = studentRes.data;
         const totalAssignments = assignments.length;
@@ -436,6 +448,8 @@ export default {
         this.students = students;
         this.loading = false;
         this.course = id;
+        this.quizTotal = quizTotal;
+        this.assignmentTotal = assignmentTotal;
       } catch (e) {
         this.loading = false;
         this.error = e.message;
