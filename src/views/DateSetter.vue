@@ -148,10 +148,21 @@
           </div>
         </div>
       </div>
+      <p
+        class="notice"
+        v-if="!setExtension"
+      >
+        <input
+          type="checkbox"
+          v-model="acknowledgeNotice"
+        >
+        I acknowledge that I have checked <span>all</span> start dates, due dates, and lock dates on each assignment. <span class="extraemphasis">I have also manually set the due and lock dates on the semester exam.</span>
+      </p>
       <button
         class="submit"
         @click.prevent="submitDates"
         v-if="!setExtension"
+        :disabled="!acknowledgeNotice"
       >
         Submit Dates
       </button>
@@ -184,7 +195,7 @@ export default {
       endDate: "",
       extension: "",
       holidays: [],
-      showTests: false
+      acknowledgeNotice: false
     };
   },
   mounted: async function() {
