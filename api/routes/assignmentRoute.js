@@ -58,6 +58,8 @@ router.route("/").put(async (req, res) => {
         url: `https://canvas.instructure.com/api/v1/courses/${course}/assignments/${assignment.id}`,
         params: {
           access_token,
+        },
+        data: {
           assignment: {
             due_at: assignment.due_at,
             lock_at: assignment.lock_at,
@@ -122,7 +124,7 @@ router.route("/").put(async (req, res) => {
       });
     }
   } catch (e) {
-    res.status(401).send(e);
+    res.status(e.response.status || 401).send(e);
     console.log(e);
   }
 });
