@@ -483,7 +483,7 @@ export default {
       this.success = false;
       let putError = false;
       const {
-        teacher,
+        teacher: apiKey,
         course,
         setExtension,
         assignments,
@@ -492,8 +492,9 @@ export default {
       } = this.$data;
       const user = localStorage.getItem("icadDateId");
       const teacherIndex = this.$data.teachers.findIndex(
-        x => x.apiKey === teacher
+        x => x.apiKey === apiKey
       );
+      const courseIndex = this.$data.courses.findIndex(x => x.id === course);
       try {
         if (!setExtension) {
           await assignments.forEach(async assignment => {
@@ -516,7 +517,8 @@ export default {
                     override: setExtension,
                     assignment,
                     user,
-                    teacher: this.$data.teachers[teacherIndex]._id
+                    teacher: this.$data.teachers[teacherIndex]._id,
+                    courseName: this.$data.courses[courseIndex].name
                   }
                 })
                 .then(res => {
@@ -543,7 +545,8 @@ export default {
                     students: selectedStudents,
                     extension,
                     user,
-                    teacher: this.$data.teachers[teacherIndex]._id
+                    teacher: this.$data.teachers[teacherIndex]._id,
+                    courseName: this.$data.courses[courseIndex].name
                   }
                 })
                 .then(res => {

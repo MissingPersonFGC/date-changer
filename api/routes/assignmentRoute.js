@@ -14,25 +14,25 @@ router.route("/").get(async (req, res) => {
       method: "GET",
       url: `https://canvas.instructure.com/api/v1/courses/${course}/assignments`,
       headers: {
-        Accept: "application/json+canvas-string-ids"
+        Accept: "application/json+canvas-string-ids",
       },
       params: {
         access_token,
         per_page: 100,
         include: ["overrides", "observed_users"],
-        order_by: "position"
-      }
+        order_by: "position",
+      },
     });
     const regex = /([A-Za-z\s])/;
     const assignments = [];
-    results.data.forEach(assignment => {
+    results.data.forEach((assignment) => {
       if (!regex.test(assignment.name.charAt(0))) {
         assignments.push(assignment);
       }
     });
     assignments.sort((x, y) => x.name.localeCompare(y.name));
     res.status(200).json({
-      assignments
+      assignments,
     });
   } catch (e) {
     res.status(400).send(e);
@@ -48,8 +48,9 @@ router.route("/").put(async (req, res) => {
     extension,
     students,
     user,
-    teacher
-  } = req.body;
+    teacher,
+    courseName,
+  } = req.body.data;
   try {
     if (!override) {
       const result = await axios({
@@ -57,34 +58,35 @@ router.route("/").put(async (req, res) => {
         url: `https://canvas.instructure.com/api/v1/courses/${course}/assignments/${assignment.id}`,
         params: {
           access_token,
+        },
+        data: {
           assignment: {
             due_at: assignment.due_at,
             lock_at: assignment.lock_at,
-            unlock_at: assignment.unlock_at
-          }
-        }
+            unlock_at: assignment.unlock_at,
+          },
+        },
       });
       const assignHistory = {
         date: Date.now(),
         user,
         course,
+        courseName,
         teacher,
         assignment: assignment.id,
-        assignmentName: assignment.title,
+        assignmentName: assignment.name,
         editType: "Dates",
         oldUnlock: assignment.old_unlock_at,
         oldDue: assignment.old_due_at,
         oldLock: assignment.old_lock_at,
         newUnlock: assignment.unlock_at,
         newDue: assignment.due_at,
-        newLock: assignment.lock_at
+        newLock: assignment.lock_at,
       };
       const tracker = await historyService.saveHistory(assignHistory);
+      console.log(tracker);
       res.status(201).json({
-        data: {
-          result,
-          tracker
-        }
+        data: tracker,
       });
     } else {
       const title = `Course Extension Date - ${Date.now()}`;
@@ -93,36 +95,37 @@ router.route("/").put(async (req, res) => {
         url: `https://canvas.instructure.com/api/v1/courses/${course}/assignments/${assignment.id}/overrides`,
         params: {
           access_token,
+        },
+        data: {
           assignment_override: {
             student_ids: students,
             title,
             due_at: extension,
-            lock_at: extension
-          }
-        }
+            lock_at: extension,
+          },
+        },
       });
       const overrideHistory = {
         date: Date.now(),
         user,
         course,
+        courseName,
         teacher,
         assignment: assignment.id,
-        assign: assignment.title,
+        assignmentName: assignment.name,
         editType: "Extension",
         overrideNumber: result.id,
         studentIds: students,
-        extensionDate: extension
+        extensionDate: extension,
       };
       const tracker = await historyService.saveHistory(overrideHistory);
       res.status(201).json({
-        data: {
-          result,
-          tracker
-        }
+        data: tracker,
       });
     }
   } catch (e) {
     res.status(401).send(e);
+    console.log(e);
   }
 });
 
