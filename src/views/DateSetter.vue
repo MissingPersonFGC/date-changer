@@ -370,7 +370,6 @@ export default {
         const rawInterval = (availableDates.length - 1) / totalAssignments;
         let flooredDeviation;
         let ceiledDeviation;
-        console.log(rawInterval);
         if (ceiledInterval - rawInterval < 0.5) {
           flooredDeviation = ceiledInterval - rawInterval;
           ceiledDeviation = rawInterval - flooredInterval;
@@ -380,6 +379,11 @@ export default {
         }
         let numFlooredAss = Math.floor(totalAssignments * flooredDeviation);
         let numCeiledAss = Math.ceil(totalAssignments * ceiledDeviation);
+        const intervalArr = [
+          Math.ceil((availableDates.length - 1) / totalAssignments),
+          Math.floor((availableDates.length - 1) / totalAssignments)
+        ];
+        let intervalIndex = 0;
         let currentDate = new Date(startDate);
         let dateIndex = 0;
         let repeatDate = false;
@@ -443,12 +447,21 @@ export default {
             assignments[i].due_at = formattedDate;
             assignPermanentZero(30, formattedDate);
           };
-          if (numCeiledAss > 0) {
+          if (numFlooredAss === 0) {
             assignDates(ceiledInterval);
             numCeiledAss -= 1;
-          } else {
+          } else if (numCeiledAss === 0) {
             assignDates(flooredInterval);
             numFlooredAss -= 1;
+          } else {
+            assignDates(intervalArr[intervalIndex]);
+            if (intervalIndex === 0) {
+              intervalIndex = 1;
+              numCeiledAss -= 1;
+            } else {
+              intervalIndex = 0;
+              numFlooredAss -= 1;
+            }
           }
         }
         this.assignments = assignments;
