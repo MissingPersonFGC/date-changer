@@ -7,6 +7,13 @@
     ></div>
     <h1>Assignment Date Editor</h1>
     <div class="selection">
+      <p>
+        <input
+          type="checkbox"
+          v-model="bypassPermZero"
+        />
+        Bypass assigning permanent zero dates (Do so on Middle and Lower school courses)
+      </p>
       <label>Upload holiday calendar:</label>
       <input
         type="file"
@@ -207,7 +214,8 @@ export default {
       holidays: [],
       acknowledgeNotice: false,
       quizTotal: 0,
-      assignmentTotal: 0
+      assignmentTotal: 0,
+      bypassPermZero: false
     };
   },
   mounted: async function() {
@@ -250,7 +258,8 @@ export default {
         startDate,
         endDate,
         dueDateLimit,
-        holidays
+        holidays,
+        bypassPermZero
       } = this.$data;
       const calculateDateSpan = (start, end) => {
         const dt1 = new Date(start);
@@ -389,54 +398,58 @@ export default {
         let repeatDate = false;
         for (let i = 0; i < totalAssignments; i++) {
           const assignPermanentZero = (int, date) => {
-            let permZeroDate = new Date(date);
-            permZeroDate.setDate(permZeroDate.getDate() + int);
-            const difference = calculateDateSpan(permZeroDate, endDate);
-            if (difference <= 0 || assignments[i].is_quiz_assignment) {
-              const dt = new Date(endDate);
-              const formatted = dt.toLocaleString("en-US", {
-                timeZone: "Asia/Dubai",
-                year: "numeric",
-                day: "numeric",
-                month: "numeric"
-              });
-              const dtArr = formatted.split("/");
-              if (dtArr[0].length === 1) {
-                dtArr[0] = `0${dtArr[0]}`;
-              }
-              if (dtArr[1].length === 1) {
-                dtArr[1] = `0${dtArr[1]}`;
-              }
-              const formattedPermZero = `${dtArr[2]}-${dtArr[0]}-${dtArr[1]}T23:59:00.000+04:00`;
-              assignments[i].lock_at = formattedPermZero;
-            } else {
-              const formZeroDate = permZeroDate.toLocaleString("en-US", {
-                timeZone: "Asia/Dubai",
-                year: "numeric",
-                day: "numeric",
-                month: "numeric"
-              });
-              const arr1 = formZeroDate.split("/");
-              if (arr1[0].length === 1) {
-                arr1[0] = `0${arr1[0]}`;
-              }
-              if (arr1[1].length === 1) {
-                arr1[1] = `0${arr1[1]}`;
-              }
-              const earlyFormat = `${arr1[2]}-${arr1[0]}-${arr1[1]}T00:00:00.000+04:00`;
-              const permZeroIndex = holidays.findIndex(x => x === earlyFormat);
-              if (permZeroIndex !== -1) {
-                assignPermanentZero(int + 1, date);
-              } else {
-                const arr = formZeroDate.split("/");
-                if (arr[0].length === 1) {
-                  arr[0] = `0${arr[0]}`;
+            if (!bypassPermZero) {
+              let permZeroDate = new Date(date);
+              permZeroDate.setDate(permZeroDate.getDate() + int);
+              const difference = calculateDateSpan(permZeroDate, endDate);
+              if (difference <= 0 || assignments[i].is_quiz_assignment) {
+                const dt = new Date(endDate);
+                const formatted = dt.toLocaleString("en-US", {
+                  timeZone: "Asia/Dubai",
+                  year: "numeric",
+                  day: "numeric",
+                  month: "numeric"
+                });
+                const dtArr = formatted.split("/");
+                if (dtArr[0].length === 1) {
+                  dtArr[0] = `0${dtArr[0]}`;
                 }
-                if (arr[1].length === 1) {
-                  arr[1] = `0${arr[1]}`;
+                if (dtArr[1].length === 1) {
+                  dtArr[1] = `0${dtArr[1]}`;
                 }
-                const formattedPermZero = `${arr[2]}-${arr[0]}-${arr[1]}T23:59:00.000+04:00`;
+                const formattedPermZero = `${dtArr[2]}-${dtArr[0]}-${dtArr[1]}T23:59:00.000+04:00`;
                 assignments[i].lock_at = formattedPermZero;
+              } else {
+                const formZeroDate = permZeroDate.toLocaleString("en-US", {
+                  timeZone: "Asia/Dubai",
+                  year: "numeric",
+                  day: "numeric",
+                  month: "numeric"
+                });
+                const arr1 = formZeroDate.split("/");
+                if (arr1[0].length === 1) {
+                  arr1[0] = `0${arr1[0]}`;
+                }
+                if (arr1[1].length === 1) {
+                  arr1[1] = `0${arr1[1]}`;
+                }
+                const earlyFormat = `${arr1[2]}-${arr1[0]}-${arr1[1]}T00:00:00.000+04:00`;
+                const permZeroIndex = holidays.findIndex(
+                  x => x === earlyFormat
+                );
+                if (permZeroIndex !== -1) {
+                  assignPermanentZero(int + 1, date);
+                } else {
+                  const arr = formZeroDate.split("/");
+                  if (arr[0].length === 1) {
+                    arr[0] = `0${arr[0]}`;
+                  }
+                  if (arr[1].length === 1) {
+                    arr[1] = `0${arr[1]}`;
+                  }
+                  const formattedPermZero = `${arr[2]}-${arr[0]}-${arr[1]}T23:59:00.000+04:00`;
+                  assignments[i].lock_at = formattedPermZero;
+                }
               }
             }
           };
