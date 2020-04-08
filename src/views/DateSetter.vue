@@ -12,7 +12,7 @@
           type="checkbox"
           v-model="bypassPermZero"
         />
-        Bypass assigning permanent zero dates (Do so on Middle and Lower school courses)
+        Bypass assigning permanent zero dates
       </p>
       <label>Upload holiday calendar:</label>
       <input
