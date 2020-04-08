@@ -130,9 +130,9 @@ button.submit:hover {
 }
 
 .loading {
-  position: static;
+  position: fixed;
   top: 10px;
-  right: 0px;
+  right: 15px;
   width: 20px;
   height: 20px;
   border-radius: 20px;
