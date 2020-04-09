@@ -510,50 +510,76 @@ export default {
       const courseIndex = this.$data.courses.findIndex(x => x.id === course);
       try {
         if (!setExtension) {
-          await assignments.forEach(async assignment => {
-            if (!putError) {
-              const index = assignment.due_at.indexOf("T23:59:00.000+04:00");
-              const index2 = assignment.lock_at.indexOf("T23:59:00.000+04:00");
-              if (index === -1) {
-                const arr = assignment.due_at.split("T");
-                assignment.due_at = `${arr[0]}T23:59:00.000+04:00`;
-              }
-              if (index2 === -1) {
-                const arr = assignment.lock_at.split("T");
-                assignment.lock_at = `${arr[0]}T23:59:00.000+04:00`;
-              }
-              await axios
-                .put("/api/assignments", {
-                  data: {
-                    apiKey,
-                    course,
-                    override: setExtension,
-                    assignment,
-                    user,
-                    teacher: this.$data.teachers[teacherIndex]._id,
-                    courseName: this.$data.courses[courseIndex].name
-                  }
-                })
-                .then(res => {
-                  console.log(res.data.data);
-                });
+          await assingmnets.forEach(assignment => {
+            const index = assignment.due_at.indexOf("T23:59:00.000+04:00");
+            const index2 = assignment.lock_at.indexOf("T23:59:00.000+04:00");
+            if (index === -1) {
+              const arr = assignment.due_at.split("T");
+              assignment.due_at = `${arr[0]}T23:59:00.000+04:00`;
+            }
+            if (index2 === -1) {
+              const arr = assignment.lock_at.split("T");
+              assignment.lock_at = `${arr[0]}T23:59:00.000+04:00`;
             }
           });
-          if (!putError) {
-            this.loading = false;
-            this.success = true;
-          }
+          await axios
+            .put("/api/assignments", {
+              data: {
+                apiKey,
+                course,
+                assignments,
+                user,
+                teacher: this$data.teachers[teacherIndex]._id,
+                courseName: this.$data.courses[courseIndex].name
+              }
+            })
+            .then(() => {
+              this.loading = false;
+              this.success = true;
+            });
+          // await assignments.forEach(async assignment => {
+          //   if (!putError) {
+          //     const index = assignment.due_at.indexOf("T23:59:00.000+04:00");
+          //     const index2 = assignment.lock_at.indexOf("T23:59:00.000+04:00");
+          //     if (index === -1) {
+          //       const arr = assignment.due_at.split("T");
+          //       assignment.due_at = `${arr[0]}T23:59:00.000+04:00`;
+          //     }
+          //     if (index2 === -1) {
+          //       const arr = assignment.lock_at.split("T");
+          //       assignment.lock_at = `${arr[0]}T23:59:00.000+04:00`;
+          //     }
+          //     await axios
+          //       .put("/api/assignments", {
+          //         data: {
+          //           apiKey,
+          //           course,
+          //           override: setExtension,
+          //           assignment,
+          //           user,
+          //           teacher: this.$data.teachers[teacherIndex]._id,
+          //           courseName: this.$data.courses[courseIndex].name
+          //         }
+          //       })
+          //       .then(res => {
+          //         console.log(res.data.data);
+          //       });
+          //   }
+          // });
+          // if (!putError) {
+          //   this.loading = false;
+          //   this.success = true;
+          // }
         } else {
           const arr = extensionDate.split("T");
           extension = `${arr[0]}T11:59:00+04:00`;
           await assignments.forEach(async assignment => {
             if (!putError) {
               await axios
-                .put("/api/assignments", {
+                .post("/api/assignments", {
                   data: {
                     apiKey,
                     course,
-                    override: setExtension,
                     assignment,
                     students: selectedStudents,
                     extension,

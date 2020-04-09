@@ -39,90 +39,120 @@ router.route("/").get(async (req, res) => {
   }
 });
 
+// Update assignment dates
 router.route("/").put(async (req, res) => {
   const {
     apiKey: access_token,
-    assignment,
-    override,
+    assignments,
     course,
-    extension,
+    teacher,
+    user,
+    courseName,
+  } = req.body.data;
+  const assignmentArr = [];
+  const historyArr = [];
+  await assignments.forEach((assignment) => {
+    const dateAssign = {
+      id: assignment.id,
+      all_dates: [
+        {
+          base: true,
+          due_at: assignment.due_at,
+          lock_at: assignment.lock_at,
+          unlock_at: assignment.unlock_at,
+        },
+      ],
+    };
+    assignmentArr.push(dateAssign);
+    const newHistory = {
+      date: Date.now(),
+      user,
+      course,
+      courseName,
+      teacher,
+      assignment: assignment.id,
+      assignmentName: assignment.name,
+      editType: "Dates",
+      oldUnlock: assignment.old_unlock_at,
+      oldDue: assignment.old_due_at,
+      oldLock: assignment.old_lock_at,
+      newUnlock: assignment.unlock_at,
+      newDue: assignment.due_at,
+      newLock: assignment.lock_at,
+    };
+    historyArr.push(newHistory);
+  });
+  try {
+    const result = await axios({
+      method: "PUT",
+      url: `https://canvas.instructure.com/api/v1/courses/${course}/assignments/bulk_update`,
+      params: {
+        access_token,
+      },
+      data: assignmentArr,
+    });
+    const tracker = await historyService.bulkCreate(historyArr);
+    res.status(201).json({
+      data: {
+        apiResults: result,
+        tracker,
+      },
+    });
+  } catch (e) {
+    res.status(e.response.status || 401).send(e);
+    console.log(e);
+  }
+});
+
+// Add extension for students
+router.route("/").post(async (req, res) => {
+  const {
+    apiKey: access_token,
+    course,
+    assignment,
     students,
+    extension,
     user,
     teacher,
     courseName,
   } = req.body.data;
+  const title = `Course Extension Date - ${Date.now()}`;
+  const overrideHistory = {
+    date: Date.now(),
+    user,
+    course,
+    courseName,
+    teacher,
+    assignment: assignment.id,
+    assignmentName: assignment.name,
+    editType: "Extension",
+    overrideNumber: result.id,
+    studentIds: students,
+    extensionDate: extension,
+  };
   try {
-    if (!override) {
-      const result = await axios({
-        method: "PUT",
-        url: `https://canvas.instructure.com/api/v1/courses/${course}/assignments/${assignment.id}`,
-        params: {
-          access_token,
+    const result = await axios({
+      method: "POST",
+      url: `https://canvas.instructure.com/api/v1/courses/${course}/assignments/${assignment.id}/overrides`,
+      params: {
+        access_token,
+      },
+      data: {
+        assignment_override: {
+          student_ids: students,
+          title,
+          due_at: extension,
+          lock_at: extension,
         },
-        data: {
-          assignment: {
-            due_at: assignment.due_at,
-            lock_at: assignment.lock_at,
-            unlock_at: assignment.unlock_at,
-          },
-        },
-      });
-      const assignHistory = {
-        date: Date.now(),
-        user,
-        course,
-        courseName,
-        teacher,
-        assignment: assignment.id,
-        assignmentName: assignment.name,
-        editType: "Dates",
-        oldUnlock: assignment.old_unlock_at,
-        oldDue: assignment.old_due_at,
-        oldLock: assignment.old_lock_at,
-        newUnlock: assignment.unlock_at,
-        newDue: assignment.due_at,
-        newLock: assignment.lock_at,
-      };
-      const tracker = await historyService.saveHistory(assignHistory);
-      console.log(tracker);
-      res.status(201).json({
-        data: tracker,
-      });
-    } else {
-      const title = `Course Extension Date - ${Date.now()}`;
-      const result = await axios({
-        method: "POST",
-        url: `https://canvas.instructure.com/api/v1/courses/${course}/assignments/${assignment.id}/overrides`,
-        params: {
-          access_token,
-        },
-        data: {
-          assignment_override: {
-            student_ids: students,
-            title,
-            due_at: extension,
-            lock_at: extension,
-          },
-        },
-      });
-      const overrideHistory = {
-        date: Date.now(),
-        user,
-        course,
-        courseName,
-        teacher,
-        assignment: assignment.id,
-        assignmentName: assignment.name,
-        editType: "Extension",
-        overrideNumber: result.id,
-        studentIds: students,
-        extensionDate: extension,
-      };
-      const tracker = await historyService.saveHistory(overrideHistory);
-      res.status(201).json({
-        data: tracker,
-      });
-    }
+      },
+    });
+    const tracker = await historyService.createHistory(overrideHistory);
+    res.status(201).json({
+      data: {
+        apiResults: result,
+        tracker,
+      },
+    });
   } catch (e) {
     res.status(e.response.status || 401).send(e);
     console.log(e);
