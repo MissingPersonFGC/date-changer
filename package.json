@@ -53,8 +53,8 @@
     "name": "icad-dubai-dates",
     "env": {
       "PORT": "4000",
-      "SECRET": "@secret",
-      "MONGODB_URI": "@mongodb_uri"
+      "SECRET": "@secret_icad",
+      "MONGODB_URI": "@mongodb_uri_icad"
     },
     "routes": [
       {
