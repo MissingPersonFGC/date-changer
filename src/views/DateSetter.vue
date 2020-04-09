@@ -6,6 +6,18 @@
       :aria-busy="loading"
     ></div>
     <h1>Assignment Date Editor</h1>
+    <p
+      v-if="success"
+      class="success"
+      id="success"
+    >
+      Assignments successfully updated.
+    </p>
+    <p
+      v-if="error"
+      class="error"
+      id="error"
+    ><span>Error:</span> {{ error }}</p>
     <div class="selection">
       <p>
         <input
@@ -21,10 +33,6 @@
         multiple="false"
         accept=".csv"
       />
-      <p
-        v-if="error"
-        class="error"
-      ><span>Error:</span> {{ error }}</p>
       <div class="date-grid">
         <div>
           <p>Access date:</p>
@@ -533,43 +541,12 @@ export default {
                 courseName: this.$data.courses[courseIndex].name
               }
             })
-            .then(() => {
+            .then(res => {
+              console.log(res.data.data);
               this.loading = false;
               this.success = true;
+              window.location.href = "#success";
             });
-          // await assignments.forEach(async assignment => {
-          //   if (!putError) {
-          //     const index = assignment.due_at.indexOf("T23:59:00.000+04:00");
-          //     const index2 = assignment.lock_at.indexOf("T23:59:00.000+04:00");
-          //     if (index === -1) {
-          //       const arr = assignment.due_at.split("T");
-          //       assignment.due_at = `${arr[0]}T23:59:00.000+04:00`;
-          //     }
-          //     if (index2 === -1) {
-          //       const arr = assignment.lock_at.split("T");
-          //       assignment.lock_at = `${arr[0]}T23:59:00.000+04:00`;
-          //     }
-          //     await axios
-          //       .put("/api/assignments", {
-          //         data: {
-          //           apiKey,
-          //           course,
-          //           override: setExtension,
-          //           assignment,
-          //           user,
-          //           teacher: this.$data.teachers[teacherIndex]._id,
-          //           courseName: this.$data.courses[courseIndex].name
-          //         }
-          //       })
-          //       .then(res => {
-          //         console.log(res.data.data);
-          //       });
-          //   }
-          // });
-          // if (!putError) {
-          //   this.loading = false;
-          //   this.success = true;
-          // }
         } else {
           const arr = extensionDate.split("T");
           extension = `${arr[0]}T11:59:00+04:00`;
@@ -594,6 +571,7 @@ export default {
             }
           });
           if (!putError) {
+            window.location.href = "#success";
             this.loading = false;
             this.success = true;
           }
@@ -601,6 +579,7 @@ export default {
       } catch (e) {
         this.loading = false;
         this.error = e.message;
+        window.location.href = "#error";
       }
     },
     parseCSV: async function(e) {
