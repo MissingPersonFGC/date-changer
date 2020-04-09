@@ -43,28 +43,28 @@ router.route("/").get(async (req, res) => {
 router.route("/").put(async (req, res) => {
   const {
     apiKey: access_token,
-    assignments,
+    assignment,
     course,
     teacher,
     user,
     courseName,
   } = req.body.data;
-  const assignmentArr = [];
-  const historyArr = [];
-  await assignments.forEach((assignment) => {
-    const dateAssign = {
-      id: assignment.id,
-      all_dates: [
-        {
-          base: true,
+  try {
+    const result = await axios({
+      method: "PUT",
+      url: `https://canvas.instructure.com/api/v1/courses/${course}/assignments/${assignment.id}`,
+      params: {
+        access_token,
+      },
+      data: {
+        assignment: {
           due_at: assignment.due_at,
           lock_at: assignment.lock_at,
           unlock_at: assignment.unlock_at,
         },
-      ],
-    };
-    assignmentArr.push(dateAssign);
-    const newHistory = {
+      },
+    });
+    const assignHistory = {
       date: Date.now(),
       user,
       course,
@@ -80,27 +80,16 @@ router.route("/").put(async (req, res) => {
       newDue: assignment.due_at,
       newLock: assignment.lock_at,
     };
-    historyArr.push(newHistory);
-  });
-  try {
-    const result = await axios({
-      method: "PUT",
-      url: `https://canvas.instructure.com/api/v1/courses/${course}/assignments/bulk_update`,
-      params: {
-        access_token,
-      },
-      data: assignmentArr,
-    });
-    const tracker = await historyService.bulkCreate(historyArr);
+    const tracker = await historyService.saveHistory(assignHistory);
+
     res.status(201).json({
       data: {
-        apiResults: result,
         tracker,
+        apiRequest: result,
       },
     });
   } catch (e) {
     res.status(e.response.status || 401).send(e);
-    console.log(e);
   }
 });
 
