@@ -1,8 +1,8 @@
 const express = require("express");
 const router = express.Router();
-const teacherService = require("../services/teacherService");
-const middleWare = require("../middleware");
-const { applyMiddleware } = require("../utils");
+const teacherService = require("../_services/teacherService");
+const middleWare = require("../_middleware");
+const { applyMiddleware } = require("../_utils");
 
 applyMiddleware(middleWare, router);
 
@@ -11,7 +11,7 @@ router.route("/bulk").post(async (req, res) => {
   try {
     const results = await teacherService.bulkAdd(arr);
     res.status(201).json({
-      data: results
+      data: results,
     });
   } catch (e) {
     res.status(401).send(e);
@@ -25,7 +25,7 @@ router.route("/").get(async (_, res) => {
       return a.lastName.localeCompare(b.lastName);
     });
     res.status(200).json({
-      data: teachers
+      data: teachers,
     });
   } catch (e) {
     res.status(400).send(e);

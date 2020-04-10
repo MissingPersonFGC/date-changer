@@ -5,18 +5,18 @@ const mongoose = require("mongoose");
 
 const router = express();
 
-const middleWare = require("./middleware");
+const middleWare = require("./_middleware");
 
-const { applyMiddleware } = require("./utils");
-const { PORT, MONGODB_URI } = require("./utils/constants");
+const { applyMiddleware } = require("./_utils");
+const { PORT, MONGODB_URI } = require("./_utils/constants");
 
-const { router: courseRouter } = require("./routes/courseRoute");
-const { router: moduleRouter } = require("./routes/moduleRoute");
-const { router: itemRouter } = require("./routes/itemRoute");
-const { router: assignmentRouter } = require("./routes/assignmentRoute");
-const { router: studentRouter } = require("./routes/studentRoute");
-const { router: userRouter } = require("./routes/userRoute");
-const { router: teacherRouter } = require("./routes/teacherRoute");
+const { router: courseRouter } = require("./_routes/courseRoute");
+const { router: moduleRouter } = require("./_routes/moduleRoute");
+const { router: itemRouter } = require("./_routes/itemRoute");
+const { router: assignmentRouter } = require("./_routes/assignmentRoute");
+const { router: studentRouter } = require("./_routes/studentRoute");
+const { router: userRouter } = require("./_routes/userRoute");
+const { router: teacherRouter } = require("./_routes/teacherRoute");
 
 // import routers above this line
 applyMiddleware(middleWare, router);
@@ -39,6 +39,6 @@ mongoose
       console.log(`server running on port ${PORT}`);
     });
   })
-  .catch(err => {
+  .catch((err) => {
     console.log(err);
   });

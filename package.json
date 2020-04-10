@@ -6,8 +6,8 @@
   "scripts": {
     "client": "vue-cli-service serve",
     "build": "vue-cli-service build",
-    "server": "nodemon api/server.js",
-    "all": "concurrently --kill-others \"nodemon api/server.js\" \"vue-cli-service serve\""
+    "server": "nodemon api/_server.js",
+    "all": "concurrently --kill-others \"nodemon api/_server.js\" \"vue-cli-service serve\""
   },
   "dependencies": {
     "axios": "^0.19.2",

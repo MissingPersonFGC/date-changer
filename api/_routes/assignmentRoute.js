@@ -1,9 +1,9 @@
 const express = require("express");
 const router = express.Router();
 const axios = require("axios");
-const historyService = require("../services/historyService");
-const middleWare = require("../middleware");
-const { applyMiddleware } = require("../utils");
+const historyService = require("../_services/historyService");
+const middleWare = require("../_middleware");
+const { applyMiddleware } = require("../_utils");
 
 applyMiddleware(middleWare, router);
 

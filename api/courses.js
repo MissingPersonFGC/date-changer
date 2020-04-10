@@ -1,6 +1,6 @@
 const express = require("express");
 const mongoose = require("mongoose");
-const { router: courseRouter } = require("./routes/courseRoute");
+const { router: courseRouter } = require("./_routes/courseRoute");
 const { MONGODB_URI } = process.env;
 
 mongoose.connect(MONGODB_URI);

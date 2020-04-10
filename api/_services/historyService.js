@@ -1,4 +1,4 @@
-const { model: History } = require("../models/historyModel");
+const { model: History } = require("../_models/historyModel");
 
 exports.saveHistory = async (history) => {
   try {

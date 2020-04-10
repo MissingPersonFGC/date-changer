@@ -1,7 +1,7 @@
 const bcrypt = require("bcryptjs");
-const { model: User } = require("../models/userModel");
+const { model: User } = require("../_models/userModel");
 
-exports.createUser = async userData => {
+exports.createUser = async (userData) => {
   try {
     const user = new User(userData);
     return await user.save();

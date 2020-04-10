@@ -1,8 +1,8 @@
 const express = require("express");
 const router = express.Router();
 const axios = require("axios");
-const middleWare = require("../middleware");
-const { applyMiddleware } = require("../utils");
+const middleWare = require("../_middleware");
+const { applyMiddleware } = require("../_utils");
 
 applyMiddleware(middleWare, router);
 
@@ -13,16 +13,16 @@ router.route("/").get(async (req, res) => {
       method: "GET",
       url: `https://canvas.instructure.com/api/v1/courses/${course}/users`,
       headers: {
-        Accept: "application/json+canvas-string-ids"
+        Accept: "application/json+canvas-string-ids",
       },
       params: {
         access_token,
         enrollment_type: ["student"],
-        per_page: 100
-      }
+        per_page: 100,
+      },
     });
     res.status(200).json({
-      students: [...results.data]
+      students: [...results.data],
     });
   } catch (e) {
     res.status(400).send(e);
