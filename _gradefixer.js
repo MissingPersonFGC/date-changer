@@ -12,13 +12,13 @@
     return `A score of zero will become permanent on ${date}. Please submit work before this date.`;
   };
 
-  const courseRegex = new RegExp(
-    "^/courses/(\\d+)/(assignments|quizzes|discussion_topics)(?:/(\\d+))?"
-  );
+  const courseRegex = new RegExp("^/courses/(\\d+)/(gradebook)(?:/(\\d+))?");
   const courseMatch = courseRegex.exec(window.location.pathname);
   if (!courseMatch) {
     return;
   }
+
+  console.log(courseMatch);
 
   const courseId = courseMatch[1];
   const contextType = courseMatch[2];
@@ -31,4 +31,4 @@
       return d[0] === name ? decodeURIComponent(d[1]) : a;
     }, "");
   }
-});
+})();
