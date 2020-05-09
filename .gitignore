@@ -1,7 +1,7 @@
 .DS_Store
 node_modules
 /dist
-/api/utils/constants.js
+/api/_utils/constants.js
 
 # local env files
 .env.local
