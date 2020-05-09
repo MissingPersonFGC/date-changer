@@ -400,15 +400,19 @@ export default {
           const rawInterval = (availableDates.length - 1) / totalAssignments;
           let flooredDeviation;
           let ceiledDeviation;
+          let numFlooredAss;
+          let numCeiledAss;
           if (ceiledInterval - rawInterval < 0.5) {
             flooredDeviation = ceiledInterval - rawInterval;
             ceiledDeviation = rawInterval - flooredInterval;
+            numFlooredAss = Math.floor(totalAssignments * flooredDeviation);
+            numCeiledAss = Math.ceil(totalAssignments * ceiledDeviation);
           } else {
             flooredDeviation = rawInterval - flooredInterval;
-            ceiledDeviation = ceiledDeviation - rawInterval;
+            ceiledDeviation = ceiledInterval - rawInterval;
+            numFlooredAss = Math.ceil(totalAssignments * ceiledDeviation);
+            numCeiledAss = Math.floor(totalAssignments * flooredDeviation);
           }
-          let numFlooredAss = Math.floor(totalAssignments * flooredDeviation);
-          let numCeiledAss = Math.ceil(totalAssignments * ceiledDeviation);
           const intervalArr = [
             Math.ceil((availableDates.length - 1) / totalAssignments),
             Math.floor((availableDates.length - 1) / totalAssignments)
