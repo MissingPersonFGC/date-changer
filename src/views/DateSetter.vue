@@ -369,7 +369,6 @@ export default {
           let ceiledDeviation;
           let numFlooredAss;
           let numCeiledAss;
-          console.log(rawInterval);
           if (
             ceiledInterval - rawInterval < 0.2 &&
             ceiledInterval - rawInterval > 0.1
@@ -389,7 +388,6 @@ export default {
             numFlooredAss = Math.ceil(totalAssignments * flooredDeviation);
             numCeiledAss = Math.floor(totalAssignments * ceiledDeviation);
           }
-          console.log(numFlooredAss, numCeiledAss, totalAssignments);
           const intervalArr = [
             Math.ceil((availableDates.length - 1) / totalAssignments),
             Math.floor((availableDates.length - 1) / totalAssignments),
