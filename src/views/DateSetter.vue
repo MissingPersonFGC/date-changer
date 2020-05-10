@@ -369,17 +369,27 @@ export default {
           let ceiledDeviation;
           let numFlooredAss;
           let numCeiledAss;
-          if (ceiledInterval - rawInterval < 0.4) {
+          console.log(rawInterval);
+          if (
+            ceiledInterval - rawInterval < 0.2 &&
+            ceiledInterval - rawInterval > 0.1
+          ) {
             flooredDeviation = ceiledInterval - rawInterval;
             ceiledDeviation = rawInterval - flooredInterval;
             numFlooredAss = Math.floor(totalAssignments * flooredDeviation);
             numCeiledAss = Math.ceil(totalAssignments * ceiledDeviation);
-          } else {
+          } else if (ceiledInterval - rawInterval > 0.2) {
             flooredDeviation = rawInterval - flooredInterval;
             ceiledDeviation = ceiledInterval - rawInterval;
             numFlooredAss = Math.ceil(totalAssignments * ceiledDeviation);
             numCeiledAss = Math.floor(totalAssignments * flooredDeviation);
+          } else {
+            flooredDeviation = ceiledInterval - rawInterval;
+            ceiledDeviation = rawInterval - flooredInterval;
+            numFlooredAss = Math.ceil(totalAssignments * flooredDeviation);
+            numCeiledAss = Math.floor(totalAssignments * ceiledDeviation);
           }
+          console.log(numFlooredAss, numCeiledAss, totalAssignments);
           const intervalArr = [
             Math.ceil((availableDates.length - 1) / totalAssignments),
             Math.floor((availableDates.length - 1) / totalAssignments),
