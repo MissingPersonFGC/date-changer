@@ -279,7 +279,6 @@ export default {
       this.error = null;
       const { apiKey } = e;
       this.teacher = apiKey;
-      const { setExtension, auditAssNums } = this.$data;
       try {
         const res = await axios({
           method: "GET",
