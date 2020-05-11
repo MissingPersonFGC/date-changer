@@ -1,20 +1,38 @@
 <template>
   <div class="date-setter">
-    <div class="loading" v-if="loading" :aria-busy="loading"></div>
+    <div
+      class="loading"
+      v-if="loading"
+      :aria-busy="loading"
+    ></div>
     <h1>Assignment Date Editor</h1>
     <div class="selection">
-      <p v-if="success" class="success" id="success">
+      <p
+        v-if="success"
+        class="success"
+        id="success"
+      >
         Assignments successfully updated.
       </p>
-      <p v-if="error" class="error" id="error">
+      <p
+        v-if="error"
+        class="error"
+        id="error"
+      >
         <span>Error:</span> {{ error }}
       </p>
       <p>
-        <input type="checkbox" v-model="auditAssNums" /> Run report of total
+        <input
+          type="checkbox"
+          v-model="auditAssNums"
+        /> Run report of total
         number of assignments, tests, and quizzes.
       </p>
       <p v-if="!auditAssNums">
-        <input type="checkbox" v-model="bypassPermZero" />
+        <input
+          type="checkbox"
+          v-model="bypassPermZero"
+        />
         Bypass assigning permanent zero dates
       </p>
       <label v-if="!auditAssNums">Upload holiday calendar:</label>
@@ -25,7 +43,10 @@
         accept=".csv"
         v-if="!auditAssNums"
       />
-      <div class="date-grid" v-if="!auditAssNums">
+      <div
+        class="date-grid"
+        v-if="!auditAssNums"
+      >
         <div>
           <p>Access date:</p>
           <datetime
@@ -47,6 +68,17 @@
           />
         </div>
       </div>
+      <input
+        type="checkbox"
+        v-model="setExtension"
+        name="setExtension"
+        v-if="(startDate !== '' && endDate !== '')"
+        @change="setCourse"
+      />
+      <label
+        for="setExtension"
+        v-if="(startDate !== '' && endDate !== '')"
+      >Set new end dates for students with an extension</label>
       <p v-if="(startDate !== '' && endDate !== '') || auditAssNums">
         Select a teacher:
       </p>
@@ -56,6 +88,7 @@
         @input="setTeacher"
         v-if="(startDate !== '' && endDate !== '') || auditAssNums"
       ></v-select>
+
       <p v-if="teacher !== '' && courses.length > 0">Select a course:</p>
       <v-select
         v-if="teacher !== '' && courses.length > 0"
@@ -64,7 +97,10 @@
         @input="setCourse"
       ></v-select>
     </div>
-    <div class="assignments" v-if="course !== ''">
+    <div
+      class="assignments"
+      v-if="course !== ''"
+    >
       <h2>Assignments</h2>
       <h3>Grand Total of Assignments: {{ assignments.length }}</h3>
       <h3>Number of Assignments & Discussions: {{ assignmentTotal }}</h3>
@@ -74,17 +110,22 @@
         correct. Also, set the due date and end date for the semester exam
         before submitting the dates.
       </p>
-      <p class="notice" v-if="!setExtension && !auditAssNums">
+      <p
+        class="notice"
+        v-if="!setExtension && !auditAssNums"
+      >
         <span>NOTE:</span> The submit button will NOT enable until you have
         manually set the due and end date for the semester exam, and checked the
         box above the submit button.
       </p>
-      <div class="set-extension" v-if="!auditAssNums">
-        <input type="checkbox" v-model="setExtension" name="setExtension" />
-        <label for="setExtension"
-          >Set new end dates for students with an extension</label
+      <div
+        class="set-extension"
+        v-if="!auditAssNums"
+      >
+        <div
+          v-if="setExtension"
+          class="select-student"
         >
-        <div v-if="setExtension" class="select-student">
           <div class="set-extension">
             <p>Extension end date:</p>
             <datetime
@@ -96,7 +137,11 @@
           </div>
           <p>Select student(s):</p>
           <div class="student-grid">
-            <div class="student" v-for="student in students" :key="student.id">
+            <div
+              class="student"
+              v-for="student in students"
+              :key="student.id"
+            >
               <input
                 type="checkbox"
                 :value="student.id"
@@ -105,12 +150,18 @@
               {{ student.sortable_name }}
             </div>
           </div>
-          <button class="submit" @click.prevent="submitDates">
+          <button
+            class="submit"
+            @click.prevent="submitDates"
+          >
             Submit Extension
           </button>
         </div>
       </div>
-      <div class="grid-container" v-if="!setExtension && !auditAssNums">
+      <div
+        class="grid-container"
+        v-if="!setExtension && !auditAssNums"
+      >
         <div class="grid grid-header">
           <div class="name">Assignment Name:</div>
           <div class="unlock">Start Date:</div>
@@ -152,14 +203,18 @@
           </div>
         </div>
       </div>
-      <p class="agreement" v-if="!setExtension && !auditAssNums">
-        <input type="checkbox" v-model="acknowledgeNotice" />
+      <p
+        class="agreement"
+        v-if="!setExtension && !auditAssNums"
+      >
+        <input
+          type="checkbox"
+          v-model="acknowledgeNotice"
+        />
         I acknowledge that I have checked <span>all</span> start dates, due
         dates, and end dates on each assignment.
-        <span class="extraemphasis"
-          >I have also manually set the due and end dates on the semester
-          exam.</span
-        >
+        <span class="extraemphasis">I have also manually set the due and end dates on the semester
+          exam.</span>
       </p>
       <button
         class="submit"
@@ -202,15 +257,15 @@ export default {
       quizTotal: 0,
       assignmentTotal: 0,
       bypassPermZero: false,
-      auditAssNums: false,
+      auditAssNums: false
     };
   },
   mounted: async function() {
     const teachers = await axios({
       method: "GET",
-      url: "/api/teachers/",
+      url: "/api/teachers/"
     });
-    teachers.data.data.forEach((teacher) => {
+    teachers.data.data.forEach(teacher => {
       teacher.fullName = `${teacher.lastName}, ${teacher.firstName} (${teacher.designation})`;
     });
     this.teachers = teachers.data.data;
@@ -227,8 +282,8 @@ export default {
           method: "GET",
           url: "/api/courses",
           params: {
-            apiKey,
-          },
+            apiKey
+          }
         });
         this.loading = false;
         this.courses = res.data.data;
@@ -238,7 +293,6 @@ export default {
       }
     },
     setCourse: async function(e) {
-      this.loading = true;
       this.error = null;
       const {
         teacher,
@@ -247,247 +301,251 @@ export default {
         dueDateLimit,
         holidays,
         bypassPermZero,
-        auditAssNums,
+        auditAssNums
       } = this.$data;
-      const calculateDateSpan = (start, end) => {
-        const dt1 = new Date(start);
-        const dt2 = new Date(end);
-        return Math.floor(
-          (Date.UTC(dt2.getFullYear(), dt2.getMonth(), dt2.getDate()) -
-            Date.UTC(dt1.getFullYear(), dt1.getMonth(), dt1.getDate())) /
-            (1000 * 60 * 60 * 24)
-        );
-      };
-      const availableDates = [];
-      for (
-        let i = new Date(startDate);
-        i <= new Date(endDate);
-        i.setDate(i.getDate() + 1)
-      ) {
-        const thisDate = i.toLocaleString("en-US", {
-          timeZone: "Asia/Dubai",
-          weekday: "long",
-          year: "numeric",
-          day: "numeric",
-          month: "numeric",
-        });
-        if (
-          thisDate.indexOf("Friday") !== -1 ||
-          thisDate.indexOf("Saturday") !== -1
-        ) {
-          const arr = thisDate.split(" ");
-          const dateArr = arr[1].split("/");
-          if (dateArr[0].length === 1) {
-            dateArr[0] = `0${dateArr[0]}`;
-          }
-          if (dateArr[1].length === 1) {
-            dateArr[1] = `0${dateArr[1]}`;
-          }
-          const formattedDate = `${dateArr[2]}-${dateArr[0]}-${dateArr[1]}T00:00:00.000+04:00`;
-          const index = holidays.findIndex((x) => x === formattedDate);
-          if (index === -1) {
-            holidays.push(formattedDate);
-          }
-        } else {
-          const arr = thisDate.split(" ");
-          const dateArr = arr[1].split("/");
-          if (dateArr[0].length === 1) {
-            dateArr[0] = `0${dateArr[0]}`;
-          }
-          if (dateArr[1].length === 1) {
-            dateArr[1] = `0${dateArr[1]}`;
-          }
-          const formattedDate = `${dateArr[2]}-${dateArr[0]}-${dateArr[1]}T00:00:00.000+04:00`;
-          const index = holidays.findIndex((x) => x === formattedDate);
-          if (index === -1) {
-            availableDates.push(formattedDate);
-          }
-        }
-      }
-      holidays.sort((x, y) => {
-        return x < y;
-      });
-      this.holidays = holidays;
-      const holidaysMidPoint = [];
-      holidays.forEach((holiday) => {
-        const dt1 = new Date(startDate);
-        const dt2 = new Date(holiday);
-        const dt3 = new Date(endDate);
-        if (
-          Date.UTC(dt2.getFullYear(), dt2.getMonth(), dt2.getDate()) >=
-            Date.UTC(dt1.getFullYear(), dt1.getMonth(), dt1.getDate()) &&
-          Date.UTC(dt2.getFullYear(), dt2.getMonth(), dt2.getDate()) <=
-            Date.UTC(dt3.getFullYear(), dt3.getMonth(), dt3.getDate())
-        ) {
-          holidaysMidPoint.push(holiday);
-        }
-      });
-      const { id } = e;
-      try {
-        const res = await axios({
-          method: "GET",
-          url: "/api/assignments",
-          params: {
-            apiKey: teacher,
-            course: id,
-          },
-        });
-        const studentRes = await axios({
-          method: "Get",
-          url: "/api/students",
-          params: {
-            apiKey: teacher,
-            course: id,
-          },
-        });
-        const assignments = [];
-        let assignmentTotal = 0;
-        let quizTotal = 0;
-        res.data.assignments.forEach((assignment) => {
-          assignment.old_unlock_at = assignment.unlock_at;
-          assignment.unlock_at = startDate;
-          assignment.old_due_at = assignment.due_at;
-          assignment.old_lock_at = assignment.lock_at;
-          assignments.push(assignment);
-          if (assignment.is_quiz_assignment) {
-            quizTotal += 1;
-          } else {
-            assignmentTotal += 1;
-          }
-        });
-        if (!auditAssNums) {
-          const { students } = studentRes.data;
-          const totalAssignments = assignments.length;
-          const flooredInterval = Math.floor(
-            (availableDates.length - 1) / totalAssignments
+      const { id } = e || this.$data.course;
+      console.log(id);
+      if (id !== undefined) {
+        this.loading = true;
+        const calculateDateSpan = (start, end) => {
+          const dt1 = new Date(start);
+          const dt2 = new Date(end);
+          return Math.floor(
+            (Date.UTC(dt2.getFullYear(), dt2.getMonth(), dt2.getDate()) -
+              Date.UTC(dt1.getFullYear(), dt1.getMonth(), dt1.getDate())) /
+              (1000 * 60 * 60 * 24)
           );
-          const ceiledInterval = Math.ceil(
-            (availableDates.length - 1) / totalAssignments
-          );
-          const rawInterval = (availableDates.length - 1) / totalAssignments;
-          let flooredDeviation;
-          let ceiledDeviation;
-          let numFlooredAss;
-          let numCeiledAss;
+        };
+        const availableDates = [];
+        for (
+          let i = new Date(startDate);
+          i <= new Date(endDate);
+          i.setDate(i.getDate() + 1)
+        ) {
+          const thisDate = i.toLocaleString("en-US", {
+            timeZone: "Asia/Dubai",
+            weekday: "long",
+            year: "numeric",
+            day: "numeric",
+            month: "numeric"
+          });
           if (
-            ceiledInterval - rawInterval < 0.2 &&
-            ceiledInterval - rawInterval > 0.1
+            thisDate.indexOf("Friday") !== -1 ||
+            thisDate.indexOf("Saturday") !== -1
           ) {
-            flooredDeviation = ceiledInterval - rawInterval;
-            ceiledDeviation = rawInterval - flooredInterval;
-            numFlooredAss = Math.floor(totalAssignments * flooredDeviation);
-            numCeiledAss = Math.ceil(totalAssignments * ceiledDeviation);
-          } else if (ceiledInterval - rawInterval > 0.2) {
-            flooredDeviation = rawInterval - flooredInterval;
-            ceiledDeviation = ceiledInterval - rawInterval;
-            numFlooredAss = Math.ceil(totalAssignments * ceiledDeviation);
-            numCeiledAss = Math.floor(totalAssignments * flooredDeviation);
+            const arr = thisDate.split(" ");
+            const dateArr = arr[1].split("/");
+            if (dateArr[0].length === 1) {
+              dateArr[0] = `0${dateArr[0]}`;
+            }
+            if (dateArr[1].length === 1) {
+              dateArr[1] = `0${dateArr[1]}`;
+            }
+            const formattedDate = `${dateArr[2]}-${dateArr[0]}-${dateArr[1]}T00:00:00.000+04:00`;
+            const index = holidays.findIndex(x => x === formattedDate);
+            if (index === -1) {
+              holidays.push(formattedDate);
+            }
           } else {
-            flooredDeviation = ceiledInterval - rawInterval;
-            ceiledDeviation = rawInterval - flooredInterval;
-            numFlooredAss = Math.ceil(totalAssignments * flooredDeviation);
-            numCeiledAss = Math.floor(totalAssignments * ceiledDeviation);
-          }
-          const intervalArr = [
-            Math.ceil((availableDates.length - 1) / totalAssignments),
-            Math.floor((availableDates.length - 1) / totalAssignments),
-          ];
-          let intervalIndex = 0;
-          let currentDate = new Date(startDate);
-          let dateIndex = 0;
-          let repeatDate = false;
-          for (let i = 0; i < totalAssignments; i++) {
-            const assignPermanentZero = (int, date) => {
-              if (!bypassPermZero) {
-                let permZeroDate = new Date(date);
-                permZeroDate.setDate(permZeroDate.getDate() + int);
-                const difference = calculateDateSpan(permZeroDate, endDate);
-                if (difference <= 0 || assignments[i].is_quiz_assignment) {
-                  const dt = new Date(endDate);
-                  const formatted = dt.toLocaleString("en-US", {
-                    timeZone: "Asia/Dubai",
-                    year: "numeric",
-                    day: "numeric",
-                    month: "numeric",
-                  });
-                  const dtArr = formatted.split("/");
-                  if (dtArr[0].length === 1) {
-                    dtArr[0] = `0${dtArr[0]}`;
-                  }
-                  if (dtArr[1].length === 1) {
-                    dtArr[1] = `0${dtArr[1]}`;
-                  }
-                  const formattedPermZero = `${dtArr[2]}-${dtArr[0]}-${dtArr[1]}T23:59:00.000+04:00`;
-                  assignments[i].lock_at = formattedPermZero;
-                } else {
-                  const formZeroDate = permZeroDate.toLocaleString("en-US", {
-                    timeZone: "Asia/Dubai",
-                    year: "numeric",
-                    day: "numeric",
-                    month: "numeric",
-                  });
-                  const arr1 = formZeroDate.split("/");
-                  if (arr1[0].length === 1) {
-                    arr1[0] = `0${arr1[0]}`;
-                  }
-                  if (arr1[1].length === 1) {
-                    arr1[1] = `0${arr1[1]}`;
-                  }
-                  const earlyFormat = `${arr1[2]}-${arr1[0]}-${arr1[1]}T00:00:00.000+04:00`;
-                  const permZeroIndex = holidays.findIndex(
-                    (x) => x === earlyFormat
-                  );
-                  if (permZeroIndex !== -1) {
-                    assignPermanentZero(int + 1, date);
-                  } else {
-                    const arr = formZeroDate.split("/");
-                    if (arr[0].length === 1) {
-                      arr[0] = `0${arr[0]}`;
-                    }
-                    if (arr[1].length === 1) {
-                      arr[1] = `0${arr[1]}`;
-                    }
-                    const formattedPermZero = `${arr[2]}-${arr[0]}-${arr[1]}T23:59:00.000+04:00`;
-                    assignments[i].lock_at = formattedPermZero;
-                  }
-                }
-              }
-            };
-            const assignDates = (int) => {
-              dateIndex = dateIndex + int;
-              const arr = availableDates[dateIndex].split("T");
-              const formattedDate = `${arr[0]}T23:59:00.000+04:00`;
-              assignments[i].due_at = formattedDate;
-              assignPermanentZero(30, formattedDate);
-            };
-            if (numFlooredAss === 0) {
-              assignDates(ceiledInterval);
-              numCeiledAss -= 1;
-            } else if (numCeiledAss === 0) {
-              assignDates(flooredInterval);
-              numFlooredAss -= 1;
-            } else {
-              assignDates(intervalArr[intervalIndex]);
-              if (intervalIndex === 0) {
-                intervalIndex = 1;
-                numCeiledAss -= 1;
-              } else {
-                intervalIndex = 0;
-                numFlooredAss -= 1;
-              }
+            const arr = thisDate.split(" ");
+            const dateArr = arr[1].split("/");
+            if (dateArr[0].length === 1) {
+              dateArr[0] = `0${dateArr[0]}`;
+            }
+            if (dateArr[1].length === 1) {
+              dateArr[1] = `0${dateArr[1]}`;
+            }
+            const formattedDate = `${dateArr[2]}-${dateArr[0]}-${dateArr[1]}T00:00:00.000+04:00`;
+            const index = holidays.findIndex(x => x === formattedDate);
+            if (index === -1) {
+              availableDates.push(formattedDate);
             }
           }
-          this.students = students;
         }
-        this.course = id;
-        this.loading = false;
-        this.assignments = assignments;
-        this.quizTotal = quizTotal;
-        this.assignmentTotal = assignmentTotal;
-      } catch (e) {
-        this.loading = false;
-        this.error = e.message;
-        console.error(e);
+        holidays.sort((x, y) => {
+          return x < y;
+        });
+        this.holidays = holidays;
+        const holidaysMidPoint = [];
+        holidays.forEach(holiday => {
+          const dt1 = new Date(startDate);
+          const dt2 = new Date(holiday);
+          const dt3 = new Date(endDate);
+          if (
+            Date.UTC(dt2.getFullYear(), dt2.getMonth(), dt2.getDate()) >=
+              Date.UTC(dt1.getFullYear(), dt1.getMonth(), dt1.getDate()) &&
+            Date.UTC(dt2.getFullYear(), dt2.getMonth(), dt2.getDate()) <=
+              Date.UTC(dt3.getFullYear(), dt3.getMonth(), dt3.getDate())
+          ) {
+            holidaysMidPoint.push(holiday);
+          }
+        });
+        try {
+          const res = await axios({
+            method: "GET",
+            url: "/api/assignments",
+            params: {
+              apiKey: teacher,
+              course: id
+            }
+          });
+          const studentRes = await axios({
+            method: "Get",
+            url: "/api/students",
+            params: {
+              apiKey: teacher,
+              course: id
+            }
+          });
+          const assignments = [];
+          let assignmentTotal = 0;
+          let quizTotal = 0;
+          res.data.assignments.forEach(assignment => {
+            assignment.old_unlock_at = assignment.unlock_at;
+            assignment.unlock_at = startDate;
+            assignment.old_due_at = assignment.due_at;
+            assignment.old_lock_at = assignment.lock_at;
+            assignments.push(assignment);
+            if (assignment.is_quiz_assignment) {
+              quizTotal += 1;
+            } else {
+              assignmentTotal += 1;
+            }
+          });
+          if (!auditAssNums) {
+            const { students } = studentRes.data;
+            const totalAssignments = assignments.length;
+            const flooredInterval = Math.floor(
+              (availableDates.length - 1) / totalAssignments
+            );
+            const ceiledInterval = Math.ceil(
+              (availableDates.length - 1) / totalAssignments
+            );
+            const rawInterval = (availableDates.length - 1) / totalAssignments;
+            let flooredDeviation;
+            let ceiledDeviation;
+            let numFlooredAss;
+            let numCeiledAss;
+            if (
+              ceiledInterval - rawInterval < 0.2 &&
+              ceiledInterval - rawInterval > 0.1
+            ) {
+              flooredDeviation = ceiledInterval - rawInterval;
+              ceiledDeviation = rawInterval - flooredInterval;
+              numFlooredAss = Math.floor(totalAssignments * flooredDeviation);
+              numCeiledAss = Math.ceil(totalAssignments * ceiledDeviation);
+            } else if (ceiledInterval - rawInterval > 0.2) {
+              flooredDeviation = rawInterval - flooredInterval;
+              ceiledDeviation = ceiledInterval - rawInterval;
+              numFlooredAss = Math.ceil(totalAssignments * ceiledDeviation);
+              numCeiledAss = Math.floor(totalAssignments * flooredDeviation);
+            } else {
+              flooredDeviation = ceiledInterval - rawInterval;
+              ceiledDeviation = rawInterval - flooredInterval;
+              numFlooredAss = Math.ceil(totalAssignments * flooredDeviation);
+              numCeiledAss = Math.floor(totalAssignments * ceiledDeviation);
+            }
+            const intervalArr = [
+              Math.ceil((availableDates.length - 1) / totalAssignments),
+              Math.floor((availableDates.length - 1) / totalAssignments)
+            ];
+            let intervalIndex = 0;
+            let currentDate = new Date(startDate);
+            let dateIndex = 0;
+            let repeatDate = false;
+            for (let i = 0; i < totalAssignments; i++) {
+              const assignPermanentZero = (int, date) => {
+                if (!bypassPermZero) {
+                  let permZeroDate = new Date(date);
+                  permZeroDate.setDate(permZeroDate.getDate() + int);
+                  const difference = calculateDateSpan(permZeroDate, endDate);
+                  if (difference <= 0 || assignments[i].is_quiz_assignment) {
+                    const dt = new Date(endDate);
+                    const formatted = dt.toLocaleString("en-US", {
+                      timeZone: "Asia/Dubai",
+                      year: "numeric",
+                      day: "numeric",
+                      month: "numeric"
+                    });
+                    const dtArr = formatted.split("/");
+                    if (dtArr[0].length === 1) {
+                      dtArr[0] = `0${dtArr[0]}`;
+                    }
+                    if (dtArr[1].length === 1) {
+                      dtArr[1] = `0${dtArr[1]}`;
+                    }
+                    const formattedPermZero = `${dtArr[2]}-${dtArr[0]}-${dtArr[1]}T23:59:00.000+04:00`;
+                    assignments[i].lock_at = formattedPermZero;
+                  } else {
+                    const formZeroDate = permZeroDate.toLocaleString("en-US", {
+                      timeZone: "Asia/Dubai",
+                      year: "numeric",
+                      day: "numeric",
+                      month: "numeric"
+                    });
+                    const arr1 = formZeroDate.split("/");
+                    if (arr1[0].length === 1) {
+                      arr1[0] = `0${arr1[0]}`;
+                    }
+                    if (arr1[1].length === 1) {
+                      arr1[1] = `0${arr1[1]}`;
+                    }
+                    const earlyFormat = `${arr1[2]}-${arr1[0]}-${arr1[1]}T00:00:00.000+04:00`;
+                    const permZeroIndex = holidays.findIndex(
+                      x => x === earlyFormat
+                    );
+                    if (permZeroIndex !== -1) {
+                      assignPermanentZero(int + 1, date);
+                    } else {
+                      const arr = formZeroDate.split("/");
+                      if (arr[0].length === 1) {
+                        arr[0] = `0${arr[0]}`;
+                      }
+                      if (arr[1].length === 1) {
+                        arr[1] = `0${arr[1]}`;
+                      }
+                      const formattedPermZero = `${arr[2]}-${arr[0]}-${arr[1]}T23:59:00.000+04:00`;
+                      assignments[i].lock_at = formattedPermZero;
+                    }
+                  }
+                }
+              };
+              const assignDates = int => {
+                dateIndex = dateIndex + int;
+                const arr = availableDates[dateIndex].split("T");
+                const formattedDate = `${arr[0]}T23:59:00.000+04:00`;
+                assignments[i].due_at = formattedDate;
+                assignPermanentZero(30, formattedDate);
+              };
+              if (numFlooredAss === 0) {
+                assignDates(ceiledInterval);
+                numCeiledAss -= 1;
+              } else if (numCeiledAss === 0) {
+                assignDates(flooredInterval);
+                numFlooredAss -= 1;
+              } else {
+                assignDates(intervalArr[intervalIndex]);
+                if (intervalIndex === 0) {
+                  intervalIndex = 1;
+                  numCeiledAss -= 1;
+                } else {
+                  intervalIndex = 0;
+                  numFlooredAss -= 1;
+                }
+              }
+            }
+            this.students = students;
+          }
+          this.course = id;
+          this.loading = false;
+          this.assignments = assignments;
+          this.quizTotal = quizTotal;
+          this.assignmentTotal = assignmentTotal;
+        } catch (e) {
+          this.loading = false;
+          this.error = e.message;
+          console.error(e);
+        }
       }
     },
     submitDates: async function() {
@@ -501,16 +559,16 @@ export default {
         setExtension,
         assignments,
         selectedStudents,
-        extension: extensionDate,
+        extension: extensionDate
       } = this.$data;
       const user = localStorage.getItem("icadDateId");
       const teacherIndex = this.$data.teachers.findIndex(
-        (x) => x.apiKey === apiKey
+        x => x.apiKey === apiKey
       );
-      const courseIndex = this.$data.courses.findIndex((x) => x.id === course);
+      const courseIndex = this.$data.courses.findIndex(x => x.id === course);
       try {
         if (!setExtension) {
-          await assignments.forEach(async (assignment) => {
+          await assignments.forEach(async assignment => {
             if (!putError) {
               const index = assignment.due_at.indexOf("T23:59:00.000+04:00");
               const index2 = assignment.lock_at.indexOf("T23:59:00.000+04:00");
@@ -530,13 +588,13 @@ export default {
                     assignment,
                     user,
                     teacher: this.$data.teachers[teacherIndex]._id,
-                    courseName: this.$data.courses[courseIndex].name,
-                  },
+                    courseName: this.$data.courses[courseIndex].name
+                  }
                 })
-                .then((res) => {
+                .then(res => {
                   console.log(res.data.data);
                 })
-                .catch((err) => {
+                .catch(err => {
                   putError = true;
                   console.error(err);
                   this.loading = false;
@@ -552,7 +610,7 @@ export default {
         } else {
           const arr = extensionDate.split("T");
           extension = `${arr[0]}T11:59:00+04:00`;
-          await assignments.forEach(async (assignment) => {
+          await assignments.forEach(async assignment => {
             if (!putError) {
               await axios
                 .post("/api/assignments", {
@@ -564,13 +622,13 @@ export default {
                     extension,
                     user,
                     teacher: this.$data.teachers[teacherIndex]._id,
-                    courseName: this.$data.courses[courseIndex].name,
-                  },
+                    courseName: this.$data.courses[courseIndex].name
+                  }
                 })
-                .then((res) => {
+                .then(res => {
                   console.log(res.data.data);
                 })
-                .catch((err) => {
+                .catch(err => {
                   putError = true;
                   console.error(err);
                   this.loading = false;
@@ -597,17 +655,17 @@ export default {
       let csvData;
       const reader = new FileReader();
       const promise = new Promise((resolve, reject) => {
-        reader.onload = async (e) => {
+        reader.onload = async e => {
           resolve((csvData = reader.result));
         };
         reader.readAsText(file);
       });
       promise
-        .then((res) => {
+        .then(res => {
           const lines = csvData.split(/\r\n|\n/);
           lines.pop();
           const arr = [];
-          lines.forEach((line) => {
+          lines.forEach(line => {
             const arr2 = line.split(",");
             arr.push(arr2);
           });
@@ -622,17 +680,17 @@ export default {
             }
           });
           const holidays = [];
-          parsedArray.forEach((holiday) => {
+          parsedArray.forEach(holiday => {
             holiday.date = `${holiday.date}T00:00:00.000+04:00`;
             holidays.push(holiday.date);
           });
           this.holidays = holidays;
         })
-        .catch((err) => {
+        .catch(err => {
           console.error(err);
         });
-    },
-  },
+    }
+  }
 };
 </script>
 
