@@ -18,7 +18,7 @@ router.route("/").get(async (req, res) => {
       params: {
         access_token,
         per_page: 100,
-        state: ["available"],
+        state: ["available", "unpublished"],
       },
     }).then((result) => {
       res.status(200).json({
