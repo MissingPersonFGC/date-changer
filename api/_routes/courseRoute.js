@@ -28,7 +28,6 @@ router.route("/").get(async (req, res) => {
     if (result.data.length === 100) {
       let currentPage = 2;
       async function apiPagination() {
-        console.log("running");
         const courseRes = await axios({
           method: "GET",
           url: "https://canvas.instructure.com/api/v1/courses",
@@ -42,16 +41,12 @@ router.route("/").get(async (req, res) => {
             page: currentPage,
           },
         });
-        console.log(courseRes.data);
         courseRes.data.forEach((course) => {
           courses.push(course);
         });
         if (courseRes.data.length === 100) {
-          console.log("10/10 would run again");
           currentPage += 1;
           await apiPagination();
-        } else {
-          console.log("0/10 avoid running");
         }
       }
       await apiPagination();
