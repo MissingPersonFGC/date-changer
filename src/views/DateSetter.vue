@@ -25,6 +25,7 @@
         <input
           type="checkbox"
           v-model="auditAssNums"
+          :disabled="startDate !== ''"
         /> Run report of total
         number of assignments, tests, and quizzes.
       </p>
@@ -72,12 +73,12 @@
         type="checkbox"
         v-model="setExtension"
         name="setExtension"
-        v-if="(startDate !== '' && endDate !== '')"
-        @change="setCourse"
+        v-if="(startDate !== '' && endDate !== '' && !auditAssNums)"
+        @change="sortCourses"
       />
       <label
         for="setExtension"
-        v-if="(startDate !== '' && endDate !== '')"
+        v-if="(startDate !== '' && endDate !== '' && !auditAssNums)"
       >Set new end dates for students with an extension</label>
       <p v-if="(startDate !== '' && endDate !== '') || auditAssNums">
         Select a teacher:
@@ -257,7 +258,8 @@ export default {
       quizTotal: 0,
       assignmentTotal: 0,
       bypassPermZero: false,
-      auditAssNums: false
+      auditAssNums: false,
+      allCourses: []
     };
   },
   mounted: async function() {
@@ -277,6 +279,7 @@ export default {
       this.error = null;
       const { apiKey } = e;
       this.teacher = apiKey;
+      const { setExtension, auditAssNums } = this.$data;
       try {
         const res = await axios({
           method: "GET",
@@ -286,10 +289,35 @@ export default {
           }
         });
         this.loading = false;
-        this.courses = res.data.data;
+        this.allCourses = res.data.data;
+        this.sortCourses();
       } catch (e) {
         this.loading = false;
         this.error = e.message;
+      }
+    },
+    sortCourses: function() {
+      const { setExtension, allCourses, auditAssNums } = this.$data;
+      if (allCourses.length > 0) {
+        if (!setExtension && auditAssNums) {
+          this.courses = allCourses;
+        } else if (!setExtension && !auditAssNums) {
+          const courses = [];
+          allCourses.forEach(course => {
+            if (course.workflow_state === "unpublished") {
+              courses.push(course);
+            }
+          });
+          this.courses = courses;
+        } else {
+          const courses = [];
+          allCourses.forEach(course => {
+            if (course.workflow_state === "available") {
+              courses.push(course);
+            }
+          });
+          this.courses = courses;
+        }
       }
     },
     setCourse: async function(e) {
@@ -303,249 +331,246 @@ export default {
         bypassPermZero,
         auditAssNums
       } = this.$data;
-      const { id } = e || this.$data.course;
-      console.log(id);
-      if (id !== undefined) {
-        this.loading = true;
-        const calculateDateSpan = (start, end) => {
-          const dt1 = new Date(start);
-          const dt2 = new Date(end);
-          return Math.floor(
-            (Date.UTC(dt2.getFullYear(), dt2.getMonth(), dt2.getDate()) -
-              Date.UTC(dt1.getFullYear(), dt1.getMonth(), dt1.getDate())) /
-              (1000 * 60 * 60 * 24)
-          );
-        };
-        const availableDates = [];
-        for (
-          let i = new Date(startDate);
-          i <= new Date(endDate);
-          i.setDate(i.getDate() + 1)
+      const { id } = e;
+      this.loading = true;
+      const calculateDateSpan = (start, end) => {
+        const dt1 = new Date(start);
+        const dt2 = new Date(end);
+        return Math.floor(
+          (Date.UTC(dt2.getFullYear(), dt2.getMonth(), dt2.getDate()) -
+            Date.UTC(dt1.getFullYear(), dt1.getMonth(), dt1.getDate())) /
+            (1000 * 60 * 60 * 24)
+        );
+      };
+      const availableDates = [];
+      for (
+        let i = new Date(startDate);
+        i <= new Date(endDate);
+        i.setDate(i.getDate() + 1)
+      ) {
+        const thisDate = i.toLocaleString("en-US", {
+          timeZone: "Asia/Dubai",
+          weekday: "long",
+          year: "numeric",
+          day: "numeric",
+          month: "numeric"
+        });
+        if (
+          thisDate.indexOf("Friday") !== -1 ||
+          thisDate.indexOf("Saturday") !== -1
         ) {
-          const thisDate = i.toLocaleString("en-US", {
-            timeZone: "Asia/Dubai",
-            weekday: "long",
-            year: "numeric",
-            day: "numeric",
-            month: "numeric"
-          });
-          if (
-            thisDate.indexOf("Friday") !== -1 ||
-            thisDate.indexOf("Saturday") !== -1
-          ) {
-            const arr = thisDate.split(" ");
-            const dateArr = arr[1].split("/");
-            if (dateArr[0].length === 1) {
-              dateArr[0] = `0${dateArr[0]}`;
-            }
-            if (dateArr[1].length === 1) {
-              dateArr[1] = `0${dateArr[1]}`;
-            }
-            const formattedDate = `${dateArr[2]}-${dateArr[0]}-${dateArr[1]}T00:00:00.000+04:00`;
-            const index = holidays.findIndex(x => x === formattedDate);
-            if (index === -1) {
-              holidays.push(formattedDate);
-            }
-          } else {
-            const arr = thisDate.split(" ");
-            const dateArr = arr[1].split("/");
-            if (dateArr[0].length === 1) {
-              dateArr[0] = `0${dateArr[0]}`;
-            }
-            if (dateArr[1].length === 1) {
-              dateArr[1] = `0${dateArr[1]}`;
-            }
-            const formattedDate = `${dateArr[2]}-${dateArr[0]}-${dateArr[1]}T00:00:00.000+04:00`;
-            const index = holidays.findIndex(x => x === formattedDate);
-            if (index === -1) {
-              availableDates.push(formattedDate);
-            }
+          const arr = thisDate.split(" ");
+          const dateArr = arr[1].split("/");
+          if (dateArr[0].length === 1) {
+            dateArr[0] = `0${dateArr[0]}`;
+          }
+          if (dateArr[1].length === 1) {
+            dateArr[1] = `0${dateArr[1]}`;
+          }
+          const formattedDate = `${dateArr[2]}-${dateArr[0]}-${dateArr[1]}T00:00:00.000+04:00`;
+          const index = holidays.findIndex(x => x === formattedDate);
+          if (index === -1) {
+            holidays.push(formattedDate);
+          }
+        } else {
+          const arr = thisDate.split(" ");
+          const dateArr = arr[1].split("/");
+          if (dateArr[0].length === 1) {
+            dateArr[0] = `0${dateArr[0]}`;
+          }
+          if (dateArr[1].length === 1) {
+            dateArr[1] = `0${dateArr[1]}`;
+          }
+          const formattedDate = `${dateArr[2]}-${dateArr[0]}-${dateArr[1]}T00:00:00.000+04:00`;
+          const index = holidays.findIndex(x => x === formattedDate);
+          if (index === -1) {
+            availableDates.push(formattedDate);
           }
         }
-        holidays.sort((x, y) => {
-          return x < y;
-        });
-        this.holidays = holidays;
-        const holidaysMidPoint = [];
-        holidays.forEach(holiday => {
-          const dt1 = new Date(startDate);
-          const dt2 = new Date(holiday);
-          const dt3 = new Date(endDate);
-          if (
-            Date.UTC(dt2.getFullYear(), dt2.getMonth(), dt2.getDate()) >=
-              Date.UTC(dt1.getFullYear(), dt1.getMonth(), dt1.getDate()) &&
-            Date.UTC(dt2.getFullYear(), dt2.getMonth(), dt2.getDate()) <=
-              Date.UTC(dt3.getFullYear(), dt3.getMonth(), dt3.getDate())
-          ) {
-            holidaysMidPoint.push(holiday);
+      }
+      holidays.sort((x, y) => {
+        return x < y;
+      });
+      this.holidays = holidays;
+      const holidaysMidPoint = [];
+      holidays.forEach(holiday => {
+        const dt1 = new Date(startDate);
+        const dt2 = new Date(holiday);
+        const dt3 = new Date(endDate);
+        if (
+          Date.UTC(dt2.getFullYear(), dt2.getMonth(), dt2.getDate()) >=
+            Date.UTC(dt1.getFullYear(), dt1.getMonth(), dt1.getDate()) &&
+          Date.UTC(dt2.getFullYear(), dt2.getMonth(), dt2.getDate()) <=
+            Date.UTC(dt3.getFullYear(), dt3.getMonth(), dt3.getDate())
+        ) {
+          holidaysMidPoint.push(holiday);
+        }
+      });
+      try {
+        const res = await axios({
+          method: "GET",
+          url: "/api/assignments",
+          params: {
+            apiKey: teacher,
+            course: id
           }
         });
-        try {
-          const res = await axios({
-            method: "GET",
-            url: "/api/assignments",
-            params: {
-              apiKey: teacher,
-              course: id
-            }
-          });
-          const studentRes = await axios({
-            method: "Get",
-            url: "/api/students",
-            params: {
-              apiKey: teacher,
-              course: id
-            }
-          });
-          const assignments = [];
-          let assignmentTotal = 0;
-          let quizTotal = 0;
-          res.data.assignments.forEach(assignment => {
-            assignment.old_unlock_at = assignment.unlock_at;
-            assignment.unlock_at = startDate;
-            assignment.old_due_at = assignment.due_at;
-            assignment.old_lock_at = assignment.lock_at;
-            assignments.push(assignment);
-            if (assignment.is_quiz_assignment) {
-              quizTotal += 1;
-            } else {
-              assignmentTotal += 1;
-            }
-          });
-          if (!auditAssNums) {
-            const { students } = studentRes.data;
-            const totalAssignments = assignments.length;
-            const flooredInterval = Math.floor(
-              (availableDates.length - 1) / totalAssignments
-            );
-            const ceiledInterval = Math.ceil(
-              (availableDates.length - 1) / totalAssignments
-            );
-            const rawInterval = (availableDates.length - 1) / totalAssignments;
-            let flooredDeviation;
-            let ceiledDeviation;
-            let numFlooredAss;
-            let numCeiledAss;
-            if (
-              ceiledInterval - rawInterval < 0.2 &&
-              ceiledInterval - rawInterval > 0.1
-            ) {
-              flooredDeviation = ceiledInterval - rawInterval;
-              ceiledDeviation = rawInterval - flooredInterval;
-              numFlooredAss = Math.floor(totalAssignments * flooredDeviation);
-              numCeiledAss = Math.ceil(totalAssignments * ceiledDeviation);
-            } else if (ceiledInterval - rawInterval > 0.2) {
-              flooredDeviation = rawInterval - flooredInterval;
-              ceiledDeviation = ceiledInterval - rawInterval;
-              numFlooredAss = Math.ceil(totalAssignments * ceiledDeviation);
-              numCeiledAss = Math.floor(totalAssignments * flooredDeviation);
-            } else {
-              flooredDeviation = ceiledInterval - rawInterval;
-              ceiledDeviation = rawInterval - flooredInterval;
-              numFlooredAss = Math.ceil(totalAssignments * flooredDeviation);
-              numCeiledAss = Math.floor(totalAssignments * ceiledDeviation);
-            }
-            const intervalArr = [
-              Math.ceil((availableDates.length - 1) / totalAssignments),
-              Math.floor((availableDates.length - 1) / totalAssignments)
-            ];
-            let intervalIndex = 0;
-            let currentDate = new Date(startDate);
-            let dateIndex = 0;
-            let repeatDate = false;
-            for (let i = 0; i < totalAssignments; i++) {
-              const assignPermanentZero = (int, date) => {
-                if (!bypassPermZero) {
-                  let permZeroDate = new Date(date);
-                  permZeroDate.setDate(permZeroDate.getDate() + int);
-                  const difference = calculateDateSpan(permZeroDate, endDate);
-                  if (difference <= 0 || assignments[i].is_quiz_assignment) {
-                    const dt = new Date(endDate);
-                    const formatted = dt.toLocaleString("en-US", {
-                      timeZone: "Asia/Dubai",
-                      year: "numeric",
-                      day: "numeric",
-                      month: "numeric"
-                    });
-                    const dtArr = formatted.split("/");
-                    if (dtArr[0].length === 1) {
-                      dtArr[0] = `0${dtArr[0]}`;
-                    }
-                    if (dtArr[1].length === 1) {
-                      dtArr[1] = `0${dtArr[1]}`;
-                    }
-                    const formattedPermZero = `${dtArr[2]}-${dtArr[0]}-${dtArr[1]}T23:59:00.000+04:00`;
-                    assignments[i].lock_at = formattedPermZero;
+        const studentRes = await axios({
+          method: "Get",
+          url: "/api/students",
+          params: {
+            apiKey: teacher,
+            course: id
+          }
+        });
+        const assignments = [];
+        let assignmentTotal = 0;
+        let quizTotal = 0;
+        res.data.assignments.forEach(assignment => {
+          assignment.old_unlock_at = assignment.unlock_at;
+          assignment.unlock_at = startDate;
+          assignment.old_due_at = assignment.due_at;
+          assignment.old_lock_at = assignment.lock_at;
+          assignments.push(assignment);
+          if (assignment.is_quiz_assignment) {
+            quizTotal += 1;
+          } else {
+            assignmentTotal += 1;
+          }
+        });
+        if (!auditAssNums) {
+          const { students } = studentRes.data;
+          const totalAssignments = assignments.length;
+          const flooredInterval = Math.floor(
+            (availableDates.length - 1) / totalAssignments
+          );
+          const ceiledInterval = Math.ceil(
+            (availableDates.length - 1) / totalAssignments
+          );
+          const rawInterval = (availableDates.length - 1) / totalAssignments;
+          let flooredDeviation;
+          let ceiledDeviation;
+          let numFlooredAss;
+          let numCeiledAss;
+          if (
+            ceiledInterval - rawInterval < 0.2 &&
+            ceiledInterval - rawInterval > 0.1
+          ) {
+            flooredDeviation = ceiledInterval - rawInterval;
+            ceiledDeviation = rawInterval - flooredInterval;
+            numFlooredAss = Math.floor(totalAssignments * flooredDeviation);
+            numCeiledAss = Math.ceil(totalAssignments * ceiledDeviation);
+          } else if (ceiledInterval - rawInterval > 0.2) {
+            flooredDeviation = rawInterval - flooredInterval;
+            ceiledDeviation = ceiledInterval - rawInterval;
+            numFlooredAss = Math.ceil(totalAssignments * ceiledDeviation);
+            numCeiledAss = Math.floor(totalAssignments * flooredDeviation);
+          } else {
+            flooredDeviation = ceiledInterval - rawInterval;
+            ceiledDeviation = rawInterval - flooredInterval;
+            numFlooredAss = Math.ceil(totalAssignments * flooredDeviation);
+            numCeiledAss = Math.floor(totalAssignments * ceiledDeviation);
+          }
+          const intervalArr = [
+            Math.ceil((availableDates.length - 1) / totalAssignments),
+            Math.floor((availableDates.length - 1) / totalAssignments)
+          ];
+          let intervalIndex = 0;
+          let currentDate = new Date(startDate);
+          let dateIndex = 0;
+          let repeatDate = false;
+          for (let i = 0; i < totalAssignments; i++) {
+            const assignPermanentZero = (int, date) => {
+              if (!bypassPermZero) {
+                let permZeroDate = new Date(date);
+                permZeroDate.setDate(permZeroDate.getDate() + int);
+                const difference = calculateDateSpan(permZeroDate, endDate);
+                if (difference <= 0 || assignments[i].is_quiz_assignment) {
+                  const dt = new Date(endDate);
+                  const formatted = dt.toLocaleString("en-US", {
+                    timeZone: "Asia/Dubai",
+                    year: "numeric",
+                    day: "numeric",
+                    month: "numeric"
+                  });
+                  const dtArr = formatted.split("/");
+                  if (dtArr[0].length === 1) {
+                    dtArr[0] = `0${dtArr[0]}`;
+                  }
+                  if (dtArr[1].length === 1) {
+                    dtArr[1] = `0${dtArr[1]}`;
+                  }
+                  const formattedPermZero = `${dtArr[2]}-${dtArr[0]}-${dtArr[1]}T23:59:00.000+04:00`;
+                  assignments[i].lock_at = formattedPermZero;
+                } else {
+                  const formZeroDate = permZeroDate.toLocaleString("en-US", {
+                    timeZone: "Asia/Dubai",
+                    year: "numeric",
+                    day: "numeric",
+                    month: "numeric"
+                  });
+                  const arr1 = formZeroDate.split("/");
+                  if (arr1[0].length === 1) {
+                    arr1[0] = `0${arr1[0]}`;
+                  }
+                  if (arr1[1].length === 1) {
+                    arr1[1] = `0${arr1[1]}`;
+                  }
+                  const earlyFormat = `${arr1[2]}-${arr1[0]}-${arr1[1]}T00:00:00.000+04:00`;
+                  const permZeroIndex = holidays.findIndex(
+                    x => x === earlyFormat
+                  );
+                  if (permZeroIndex !== -1) {
+                    assignPermanentZero(int + 1, date);
                   } else {
-                    const formZeroDate = permZeroDate.toLocaleString("en-US", {
-                      timeZone: "Asia/Dubai",
-                      year: "numeric",
-                      day: "numeric",
-                      month: "numeric"
-                    });
-                    const arr1 = formZeroDate.split("/");
-                    if (arr1[0].length === 1) {
-                      arr1[0] = `0${arr1[0]}`;
+                    const arr = formZeroDate.split("/");
+                    if (arr[0].length === 1) {
+                      arr[0] = `0${arr[0]}`;
                     }
-                    if (arr1[1].length === 1) {
-                      arr1[1] = `0${arr1[1]}`;
+                    if (arr[1].length === 1) {
+                      arr[1] = `0${arr[1]}`;
                     }
-                    const earlyFormat = `${arr1[2]}-${arr1[0]}-${arr1[1]}T00:00:00.000+04:00`;
-                    const permZeroIndex = holidays.findIndex(
-                      x => x === earlyFormat
-                    );
-                    if (permZeroIndex !== -1) {
-                      assignPermanentZero(int + 1, date);
-                    } else {
-                      const arr = formZeroDate.split("/");
-                      if (arr[0].length === 1) {
-                        arr[0] = `0${arr[0]}`;
-                      }
-                      if (arr[1].length === 1) {
-                        arr[1] = `0${arr[1]}`;
-                      }
-                      const formattedPermZero = `${arr[2]}-${arr[0]}-${arr[1]}T23:59:00.000+04:00`;
-                      assignments[i].lock_at = formattedPermZero;
-                    }
+                    const formattedPermZero = `${arr[2]}-${arr[0]}-${arr[1]}T23:59:00.000+04:00`;
+                    assignments[i].lock_at = formattedPermZero;
                   }
                 }
-              };
-              const assignDates = int => {
-                dateIndex = dateIndex + int;
-                const arr = availableDates[dateIndex].split("T");
-                const formattedDate = `${arr[0]}T23:59:00.000+04:00`;
-                assignments[i].due_at = formattedDate;
-                assignPermanentZero(30, formattedDate);
-              };
-              if (numFlooredAss === 0) {
-                assignDates(ceiledInterval);
+              }
+            };
+            const assignDates = int => {
+              dateIndex = dateIndex + int;
+              const arr = availableDates[dateIndex].split("T");
+              const formattedDate = `${arr[0]}T23:59:00.000+04:00`;
+              assignments[i].due_at = formattedDate;
+              assignPermanentZero(30, formattedDate);
+            };
+            if (numFlooredAss === 0) {
+              assignDates(ceiledInterval);
+              numCeiledAss -= 1;
+            } else if (numCeiledAss === 0) {
+              assignDates(flooredInterval);
+              numFlooredAss -= 1;
+            } else {
+              assignDates(intervalArr[intervalIndex]);
+              if (intervalIndex === 0) {
+                intervalIndex = 1;
                 numCeiledAss -= 1;
-              } else if (numCeiledAss === 0) {
-                assignDates(flooredInterval);
-                numFlooredAss -= 1;
               } else {
-                assignDates(intervalArr[intervalIndex]);
-                if (intervalIndex === 0) {
-                  intervalIndex = 1;
-                  numCeiledAss -= 1;
-                } else {
-                  intervalIndex = 0;
-                  numFlooredAss -= 1;
-                }
+                intervalIndex = 0;
+                numFlooredAss -= 1;
               }
             }
-            this.students = students;
           }
-          this.course = id;
-          this.loading = false;
-          this.assignments = assignments;
-          this.quizTotal = quizTotal;
-          this.assignmentTotal = assignmentTotal;
-        } catch (e) {
-          this.loading = false;
-          this.error = e.message;
-          console.error(e);
+          this.students = students;
         }
+        this.course = id;
+        this.loading = false;
+        this.assignments = assignments;
+        this.quizTotal = quizTotal;
+        this.assignmentTotal = assignmentTotal;
+      } catch (e) {
+        this.loading = false;
+        this.error = e.message;
+        console.error(e);
       }
     },
     submitDates: async function() {
