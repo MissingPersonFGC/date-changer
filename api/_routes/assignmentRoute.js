@@ -85,11 +85,11 @@ router.route("/").put(async (req, res) => {
     res.status(201).json({
       data: {
         tracker,
-        apiRequest: result,
       },
     });
   } catch (e) {
-    res.status(e.response.status || 401).send(e);
+    res.status(401).send(e);
+    console.error(e);
   }
 });
 
