@@ -586,9 +586,15 @@ export default {
 
       assignments.forEach(assignment => {
         // format the dates for the csv
-        const dtUnlock = new Date(assignment.unlock_at);
-        const dtDue = new Date(assignment.due_at);
-        const dtLock = new Date(assignment.lock_at);
+        const resetLockArr = assignment.lock_at.split("T");
+        const lockDate = `${resetLockArr[0]}T23:59:00.000+04:00`;
+        const resetDueArr = assignment.due_at.split("T");
+        const dueDate = `${resetDueArr[0]}T23:59:00.000+04:00`;
+        const resetUnlockArr = assignment.unlock_at.split("T");
+        const unlockDate = `${resetUnlockArr[0]}T00:00:00.000+04:00`;
+        const dtUnlock = new Date(unlockDate);
+        const dtDue = new Date(dueDate);
+        const dtLock = new Date(lockDate);
         const formDtUnlock = dtUnlock.toLocaleString("en-us", {
           timeStyle: "medium",
           dateStyle: "short",
@@ -617,6 +623,7 @@ export default {
           lockDateArr[1] = `0${lockDateArr[1]}`;
         }
         const finalLockDate = `20${lockDateArr[2]}-${lockDateArr[0]}-${lockDateArr[1]} ${lockArr[1]}`;
+        console.log(finalLockDate);
         const formDtDue = dtDue.toLocaleString("en-us", {
           timeStyle: "medium",
           dateStyle: "short",
@@ -639,7 +646,6 @@ export default {
         ];
         csv.push(arr);
       });
-      console.log(csv);
       let csvContent =
         "data:text/csv;charset=utf-8," + csv.map(e => e.join(";")).join("\n");
       const encodedUri = encodeURI(csvContent);
