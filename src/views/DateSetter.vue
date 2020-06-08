@@ -590,88 +590,158 @@ export default {
         x => x.apiKey === apiKey
       );
       const courseIndex = this.$data.courses.findIndex(x => x.id === course);
-      try {
-        if (!setExtension) {
-          await assignments.forEach(async assignment => {
-            if (!putError) {
-              const index = assignment.due_at.indexOf("T23:59:00.000+04:00");
-              const index2 = assignment.lock_at.indexOf("T23:59:00.000+04:00");
-              if (index === -1) {
-                const arr = assignment.due_at.split("T");
-                assignment.due_at = `${arr[0]}T23:59:00.000+04:00`;
-              }
-              if (index2 === -1) {
-                const arr = assignment.lock_at.split("T");
-                assignment.lock_at = `${arr[0]}T23:59:00.000+04:00`;
-              }
-              await axios
-                .put("/api/assignments", {
-                  data: {
-                    apiKey,
-                    course,
-                    assignment,
-                    user,
-                    teacher: this.$data.teachers[teacherIndex]._id,
-                    courseName: this.$data.courses[courseIndex].name
-                  }
-                })
-                .then(res => {
-                  console.log(res.data.data);
-                })
-                .catch(err => {
-                  putError = true;
-                  console.error(err);
-                  this.loading = false;
-                  this.error = err.message;
-                  window.location.href = "#error";
-                });
-            }
-          });
-          if (!putError) {
-            this.loading = false;
-            this.success = true;
-          }
-        } else {
-          const arr = extensionDate.split("T");
-          extension = `${arr[0]}T11:59:00+04:00`;
-          await assignments.forEach(async assignment => {
-            if (!putError) {
-              await axios
-                .post("/api/assignments", {
-                  data: {
-                    apiKey,
-                    course,
-                    assignment,
-                    students: selectedStudents,
-                    extension,
-                    user,
-                    teacher: this.$data.teachers[teacherIndex]._id,
-                    courseName: this.$data.courses[courseIndex].name
-                  }
-                })
-                .then(res => {
-                  console.log(res.data.data);
-                })
-                .catch(err => {
-                  putError = true;
-                  console.error(err);
-                  this.loading = false;
-                  this.error = err.message;
-                  window.location.href = "#error";
-                });
-            }
-          });
-          if (!putError) {
-            window.location.href = "#success";
-            this.loading = false;
-            this.success = true;
-          }
+      // create the CSV file with headers
+      const csv = [["Title", "Due", "Available from", "Available until"]];
+      // create the file name
+      const fileName = `${this.$data.courses[courseIndex].name} - ${this.$data.teachers[teacherIndex].fullName}`;
+
+      assignments.forEach(assignment => {
+        // format the dates for the csv
+        const dtUnlock = new Date(assignment.unlock_at);
+        const dtDue = new Date(assignment.due_at);
+        const dtLock = new Date(assignment.lock_at);
+        const formDtUnlock = dtUnlock.toLocaleString("en-us", {
+          timeStyle: "medium",
+          dateStyle: "short",
+          hour12: false
+        });
+        const unlockArr = formDtUnlock.split(", ");
+        const unlockDateArr = unlockArr[0].split("/");
+        if (unlockDateArr[0].length === 1) {
+          unlockDateArr[0] = `0${unlockDateArr[0]}`;
         }
-      } catch (e) {
-        this.loading = false;
-        this.error = e.message;
-        window.location.href = "#error";
-      }
+        if (unlockDateArr[1].length === 1) {
+          unlockDateArr[1] = `0${unlockDateArr[1]}`;
+        }
+        const finalUnlockDate = `20${unlockDateArr[2]}-${unlockDateArr[0]}-${unlockDateArr[1]} ${unlockArr[1]}`;
+        const formDtLock = dtLock.toLocaleString("en-us", {
+          timeStyle: "medium",
+          dateStyle: "short",
+          hour12: false
+        });
+        const lockArr = formDtLock.split(", ");
+        const lockDateArr = lockArr[0].split("/");
+        if (lockDateArr[0].length === 1) {
+          lockDateArr[0] = `0${lockDateArr[0]}`;
+        }
+        if (lockDateArr[1].length === 1) {
+          lockDateArr[1] = `0${lockDateArr[1]}`;
+        }
+        const finalLockDate = `20${lockDateArr[2]}-${lockDateArr[0]}-${lockDateArr[1]} ${lockArr[1]}`;
+        const formDtDue = dtDue.toLocaleString("en-us", {
+          timeStyle: "medium",
+          dateStyle: "short",
+          hour12: false
+        });
+        const dueArr = formDtDue.split(", ");
+        const dueDateArr = dueArr[0].split("/");
+        if (dueDateArr[0].length === 1) {
+          dueDateArr[0] = `0${dueDateArr[0]}`;
+        }
+        if (dueDateArr[1].length === 1) {
+          dueDateArr[1] = `0${dueDateArr[1]}`;
+        }
+        const finalDueDate = `20${dueDateArr[2]}-${dueDateArr[0]}-${dueDateArr[1]} ${dueArr[1]}`;
+        const arr = [
+          assignment.name,
+          finalDueDate,
+          finalUnlockDate,
+          finalLockDate
+        ];
+        csv.push(arr);
+      });
+      console.log(csv);
+      let csvContent =
+        "data:text/csv;charset=utf-8," + csv.map(e => e.join(";")).join("\n");
+      const encodedUri = encodeURI(csvContent);
+      const link = document.createElement("a");
+      link.setAttribute("href", encodedUri);
+      link.setAttribute("download", `${fileName}.csv`);
+      document.body.appendChild(link);
+      link.click();
+      this.loading = false;
+      // try {
+      //   if (!setExtension) {
+      //     await assignments.forEach(async assignment => {
+      //       if (!putError) {
+      //         const index = assignment.due_at.indexOf("T23:59:00.000+04:00");
+      //         const index2 = assignment.lock_at.indexOf("T23:59:00.000+04:00");
+      //         if (index === -1) {
+      //           const arr = assignment.due_at.split("T");
+      //           assignment.due_at = `${arr[0]}T23:59:00.000+04:00`;
+      //         }
+      //         if (index2 === -1) {
+      //           const arr = assignment.lock_at.split("T");
+      //           assignment.lock_at = `${arr[0]}T23:59:00.000+04:00`;
+      //         }
+      //         await axios
+      //           .put("/api/assignments", {
+      //             data: {
+      //               apiKey,
+      //               course,
+      //               assignment,
+      //               user,
+      //               teacher: this.$data.teachers[teacherIndex]._id,
+      //               courseName: this.$data.courses[courseIndex].name
+      //             }
+      //           })
+      //           .then(res => {
+      //             console.log(res.data.data);
+      //           })
+      //           .catch(err => {
+      //             putError = true;
+      //             console.error(err);
+      //             this.loading = false;
+      //             this.error = err.message;
+      //             window.location.href = "#error";
+      //           });
+      //       }
+      //     });
+      //     if (!putError) {
+      //       this.loading = false;
+      //       this.success = true;
+      //     }
+      //   } else {
+      //     const arr = extensionDate.split("T");
+      //     extension = `${arr[0]}T11:59:00+04:00`;
+      //     await assignments.forEach(async assignment => {
+      //       if (!putError) {
+      //         await axios
+      //           .post("/api/assignments", {
+      //             data: {
+      //               apiKey,
+      //               course,
+      //               assignment,
+      //               students: selectedStudents,
+      //               extension,
+      //               user,
+      //               teacher: this.$data.teachers[teacherIndex]._id,
+      //               courseName: this.$data.courses[courseIndex].name
+      //             }
+      //           })
+      //           .then(res => {
+      //             console.log(res.data.data);
+      //           })
+      //           .catch(err => {
+      //             putError = true;
+      //             console.error(err);
+      //             this.loading = false;
+      //             this.error = err.message;
+      //             window.location.href = "#error";
+      //           });
+      //       }
+      //     });
+      //     if (!putError) {
+      //       window.location.href = "#success";
+      //       this.loading = false;
+      //       this.success = true;
+      //     }
+      //   }
+      // } catch (e) {
+      //   this.loading = false;
+      //   this.error = e.message;
+      //   window.location.href = "#error";
+      // }
     },
     parseCSV: async function(e) {
       const { files } = e.target || e.dataTransfer;
