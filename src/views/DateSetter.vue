@@ -584,6 +584,16 @@ export default {
       // create the file name
       const fileName = `${this.$data.courses[courseIndex].name} - ${this.$data.teachers[teacherIndex].fullName}`;
 
+      const removeNonAlphaChars = name => {
+        const changedName = name.replace(",", "");
+        const commaIndex = changedName.indexOf(",");
+        if (commaIndex !== -1) {
+          removeNonAlphaChars(changedName);
+        } else {
+          return changedName;
+        }
+      };
+
       assignments.forEach(assignment => {
         // format the dates for the csv
         const resetLockArr = assignment.lock_at.split("T");
@@ -638,16 +648,13 @@ export default {
           dueDateArr[1] = `0${dueDateArr[1]}`;
         }
         const finalDueDate = `20${dueDateArr[2]}-${dueDateArr[0]}-${dueDateArr[1]} ${dueArr[1]}`;
-        const arr = [
-          assignment.name,
-          finalDueDate,
-          finalUnlockDate,
-          finalLockDate
-        ];
+        // check the title for commas and semicolons, and remove all
+        const newName = removeNonAlphaChars(assignment.name);
+        const arr = [newName, finalDueDate, finalUnlockDate, finalLockDate];
         csv.push(arr);
       });
       let csvContent =
-        "data:text/csv;charset=utf-8," + csv.map(e => e.join(";")).join("\n");
+        "data:text/csv;charset=utf-8," + csv.map(e => e.join(",")).join("\n");
       const encodedUri = encodeURI(csvContent);
       const link = document.createElement("a");
       link.setAttribute("href", encodedUri);
