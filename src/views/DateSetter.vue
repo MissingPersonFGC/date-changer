@@ -69,17 +69,6 @@
           />
         </div>
       </div>
-      <input
-        type="checkbox"
-        v-model="setExtension"
-        name="setExtension"
-        v-if="(startDate !== '' && endDate !== '' && !auditAssNums)"
-        @change="sortCourses"
-      />
-      <label
-        for="setExtension"
-        v-if="(startDate !== '' && endDate !== '' && !auditAssNums)"
-      >Set new end dates for students with an extension</label>
       <p v-if="(startDate !== '' && endDate !== '') || auditAssNums">
         Select a teacher:
       </p>
