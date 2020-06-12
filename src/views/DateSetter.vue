@@ -277,8 +277,9 @@ export default {
           }
         });
         this.loading = false;
-        this.allCourses = res.data.data;
-        this.sortCourses();
+        this.courses = res.data.data;
+        // this.allCourses = res.data.data;
+        // this.sortCourses();
       } catch (e) {
         this.loading = false;
         this.error = e.message;
@@ -520,6 +521,7 @@ export default {
                     }
                     const formattedPermZero = `${arr[2]}-${arr[0]}-${arr[1]}T23:59:00.000+04:00`;
                     assignments[i].lock_at = formattedPermZero;
+                    assignments[i].name = `${assignments[i].name} PZ`;
                   }
                 }
               }
