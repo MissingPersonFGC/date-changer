@@ -696,6 +696,91 @@ export default {
         x => x.apiKey === apiKey
       );
       const courseIndex = this.$data.courses.findIndex(x => x.id === course);
+
+      // TODO: This is the code for submitting the API PUT request to Canvas servers. Whenever they fix their issues with the endpoint, this should be uncommented. The code below this block handles creating the CSV file for manipulation in the Google Sheet macro.
+      // try {
+      //   if (!setExtension) {
+      //     await assignments.forEach(async assignment => {
+      //       if (!putError) {
+      //         const index = assignment.due_at.indexOf("T23:59:00.000+04:00");
+      //         const index2 = assignment.lock_at.indexOf("T23:59:00.000+04:00");
+      //         if (index === -1) {
+      //           const arr = assignment.due_at.split("T");
+      //           assignment.due_at = `${arr[0]}T23:59:00.000+04:00`;
+      //         }
+      //         if (index2 === -1) {
+      //           const arr = assignment.lock_at.split("T");
+      //           assignment.lock_at = `${arr[0]}T23:59:00.000+04:00`;
+      //         }
+      //         await axios
+      //           .put("/api/assignments", {
+      //             data: {
+      //               apiKey,
+      //               course,
+      //               assignment,
+      //               user,
+      //               teacher: this.$data.teachers[teacherIndex]._id,
+      //               courseName: this.$data.courses[courseIndex].name
+      //             }
+      //           })
+      //           .then(res => {
+      //             console.log(res.data.data);
+      //           })
+      //           .catch(err => {
+      //             putError = true;
+      //             console.error(err);
+      //             this.loading = false;
+      //             this.error = err.message;
+      //             window.location.href = "#error";
+      //           });
+      //       }
+      //     });
+      //     if (!putError) {
+      //       this.loading = false;
+      //       this.success = true;
+      //     }
+      //   } else {
+      //     const arr = extensionDate.split("T");
+      //     extension = `${arr[0]}T11:59:00+04:00`;
+      //     await assignments.forEach(async assignment => {
+      //       if (!putError) {
+      //         await axios
+      //           .post("/api/assignments", {
+      //             data: {
+      //               apiKey,
+      //               course,
+      //               assignment,
+      //               students: selectedStudents,
+      //               extension,
+      //               user,
+      //               teacher: this.$data.teachers[teacherIndex]._id,
+      //               courseName: this.$data.courses[courseIndex].name
+      //             }
+      //           })
+      //           .then(res => {
+      //             console.log(res.data.data);
+      //           })
+      //           .catch(err => {
+      //             putError = true;
+      //             console.error(err);
+      //             this.loading = false;
+      //             this.error = err.message;
+      //             window.location.href = "#error";
+      //           });
+      //       }
+      //     });
+      //     if (!putError) {
+      //       window.location.href = "#success";
+      //       this.loading = false;
+      //       this.success = true;
+      //     }
+      //   }
+      // } catch (e) {
+      //   this.loading = false;
+      //   this.error = e.message;
+      //   window.location.href = "#error";
+      // }
+
       // create the CSV file with headers
       const csv = [["Title", "Due", "Available from", "Available until"]];
       // create the file name
