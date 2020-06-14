@@ -602,18 +602,6 @@ export default {
       // create the file name
       const fileName = `${this.$data.courses[courseIndex].name} - ${this.$data.teachers[teacherIndex].fullName}`;
 
-      // check the title for commas and semicolons in the forEach loop, and remove all
-      const removeNonAlphaChars = name => {
-        const changedName = name.replace(",", "");
-        const commaIndex = changedName.indexOf(",");
-        if (commaIndex !== -1) {
-          removeNonAlphaChars(changedName);
-        } else {
-          console.log(changedName);
-          return changedName;
-        }
-      };
-
       assignments.forEach(assignment => {
         // format the dates for the csv
         const resetLockArr = assignment.lock_at.split("T");
@@ -667,8 +655,14 @@ export default {
           dueDateArr[1] = `0${dueDateArr[1]}`;
         }
         const finalDueDate = `20${dueDateArr[2]}-${dueDateArr[0]}-${dueDateArr[1]} ${dueArr[1]}`;
-        // run the recursive loop to remove commas.
-        const newName = removeNonAlphaChars(assignment.name);
+        // check the assignment name for commas and remove all for proper csv formatting
+        const newNameArr = [];
+        for (let i = 0; i < assignment.name.length; i++) {
+          if (assignment.name[i] !== ",") {
+            newNameArr.push(assignment.name[i]);
+          }
+        }
+        const newName = newNameArr.join("");
         console.log(newName);
         const arr = [newName, finalDueDate, finalUnlockDate, finalLockDate];
         csv.push(arr);
