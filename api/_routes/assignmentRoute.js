@@ -26,7 +26,10 @@ router.route("/").get(async (req, res) => {
     const regex = /([A-Za-z\s])/;
     const assignments = [];
     results.data.forEach((assignment) => {
-      if (!regex.test(assignment.name.charAt(0))) {
+      if (
+        !regex.test(assignment.name.charAt(0)) &&
+        assignment.published === true
+      ) {
         assignments.push(assignment);
       }
     });

@@ -69,17 +69,6 @@
           />
         </div>
       </div>
-      <input
-        type="checkbox"
-        v-model="setExtension"
-        name="setExtension"
-        v-if="(startDate !== '' && endDate !== '' && !auditAssNums)"
-        @change="sortCourses"
-      />
-      <label
-        for="setExtension"
-        v-if="(startDate !== '' && endDate !== '' && !auditAssNums)"
-      >Set new end dates for students with an extension</label>
       <p v-if="(startDate !== '' && endDate !== '') || auditAssNums">
         Select a teacher:
       </p>
@@ -288,8 +277,9 @@ export default {
           }
         });
         this.loading = false;
-        this.allCourses = res.data.data;
-        this.sortCourses();
+        this.courses = res.data.data;
+        // this.allCourses = res.data.data;
+        // this.sortCourses();
       } catch (e) {
         this.loading = false;
         this.error = e.message;
@@ -438,48 +428,156 @@ export default {
           }
         });
         if (!auditAssNums) {
+          let moreAssignments = false;
           const { students } = studentRes.data;
           const totalAssignments = assignments.length;
-          const flooredInterval = Math.floor(
-            (availableDates.length - 1) / totalAssignments
-          );
-          const ceiledInterval = Math.ceil(
-            (availableDates.length - 1) / totalAssignments
-          );
-          const rawInterval = (availableDates.length - 1) / totalAssignments;
-          let flooredDeviation;
-          let ceiledDeviation;
-          let numFlooredAss;
-          let numCeiledAss;
-          if (
-            ceiledInterval - rawInterval < 0.2 &&
-            ceiledInterval - rawInterval > 0.1
-          ) {
-            flooredDeviation = ceiledInterval - rawInterval;
-            ceiledDeviation = rawInterval - flooredInterval;
-            numFlooredAss = Math.floor(totalAssignments * flooredDeviation);
-            numCeiledAss = Math.ceil(totalAssignments * ceiledDeviation);
-          } else if (ceiledInterval - rawInterval > 0.2) {
-            flooredDeviation = rawInterval - flooredInterval;
-            ceiledDeviation = ceiledInterval - rawInterval;
-            numFlooredAss = Math.ceil(totalAssignments * ceiledDeviation);
-            numCeiledAss = Math.floor(totalAssignments * flooredDeviation);
-          } else {
-            flooredDeviation = ceiledInterval - rawInterval;
-            ceiledDeviation = rawInterval - flooredInterval;
-            numFlooredAss = Math.ceil(totalAssignments * flooredDeviation);
-            numCeiledAss = Math.floor(totalAssignments * ceiledDeviation);
+          if (totalAssignments - (availableDates.length - 1) > 0) {
+            moreAssignments = true;
           }
-          const intervalArr = [
-            Math.ceil((availableDates.length - 1) / totalAssignments),
-            Math.floor((availableDates.length - 1) / totalAssignments)
-          ];
-          let intervalIndex = 0;
-          let currentDate = new Date(startDate);
-          let dateIndex = 0;
-          let repeatDate = false;
-          for (let i = 0; i < totalAssignments; i++) {
-            const assignPermanentZero = (int, date) => {
+          if (!moreAssignments) {
+            const flooredInterval = Math.floor(
+              (availableDates.length - 1) / totalAssignments
+            );
+            const ceiledInterval = Math.ceil(
+              (availableDates.length - 1) / totalAssignments
+            );
+            const rawInterval = (availableDates.length - 1) / totalAssignments;
+            let flooredDeviation;
+            let ceiledDeviation;
+            let numFlooredAss;
+            let numCeiledAss;
+            if (
+              ceiledInterval - rawInterval < 0.2 &&
+              ceiledInterval - rawInterval > 0.1
+            ) {
+              flooredDeviation = ceiledInterval - rawInterval;
+              ceiledDeviation = rawInterval - flooredInterval;
+              numFlooredAss = Math.floor(totalAssignments * flooredDeviation);
+              numCeiledAss = Math.ceil(totalAssignments * ceiledDeviation);
+            } else if (ceiledInterval - rawInterval > 0.2) {
+              flooredDeviation = rawInterval - flooredInterval;
+              ceiledDeviation = ceiledInterval - rawInterval;
+              numFlooredAss = Math.ceil(totalAssignments * ceiledDeviation);
+              numCeiledAss = Math.floor(totalAssignments * flooredDeviation);
+            } else {
+              flooredDeviation = ceiledInterval - rawInterval;
+              ceiledDeviation = rawInterval - flooredInterval;
+              numFlooredAss = Math.ceil(totalAssignments * flooredDeviation);
+              numCeiledAss = Math.floor(totalAssignments * ceiledDeviation);
+            }
+            const intervalArr = [
+              Math.ceil((availableDates.length - 1) / totalAssignments),
+              Math.floor((availableDates.length - 1) / totalAssignments)
+            ];
+            let intervalIndex = 0;
+            let currentDate = new Date(startDate);
+            let dateIndex = 0;
+            let repeatDate = false;
+            for (let i = 0; i < totalAssignments; i++) {
+              const assignPermanentZero = (int, date) => {
+                if (!bypassPermZero) {
+                  let permZeroDate = new Date(date);
+                  permZeroDate.setDate(permZeroDate.getDate() + int);
+                  const difference = calculateDateSpan(permZeroDate, endDate);
+                  if (difference <= 0 || assignments[i].is_quiz_assignment) {
+                    const dt = new Date(endDate);
+                    const formatted = dt.toLocaleString("en-US", {
+                      timeZone: "Asia/Dubai",
+                      year: "numeric",
+                      day: "numeric",
+                      month: "numeric"
+                    });
+                    const dtArr = formatted.split("/");
+                    if (dtArr[0].length === 1) {
+                      dtArr[0] = `0${dtArr[0]}`;
+                    }
+                    if (dtArr[1].length === 1) {
+                      dtArr[1] = `0${dtArr[1]}`;
+                    }
+                    const formattedPermZero = `${dtArr[2]}-${dtArr[0]}-${dtArr[1]}T23:59:00.000+04:00`;
+                    assignments[i].lock_at = formattedPermZero;
+                  } else {
+                    const formZeroDate = permZeroDate.toLocaleString("en-US", {
+                      timeZone: "Asia/Dubai",
+                      year: "numeric",
+                      day: "numeric",
+                      month: "numeric"
+                    });
+                    const arr1 = formZeroDate.split("/");
+                    if (arr1[0].length === 1) {
+                      arr1[0] = `0${arr1[0]}`;
+                    }
+                    if (arr1[1].length === 1) {
+                      arr1[1] = `0${arr1[1]}`;
+                    }
+                    const earlyFormat = `${arr1[2]}-${arr1[0]}-${arr1[1]}T00:00:00.000+04:00`;
+                    const permZeroIndex = holidays.findIndex(
+                      x => x === earlyFormat
+                    );
+                    if (permZeroIndex !== -1) {
+                      assignPermanentZero(int + 1, date);
+                    } else {
+                      const arr = formZeroDate.split("/");
+                      if (arr[0].length === 1) {
+                        arr[0] = `0${arr[0]}`;
+                      }
+                      if (arr[1].length === 1) {
+                        arr[1] = `0${arr[1]}`;
+                      }
+                      const formattedPermZero = `${arr[2]}-${arr[0]}-${arr[1]}T23:59:00.000+04:00`;
+                      assignments[i].lock_at = formattedPermZero;
+                    }
+                  }
+                } else {
+                  const dt = new Date(endDate);
+                  const formatted = dt.toLocaleString("en-US", {
+                    timeZone: "Asia/Dubai",
+                    year: "numeric",
+                    day: "numeric",
+                    month: "numeric"
+                  });
+                  const dtArr = formatted.split("/");
+                  if (dtArr[0].length === 1) {
+                    dtArr[0] = `0${dtArr[0]}`;
+                  }
+                  if (dtArr[1].length === 1) {
+                    dtArr[1] = `0${dtArr[1]}`;
+                  }
+                  const formattedPermZero = `${dtArr[2]}-${dtArr[0]}-${dtArr[1]}T23:59:00.000+04:00`;
+                  assignments[i].lock_at = formattedPermZero;
+                }
+              };
+              const assignDates = int => {
+                dateIndex = dateIndex + int;
+                const arr = availableDates[dateIndex].split("T");
+                const formattedDate = `${arr[0]}T23:59:00.000+04:00`;
+                assignments[i].due_at = formattedDate;
+                assignPermanentZero(30, formattedDate);
+              };
+              if (numFlooredAss === 0) {
+                assignDates(ceiledInterval);
+                numCeiledAss -= 1;
+              } else if (numCeiledAss === 0) {
+                assignDates(flooredInterval);
+                numFlooredAss -= 1;
+              } else {
+                assignDates(intervalArr[intervalIndex]);
+                if (intervalIndex === 0) {
+                  intervalIndex = 1;
+                  numCeiledAss -= 1;
+                } else {
+                  intervalIndex = 0;
+                  numFlooredAss -= 1;
+                }
+              }
+            }
+          } else {
+            const assignmentInterval = Math.ceil(
+              totalAssignments / (availableDates.length - 1)
+            );
+            let dateIndex = 1;
+            let amountRemaining = assignmentInterval;
+            const assignPermanentZero = (int, date, i) => {
               if (!bypassPermZero) {
                 let permZeroDate = new Date(date);
                 permZeroDate.setDate(permZeroDate.getDate() + int);
@@ -533,30 +631,38 @@ export default {
                     assignments[i].lock_at = formattedPermZero;
                   }
                 }
+              } else {
+                const dt = new Date(endDate);
+                const formatted = dt.toLocaleString("en-US", {
+                  timeZone: "Asia/Dubai",
+                  year: "numeric",
+                  day: "numeric",
+                  month: "numeric"
+                });
+                const dtArr = formatted.split("/");
+                if (dtArr[0].length === 1) {
+                  dtArr[0] = `0${dtArr[0]}`;
+                }
+                if (dtArr[1].length === 1) {
+                  dtArr[1] = `0${dtArr[1]}`;
+                }
+                const formattedPermZero = `${dtArr[2]}-${dtArr[0]}-${dtArr[1]}T23:59:00.000+04:00`;
+                assignments[i].lock_at = formattedPermZero;
               }
             };
-            const assignDates = int => {
-              dateIndex = dateIndex + int;
+            const assignDates = i => {
               const arr = availableDates[dateIndex].split("T");
               const formattedDate = `${arr[0]}T23:59:00.000+04:00`;
               assignments[i].due_at = formattedDate;
-              assignPermanentZero(30, formattedDate);
-            };
-            if (numFlooredAss === 0) {
-              assignDates(ceiledInterval);
-              numCeiledAss -= 1;
-            } else if (numCeiledAss === 0) {
-              assignDates(flooredInterval);
-              numFlooredAss -= 1;
-            } else {
-              assignDates(intervalArr[intervalIndex]);
-              if (intervalIndex === 0) {
-                intervalIndex = 1;
-                numCeiledAss -= 1;
-              } else {
-                intervalIndex = 0;
-                numFlooredAss -= 1;
+              amountRemaining -= 1;
+              if (amountRemaining === 0) {
+                amountRemaining = assignmentInterval;
+                dateIndex += 1;
               }
+              assignPermanentZero(30, formattedDate, i);
+            };
+            for (let i = 0; i < totalAssignments; i++) {
+              assignDates(i);
             }
           }
           this.students = students;
@@ -590,88 +696,169 @@ export default {
         x => x.apiKey === apiKey
       );
       const courseIndex = this.$data.courses.findIndex(x => x.id === course);
-      try {
-        if (!setExtension) {
-          await assignments.forEach(async assignment => {
-            if (!putError) {
-              const index = assignment.due_at.indexOf("T23:59:00.000+04:00");
-              const index2 = assignment.lock_at.indexOf("T23:59:00.000+04:00");
-              if (index === -1) {
-                const arr = assignment.due_at.split("T");
-                assignment.due_at = `${arr[0]}T23:59:00.000+04:00`;
-              }
-              if (index2 === -1) {
-                const arr = assignment.lock_at.split("T");
-                assignment.lock_at = `${arr[0]}T23:59:00.000+04:00`;
-              }
-              await axios
-                .put("/api/assignments", {
-                  data: {
-                    apiKey,
-                    course,
-                    assignment,
-                    user,
-                    teacher: this.$data.teachers[teacherIndex]._id,
-                    courseName: this.$data.courses[courseIndex].name
-                  }
-                })
-                .then(res => {
-                  console.log(res.data.data);
-                })
-                .catch(err => {
-                  putError = true;
-                  console.error(err);
-                  this.loading = false;
-                  this.error = err.message;
-                  window.location.href = "#error";
-                });
-            }
-          });
-          if (!putError) {
-            this.loading = false;
-            this.success = true;
-          }
-        } else {
-          const arr = extensionDate.split("T");
-          extension = `${arr[0]}T11:59:00+04:00`;
-          await assignments.forEach(async assignment => {
-            if (!putError) {
-              await axios
-                .post("/api/assignments", {
-                  data: {
-                    apiKey,
-                    course,
-                    assignment,
-                    students: selectedStudents,
-                    extension,
-                    user,
-                    teacher: this.$data.teachers[teacherIndex]._id,
-                    courseName: this.$data.courses[courseIndex].name
-                  }
-                })
-                .then(res => {
-                  console.log(res.data.data);
-                })
-                .catch(err => {
-                  putError = true;
-                  console.error(err);
-                  this.loading = false;
-                  this.error = err.message;
-                  window.location.href = "#error";
-                });
-            }
-          });
-          if (!putError) {
-            window.location.href = "#success";
-            this.loading = false;
-            this.success = true;
+
+      // TODO: This is the code for submitting the API PUT request to Canvas servers. Whenever they fix their issues with the endpoint, this should be uncommented. The code below this block handles creating the CSV file for manipulation in the Google Sheet macro.
+      // try {
+      //   if (!setExtension) {
+      //     await assignments.forEach(async assignment => {
+      //       if (!putError) {
+      //         const index = assignment.due_at.indexOf("T23:59:00.000+04:00");
+      //         const index2 = assignment.lock_at.indexOf("T23:59:00.000+04:00");
+      //         if (index === -1) {
+      //           const arr = assignment.due_at.split("T");
+      //           assignment.due_at = `${arr[0]}T23:59:00.000+04:00`;
+      //         }
+      //         if (index2 === -1) {
+      //           const arr = assignment.lock_at.split("T");
+      //           assignment.lock_at = `${arr[0]}T23:59:00.000+04:00`;
+      //         }
+      //         await axios
+      //           .put("/api/assignments", {
+      //             data: {
+      //               apiKey,
+      //               course,
+      //               assignment,
+      //               user,
+      //               teacher: this.$data.teachers[teacherIndex]._id,
+      //               courseName: this.$data.courses[courseIndex].name
+      //             }
+      //           })
+      //           .then(res => {
+      //             console.log(res.data.data);
+      //           })
+      //           .catch(err => {
+      //             putError = true;
+      //             console.error(err);
+      //             this.loading = false;
+      //             this.error = err.message;
+      //             window.location.href = "#error";
+      //           });
+      //       }
+      //     });
+      //     if (!putError) {
+      //       this.loading = false;
+      //       this.success = true;
+      //     }
+      //   } else {
+      //     const arr = extensionDate.split("T");
+      //     extension = `${arr[0]}T11:59:00+04:00`;
+      //     await assignments.forEach(async assignment => {
+      //       if (!putError) {
+      //         await axios
+      //           .post("/api/assignments", {
+      //             data: {
+      //               apiKey,
+      //               course,
+      //               assignment,
+      //               students: selectedStudents,
+      //               extension,
+      //               user,
+      //               teacher: this.$data.teachers[teacherIndex]._id,
+      //               courseName: this.$data.courses[courseIndex].name
+      //             }
+      //           })
+      //           .then(res => {
+      //             console.log(res.data.data);
+      //           })
+      //           .catch(err => {
+      //             putError = true;
+      //             console.error(err);
+      //             this.loading = false;
+      //             this.error = err.message;
+      //             window.location.href = "#error";
+      //           });
+      //       }
+      //     });
+      //     if (!putError) {
+      //       window.location.href = "#success";
+      //       this.loading = false;
+      //       this.success = true;
+      //     }
+      //   }
+      // } catch (e) {
+      //   this.loading = false;
+      //   this.error = e.message;
+      //   window.location.href = "#error";
+      // }
+
+      // create the CSV file with headers
+      const csv = [["Title", "Due", "Available from", "Available until"]];
+      // create the file name
+      const fileName = `${this.$data.courses[courseIndex].name} - ${this.$data.teachers[teacherIndex].fullName}`;
+
+      assignments.forEach(assignment => {
+        // format the dates for the csv
+        const resetLockArr = assignment.lock_at.split("T");
+        const lockDate = `${resetLockArr[0]}T23:59:00.000+04:00`;
+        const resetDueArr = assignment.due_at.split("T");
+        const dueDate = `${resetDueArr[0]}T23:59:00.000+04:00`;
+        const resetUnlockArr = assignment.unlock_at.split("T");
+        const unlockDate = `${resetUnlockArr[0]}T00:00:00.000+04:00`;
+        const dtUnlock = new Date(unlockDate);
+        const dtDue = new Date(dueDate);
+        const dtLock = new Date(lockDate);
+        const formDtUnlock = dtUnlock.toLocaleString("en-us", {
+          timeStyle: "medium",
+          dateStyle: "short",
+          hour12: false
+        });
+        const unlockArr = formDtUnlock.split(", ");
+        const unlockDateArr = unlockArr[0].split("/");
+        if (unlockDateArr[0].length === 1) {
+          unlockDateArr[0] = `0${unlockDateArr[0]}`;
+        }
+        if (unlockDateArr[1].length === 1) {
+          unlockDateArr[1] = `0${unlockDateArr[1]}`;
+        }
+        const finalUnlockDate = `20${unlockDateArr[2]}-${unlockDateArr[0]}-${unlockDateArr[1]} ${unlockArr[1]}`;
+        const formDtLock = dtLock.toLocaleString("en-us", {
+          timeStyle: "medium",
+          dateStyle: "short",
+          hour12: false
+        });
+        const lockArr = formDtLock.split(", ");
+        const lockDateArr = lockArr[0].split("/");
+        if (lockDateArr[0].length === 1) {
+          lockDateArr[0] = `0${lockDateArr[0]}`;
+        }
+        if (lockDateArr[1].length === 1) {
+          lockDateArr[1] = `0${lockDateArr[1]}`;
+        }
+        const finalLockDate = `20${lockDateArr[2]}-${lockDateArr[0]}-${lockDateArr[1]} ${lockArr[1]}`;
+        const formDtDue = dtDue.toLocaleString("en-us", {
+          timeStyle: "medium",
+          dateStyle: "short",
+          hour12: false
+        });
+        const dueArr = formDtDue.split(", ");
+        const dueDateArr = dueArr[0].split("/");
+        if (dueDateArr[0].length === 1) {
+          dueDateArr[0] = `0${dueDateArr[0]}`;
+        }
+        if (dueDateArr[1].length === 1) {
+          dueDateArr[1] = `0${dueDateArr[1]}`;
+        }
+        const finalDueDate = `20${dueDateArr[2]}-${dueDateArr[0]}-${dueDateArr[1]} ${dueArr[1]}`;
+        // check the assignment name for commas and remove all for proper csv formatting
+        const newNameArr = [];
+        for (let i = 0; i < assignment.name.length; i++) {
+          if (assignment.name[i] !== ",") {
+            newNameArr.push(assignment.name[i]);
           }
         }
-      } catch (e) {
-        this.loading = false;
-        this.error = e.message;
-        window.location.href = "#error";
-      }
+        const newName = newNameArr.join("");
+        const arr = [newName, finalDueDate, finalUnlockDate, finalLockDate];
+        csv.push(arr);
+      });
+      let csvContent =
+        "data:text/csv;charset=utf-8," + csv.map(e => e.join(",")).join("\n");
+      const encodedUri = encodeURI(csvContent);
+      const link = document.createElement("a");
+      link.setAttribute("href", encodedUri);
+      link.setAttribute("download", `${fileName}.csv`);
+      document.body.appendChild(link);
+      link.click();
+      this.loading = false;
     },
     parseCSV: async function(e) {
       const { files } = e.target || e.dataTransfer;
