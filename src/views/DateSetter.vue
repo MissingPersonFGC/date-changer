@@ -521,9 +521,25 @@ export default {
                     }
                     const formattedPermZero = `${arr[2]}-${arr[0]}-${arr[1]}T23:59:00.000+04:00`;
                     assignments[i].lock_at = formattedPermZero;
-                    assignments[i].name = `${assignments[i].name} PZ`;
                   }
                 }
+              } else {
+                const dt = new Date(endDate);
+                const formatted = dt.toLocaleString("en-US", {
+                  timeZone: "Asia/Dubai",
+                  year: "numeric",
+                  day: "numeric",
+                  month: "numeric"
+                });
+                const dtArr = formatted.split("/");
+                if (dtArr[0].length === 1) {
+                  dtArr[0] = `0${dtArr[0]}`;
+                }
+                if (dtArr[1].length === 1) {
+                  dtArr[1] = `0${dtArr[1]}`;
+                }
+                const formattedPermZero = `${dtArr[2]}-${dtArr[0]}-${dtArr[1]}T23:59:00.000+04:00`;
+                assignments[i].lock_at = formattedPermZero;
               }
             };
             const assignDates = int => {
@@ -593,6 +609,7 @@ export default {
         if (commaIndex !== -1) {
           removeNonAlphaChars(changedName);
         } else {
+          console.log(changedName);
           return changedName;
         }
       };
@@ -652,6 +669,7 @@ export default {
         const finalDueDate = `20${dueDateArr[2]}-${dueDateArr[0]}-${dueDateArr[1]} ${dueArr[1]}`;
         // run the recursive loop to remove commas.
         const newName = removeNonAlphaChars(assignment.name);
+        console.log(newName);
         const arr = [newName, finalDueDate, finalUnlockDate, finalLockDate];
         csv.push(arr);
       });
