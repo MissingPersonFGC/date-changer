@@ -579,7 +579,6 @@ export default {
             let ceilInterval = Math.ceil(
               totalAssignments / (availableDates.length - 1)
             );
-            console.log(rawInterval);
             let dateIndex = 1;
             let amountRemaining;
             let nextAssign;
@@ -631,7 +630,6 @@ export default {
                 extraCeil = 11;
               }
             }
-            console.log(extraCeil);
             const initialExtra = extraCeil;
             let timesRan = 0;
             if (initialExtra > 0) {
@@ -955,6 +953,7 @@ export default {
       document.body.appendChild(link);
       link.click();
       this.loading = false;
+      this.acknowledgeNotice = false;
     },
     parseCSV: async function(e) {
       const { files } = e.target || e.dataTransfer;
