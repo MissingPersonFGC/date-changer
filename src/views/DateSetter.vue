@@ -579,16 +579,51 @@ export default {
             const ceilInterval = Math.ceil(
               totalAssignments / (availableDates.length - 1)
             );
-            console.log(rawInterval, floorInterval, ceilInterval);
             let dateIndex = 1;
             let amountRemaining;
             let nextAssign;
-            if (ceilInterval - rawInterval < 0.5) {
+            if (ceilInterval - rawInterval > 0.5) {
               amountRemaining = floorInterval;
               nextAssign = "ceil";
             } else {
               amountRemaining = ceilInterval;
               nextAssign = "floor";
+            }
+            let floorLoops = 0;
+            let ceilLoops = 0;
+            const loopQuantities = (remaining, assign, total) => {
+              if (assign === "ceil") {
+                floorLoops += 1;
+                if (total + remaining < totalAssignments) {
+                  loopQuantities(ceilInterval, "floor", total + remaining);
+                }
+              } else {
+                ceilLoops += 1;
+                if (total + remaining < totalAssignments) {
+                  loopQuantities(floorInterval, "ceil", total + remaining);
+                }
+              }
+            };
+            if (nextAssign === "ceil") {
+              loopQuantities(floorInterval, "ceil", 0);
+            } else {
+              loopQuantities(ceilInterval, "floor", 0);
+            }
+            const dateGap = floorLoops + ceilLoops - availableDates.length - 1;
+            const assignGap =
+              floorLoops * floorInterval +
+              ceilLoops * ceilInterval -
+              totalAssignments;
+            let extraCeil =
+              Math.ceil(
+                (floorLoops * floorInterval + ceilLoops * ceilInterval) /
+                  (floorLoops + ceilLoops)
+              ) +
+              (assignGap + dateGap);
+            const initialExtra = extraCeil;
+            let timesRan = 0;
+            if (initialExtra > 0) {
+              amountRemaining = ceilInterval;
             }
             const assignPermanentZero = (int, date, i) => {
               if (!bypassPermZero) {
@@ -664,21 +699,36 @@ export default {
               }
             };
             const assignDates = i => {
-              console.log(dateIndex, availableDates.length - 1);
               const arr = availableDates[dateIndex].split("T");
               const formattedDate = `${arr[0]}T23:59:00.000+04:00`;
               assignments[i].due_at = formattedDate;
               amountRemaining -= 1;
-              if (amountRemaining === 0) {
-                if (nextAssign === "ceil") {
-                  amountRemaining = ceilInterval;
-                  nextAssign = "floor";
-                } else {
-                  amountRemaining = floorInterval;
-                  nextAssign = "ceil";
-                }
-                if (dateIndex !== availableDates.length - 1) {
-                  dateIndex += 1;
+              if (initialExtra > 0) {
+                if (amountRemaining === 0) {
+                  if (extraCeil > 0) {
+                    amountRemaining = ceilInterval;
+                    extraCeil -= 1;
+                  } else if (
+                    nextAssign === "ceil" &&
+                    timesRan === extraCeil * ceilInterval
+                  ) {
+                    amountRemaining = ceilInterval;
+                  } else if (
+                    nextAssign === "floor" &&
+                    timesRan === extraCeil * ceilInterval
+                  ) {
+                    amountRemaining = floorInterval;
+                  } else if (nextAssign === "floor") {
+                    amountRemaining = floorInterval;
+                    nextAssign = "ceil";
+                  } else {
+                    amountRemaining = ceilInterval;
+                    nextAssign = "floor";
+                  }
+                  timesRan += 1;
+                  if (dateIndex !== availableDates.length - 1) {
+                    dateIndex += 1;
+                  }
                 }
               }
               assignPermanentZero(30, formattedDate, i);
