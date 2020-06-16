@@ -573,12 +573,13 @@ export default {
             }
           } else {
             const rawInterval = totalAssignments / (availableDates.length - 1);
-            const floorInterval = Math.floor(
+            let floorInterval = Math.floor(
               totalAssignments / (availableDates.length - 1)
             );
-            const ceilInterval = Math.ceil(
+            let ceilInterval = Math.ceil(
               totalAssignments / (availableDates.length - 1)
             );
+            console.log(rawInterval);
             let dateIndex = 1;
             let amountRemaining;
             let nextAssign;
@@ -615,22 +616,22 @@ export default {
               ceilLoops * ceilInterval -
               totalAssignments;
             let extraCeil;
-            if (assignGap + dateGap === 1) {
-              extraCeil =
-                Math.ceil(
-                  (floorLoops * floorInterval + ceilLoops * ceilInterval) /
-                    (floorLoops + ceilLoops)
-                ) +
-                (assignGap + dateGap);
-            } else if ((availableDates.length - 1) / totalAssignments > 0.9) {
+            if (ceilInterval - rawInterval > 0.9) {
+              ceilInterval = floorInterval;
+            }
+            if ((availableDates.length - 1) / totalAssignments > 0.9) {
               extraCeil = 0;
             } else {
-              if (ceilInterval - rawInterval > 0.1) {
+              if (ceilInterval - rawInterval > 0.3) {
                 extraCeil = Math.ceil(ceilLoops * (ceilInterval - rawInterval));
+                if (assignGap + dateGap === 1) {
+                  extraCeil += 1;
+                }
               } else {
-                extraCeil = 9999;
+                extraCeil = 11;
               }
             }
+            console.log(extraCeil);
             const initialExtra = extraCeil;
             let timesRan = 0;
             if (initialExtra > 0) {
