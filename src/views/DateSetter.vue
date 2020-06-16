@@ -614,12 +614,17 @@ export default {
               floorLoops * floorInterval +
               ceilLoops * ceilInterval -
               totalAssignments;
-            let extraCeil =
-              Math.ceil(
-                (floorLoops * floorInterval + ceilLoops * ceilInterval) /
-                  (floorLoops + ceilLoops)
-              ) +
-              (assignGap + dateGap);
+            let extraCeil;
+            if (assignGap + dateGap === 1) {
+              extraCeil =
+                Math.ceil(
+                  (floorLoops * floorInterval + ceilLoops * ceilInterval) /
+                    (floorLoops + ceilLoops)
+                ) +
+                (assignGap + dateGap);
+            } else {
+              extraCeil = 9999;
+            }
             const initialExtra = extraCeil;
             let timesRan = 0;
             if (initialExtra > 0) {
