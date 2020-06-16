@@ -575,6 +575,7 @@ export default {
             const assignmentInterval = Math.round(
               totalAssignments / (availableDates.length - 1)
             );
+            console.log(assignmentInterval);
             const remainder =
               availableDates.length -
               1 -
@@ -655,13 +656,14 @@ export default {
               }
             };
             const assignDates = i => {
+              console.log(dateIndex, availableDates.length - 1);
               const arr = availableDates[dateIndex].split("T");
               const formattedDate = `${arr[0]}T23:59:00.000+04:00`;
               assignments[i].due_at = formattedDate;
               amountRemaining -= 1;
               if (amountRemaining === 0) {
                 amountRemaining = assignmentInterval;
-                if (dateIndex !== assignments.length - 1) {
+                if (dateIndex !== availableDates.length - 1) {
                   dateIndex += 1;
                 }
               }
