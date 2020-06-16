@@ -572,9 +572,13 @@ export default {
               }
             }
           } else {
-            const assignmentInterval = Math.ceil(
+            const assignmentInterval = Math.round(
               totalAssignments / (availableDates.length - 1)
             );
+            const remainder =
+              availableDates.length -
+              1 -
+              assignmentInterval * (availableDates.length - 1);
             let dateIndex = 1;
             let amountRemaining = assignmentInterval;
             const assignPermanentZero = (int, date, i) => {
@@ -618,7 +622,7 @@ export default {
                     x => x === earlyFormat
                   );
                   if (permZeroIndex !== -1) {
-                    assignPermanentZero(int + 1, date);
+                    assignPermanentZero(int + 1, date, i);
                   } else {
                     const arr = formZeroDate.split("/");
                     if (arr[0].length === 1) {
@@ -657,7 +661,9 @@ export default {
               amountRemaining -= 1;
               if (amountRemaining === 0) {
                 amountRemaining = assignmentInterval;
-                dateIndex += 1;
+                if (dateIndex !== assignments.length - 1) {
+                  dateIndex += 1;
+                }
               }
               assignPermanentZero(30, formattedDate, i);
             };
