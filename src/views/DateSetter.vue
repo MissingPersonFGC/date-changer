@@ -622,8 +622,14 @@ export default {
                     (floorLoops + ceilLoops)
                 ) +
                 (assignGap + dateGap);
+            } else if ((availableDates.length - 1) / totalAssignments > 0.9) {
+              extraCeil = 0;
             } else {
-              extraCeil = 9999;
+              if (ceilInterval - rawInterval > 0.1) {
+                extraCeil = Math.ceil(ceilLoops * (ceilInterval - rawInterval));
+              } else {
+                extraCeil = 9999;
+              }
             }
             const initialExtra = extraCeil;
             let timesRan = 0;
@@ -734,6 +740,18 @@ export default {
                   if (dateIndex !== availableDates.length - 1) {
                     dateIndex += 1;
                   }
+                }
+              } else {
+                if (nextAssign === "floor") {
+                  amountRemaining = floorInterval;
+                  nextAssign = "ceil";
+                } else {
+                  amountRemaining = ceilInterval;
+                  nextAssign = "floor";
+                }
+                timesRan += 1;
+                if (dateIndex !== availableDates.length - 1) {
+                  dateIndex += 1;
                 }
               }
               assignPermanentZero(30, formattedDate, i);
