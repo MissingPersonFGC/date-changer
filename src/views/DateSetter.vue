@@ -572,16 +572,24 @@ export default {
               }
             }
           } else {
-            const assignmentInterval = Math.round(
+            const rawInterval = totalAssignments / (availableDates.length - 1);
+            const floorInterval = Math.floor(
               totalAssignments / (availableDates.length - 1)
             );
-            console.log(assignmentInterval);
-            const remainder =
-              availableDates.length -
-              1 -
-              assignmentInterval * (availableDates.length - 1);
+            const ceilInterval = Math.ceil(
+              totalAssignments / (availableDates.length - 1)
+            );
+            console.log(rawInterval, floorInterval, ceilInterval);
             let dateIndex = 1;
-            let amountRemaining = assignmentInterval;
+            let amountRemaining;
+            let nextAssign;
+            if (ceilInterval - rawInterval < 0.5) {
+              amountRemaining = floorInterval;
+              nextAssign = "ceil";
+            } else {
+              amountRemaining = ceilInterval;
+              nextAssign = "floor";
+            }
             const assignPermanentZero = (int, date, i) => {
               if (!bypassPermZero) {
                 let permZeroDate = new Date(date);
@@ -662,7 +670,13 @@ export default {
               assignments[i].due_at = formattedDate;
               amountRemaining -= 1;
               if (amountRemaining === 0) {
-                amountRemaining = assignmentInterval;
+                if (nextAssign === "ceil") {
+                  amountRemaining = ceilInterval;
+                  nextAssign = "floor";
+                } else {
+                  amountRemaining = floorInterval;
+                  nextAssign = "ceil";
+                }
                 if (dateIndex !== availableDates.length - 1) {
                   dateIndex += 1;
                 }
