@@ -1022,7 +1022,7 @@ export default {
   grid-template-rows: 1fr;
   grid-gap: 10px;
 }
-.grid-container .grid {
+.grid-container > .grid {
   display: grid;
   grid-gap: 10px;
   grid-template-columns: 7fr repeat(3, 1fr) !important;
@@ -1109,5 +1109,11 @@ p.agreement span:not(.extraemphasis) {
 
 p.agreement .extraemphasis {
   color: orangered;
+}
+
+@media (max-width: 1024px) {
+  .grid-container > .grid {
+    grid-template-columns: 3.5fr repeat(3, 1fr) !important;
+  }
 }
 </style>
