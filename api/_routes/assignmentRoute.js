@@ -28,7 +28,7 @@ router.route("/").get(async (req, res) => {
     results.data.forEach((assignment) => {
       const index =
         assignment.name.indexOf("Extra Credit") ||
-        assignment.name.indexOf("Bonus Assignment");
+        assignment.name.indexOf("Bonus");
       if (
         !regex.test(assignment.name.charAt(0)) &&
         assignment.published === true &&
