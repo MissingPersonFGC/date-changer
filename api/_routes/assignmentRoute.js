@@ -26,9 +26,13 @@ router.route("/").get(async (req, res) => {
     const regex = /([A-Za-z\s])/;
     const assignments = [];
     results.data.forEach((assignment) => {
+      const index =
+        assignment.name.indexOf("Extra Credit") ||
+        assignment.name.indexOf("Bonus Assignment");
       if (
         !regex.test(assignment.name.charAt(0)) &&
-        assignment.published === true
+        assignment.published === true &&
+        index === -1
       ) {
         assignments.push(assignment);
       }
