@@ -904,7 +904,12 @@ export default {
         if (unlockDateArr[1].length === 1) {
           unlockDateArr[1] = `0${unlockDateArr[1]}`;
         }
-        const finalUnlockDate = `${unlockDateArr[2]}-${unlockDateArr[0]}-${unlockDateArr[1]} ${unlockArr[1]}`;
+        let finalUnlockDate;
+        if (unlockDateArr[2].length === 4) {
+          finalUnlockDate = `${unlockDateArr[2]}-${unlockDateArr[0]}-${unlockDateArr[1]} ${unlockArr[1]}`;
+        } else {
+          finalUnlockDate = `20${unlockDateArr[2]}-${unlockDateArr[0]}-${unlockDateArr[1]} ${unlockArr[1]}`;
+        }
         const formDtLock = dtLock.toLocaleString("en-us", {
           timeStyle: "medium",
           dateStyle: "short",
@@ -918,7 +923,12 @@ export default {
         if (lockDateArr[1].length === 1) {
           lockDateArr[1] = `0${lockDateArr[1]}`;
         }
-        const finalLockDate = `${lockDateArr[2]}-${lockDateArr[0]}-${lockDateArr[1]} ${lockArr[1]}`;
+        let finalLockDate;
+        if (lockDateArr[2].length === 4) {
+          finalLockDate = `${lockDateArr[2]}-${lockDateArr[0]}-${lockDateArr[1]} ${lockArr[1]}`;
+        } else {
+          finalLockDate = `20${lockDateArr[2]}-${lockDateArr[0]}-${lockDateArr[1]} ${lockArr[1]}`;
+        }
         const formDtDue = dtDue.toLocaleString("en-us", {
           timeStyle: "medium",
           dateStyle: "short",
@@ -932,7 +942,12 @@ export default {
         if (dueDateArr[1].length === 1) {
           dueDateArr[1] = `0${dueDateArr[1]}`;
         }
-        const finalDueDate = `${dueDateArr[2]}-${dueDateArr[0]}-${dueDateArr[1]} ${dueArr[1]}`;
+        let finalDueDate;
+        if (dueDateArr[2].length === 4) {
+          finalDueDate = `${dueDateArr[2]}-${dueDateArr[0]}-${dueDateArr[1]} ${dueArr[1]}`;
+        } else {
+          finalDueDate = `20${dueDateArr[2]}-${dueDateArr[0]}-${dueDateArr[1]} ${dueArr[1]}`;
+        }
         // check the assignment name for commas and remove all for proper csv formatting
         const newNameArr = [];
         for (let i = 0; i < assignment.name.length; i++) {
