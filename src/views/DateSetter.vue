@@ -84,7 +84,7 @@
       <p v-if="teacher !== '' && courses.length > 0">Select a course:</p>
       <v-select
         v-if="teacher !== '' && courses.length > 0"
-        label="name"
+        label="fullName"
         :options="courses"
         @input="setCourse"
       ></v-select>
@@ -281,8 +281,13 @@ export default {
             apiKey
           }
         });
+				const courses = [];
+				res.data.data.forEach(course => {
+					course.fullName = `${course.name} (${course.term.name})`;
+					courses.push(course);
+				});
         this.loading = false;
-        this.courses = res.data.data;
+        this.courses = courses;
         // this.allCourses = res.data.data;
         // this.sortCourses();
       } catch (e) {
