@@ -37,6 +37,43 @@ router.route("/").get(async (req, res) => {
         assignments.push(assignment);
       }
     });
+    if (result.data.length === 100) {
+      let currentPage = 2;
+      async function apiPagination() {
+        const assignmentRes = await axios({
+          method: "GET",
+          url: `https://canvas.instructure.com/api/v1/courses/${course}/assignments`,
+          headers: {
+            Accept: "application/json+canvas-string-ids",
+          },
+          params: {
+            access_token,
+            per_page: 100,
+						include: ["overrides", "observed_users"],
+						order_by: "position",
+            page: currentPage,
+          },
+        });
+        assignmentRes.data.forEach((assignment) => {
+					const index =
+						assignment.name.indexOf("Extra Credit") ||
+						assignment.name.indexOf("Bonus");
+					if (
+						!regex.test(assignment.name.charAt(0)) &&
+						assignment.published === true &&
+						index === -1
+					) {
+						assignments.push(assignment);
+					}
+        });
+        if (courseRes.data.length === 100) {
+          currentPage += 1;
+          await apiPagination();
+        }
+      }
+      await apiPagination();
+    }
+ 
     assignments.sort((x, y) => x.name.localeCompare(y.name));
     res.status(200).json({
       assignments,
