@@ -37,7 +37,7 @@ router.route("/").get(async (req, res) => {
         assignments.push(assignment);
       }
     });
-    if (result.data.length === 100) {
+    if (results.data.length === 100) {
       let currentPage = 2;
       async function apiPagination() {
         const assignmentRes = await axios({
@@ -66,7 +66,7 @@ router.route("/").get(async (req, res) => {
 						assignments.push(assignment);
 					}
         });
-        if (courseRes.data.length === 100) {
+        if (assignmentRes.data.length === 100) {
           currentPage += 1;
           await apiPagination();
         }
