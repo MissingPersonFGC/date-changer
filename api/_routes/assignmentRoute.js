@@ -150,6 +150,11 @@ router.route("/").post(async (req, res) => {
     courseName,
   } = req.body.data;
   const title = `Course Extension Date - ${Date.now()}`;
+	const studentInts = [];
+	students.forEach(student => {
+		const intId = parseInt(student);
+		studentInts.push(intId);
+	});
   const overrideHistory = {
     date: Date.now(),
     user,
@@ -160,7 +165,7 @@ router.route("/").post(async (req, res) => {
     assignmentName: assignment.name,
     editType: "Extension",
     overrideNumber: result.id,
-    studentIds: students,
+    studentIds: studentInts,
     extensionDate: extension,
   };
   try {
