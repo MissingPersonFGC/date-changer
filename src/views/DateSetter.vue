@@ -25,7 +25,7 @@
         <input
           type="checkbox"
           v-model="auditAssNums"
-          :disabled="startDate !== ''"
+          :disabled="startDate !== '' || (setExtension && teacher !== '' && course !=='')"
         /> Run report of total
         number of assignments, tests, and quizzes.
       </p>
@@ -33,9 +33,14 @@
         <input
           type="checkbox"
           v-model="bypassPermZero"
+					:disabled="startDate !== '' || (setExtension && teacher !== '' && course !=='')"
         />
         Bypass assigning permanent zero dates
       </p>
+			<p v-if="!auditAssNums">
+				<input type="checkbox" v-model="setExtension" />
+				Set course extension dates.
+			</p>
       <label v-if="!auditAssNums">Upload holiday calendar:</label>
       <input
         type="file"
@@ -46,7 +51,7 @@
       />
       <div
         class="date-grid"
-        v-if="!auditAssNums"
+        v-if="!auditAssNums && !setExtension"
       >
         <div>
           <p>Access date:</p>
@@ -71,14 +76,14 @@
           />
         </div>
       </div>
-      <p v-if="(startDate !== '' && endDate !== '') || auditAssNums">
+      <p v-if="(startDate !== '' && endDate !== '') || auditAssNums || setExtension">
         Select a teacher:
       </p>
       <v-select
         label="fullName"
         :options="teachers"
         @input="setTeacher"
-        v-if="(startDate !== '' && endDate !== '') || auditAssNums"
+        v-if="(startDate !== '' && endDate !== '') || auditAssNums || setExtension"
       ></v-select>
 
       <p v-if="teacher !== '' && courses.length > 0">Select a course:</p>
@@ -125,6 +130,7 @@
               zone="Asia/Dubai"
               value-zone="Asia/Dubai"
               input-id="course-extension-date"
+							week-start=7
             />
           </div>
           <p>Select student(s):</p>
@@ -328,7 +334,8 @@ export default {
         dueDateLimit,
         holidays,
         bypassPermZero,
-        auditAssNums
+        auditAssNums,
+				setExtension
       } = this.$data;
       const { id } = e;
       this.loading = true;
@@ -437,6 +444,13 @@ export default {
             assignmentTotal += 1;
           }
         });
+				if (setExtension) {
+					this.assignments = res.data.assignments;
+					this.students = studentRes.data.students;
+					this.course = id;
+					this.loading = false;
+					return;
+				}
         if (!auditAssNums) {
           let moreAssignments = false;
           const { students } = studentRes.data;
