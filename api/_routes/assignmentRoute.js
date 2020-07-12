@@ -147,7 +147,8 @@ router.route("/").post(async (req, res) => {
 		extension,
 		user,
 		teacher,
-		courseName
+		courseName,
+		extensionStart: unlock_at
 	} = req.body.data;
 	const title = `Course Extension Date - ${Date.now()}`;
 	const studentInts = [];
@@ -167,7 +168,8 @@ router.route("/").post(async (req, res) => {
 					student_ids: students,
 					title,
 					due_at: extension,
-					lock_at: extension
+					lock_at: extension,
+					unlock_at
 				}
 			}
 		});
@@ -182,12 +184,12 @@ router.route("/").post(async (req, res) => {
 			editType: "Extension",
 			overrideNumber: apiResults.id,
 			studentIds: studentInts,
-			extensionDate: extension
+			extensionDate: extension,
+			extensionUnlockDate: unlock_at
 		};
 		const tracker = await historyService.saveHistory(overrideHistory);
 		res.status(201).json({
 			data: {
-				apiResults,
 				tracker
 			}
 		});
