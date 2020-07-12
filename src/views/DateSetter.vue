@@ -33,14 +33,17 @@
         <input
           type="checkbox"
           v-model="bypassPermZero"
-					:disabled="startDate !== '' || (setExtension && teacher !== '' && course !=='')"
+          :disabled="startDate !== '' || (setExtension && teacher !== '' && course !=='')"
         />
         Bypass assigning permanent zero dates
       </p>
-			<p v-if="!auditAssNums">
-				<input type="checkbox" v-model="setExtension" />
-				Set course extension dates.
-			</p>
+      <p v-if="!auditAssNums">
+        <input
+          type="checkbox"
+          v-model="setExtension"
+        />
+        Set course extension dates.
+      </p>
       <label v-if="!auditAssNums">Upload holiday calendar:</label>
       <input
         type="file"
@@ -130,7 +133,8 @@
               zone="Asia/Dubai"
               value-zone="Asia/Dubai"
               input-id="course-extension-date"
-							week-start=7
+              week-start=7
+              v-model="extension"
             />
           </div>
           <p>Select student(s):</p>
@@ -287,11 +291,11 @@ export default {
             apiKey
           }
         });
-				const courses = [];
-				res.data.data.forEach(course => {
-					course.fullName = `${course.name} (${course.term.name})`;
-					courses.push(course);
-				});
+        const courses = [];
+        res.data.data.forEach(course => {
+          course.fullName = `${course.name} (${course.term.name})`;
+          courses.push(course);
+        });
         this.loading = false;
         this.courses = courses;
         // this.allCourses = res.data.data;
@@ -335,7 +339,7 @@ export default {
         holidays,
         bypassPermZero,
         auditAssNums,
-				setExtension
+        setExtension
       } = this.$data;
       const { id } = e;
       this.loading = true;
@@ -444,13 +448,13 @@ export default {
             assignmentTotal += 1;
           }
         });
-				if (setExtension) {
-					this.assignments = res.data.assignments;
-					this.students = studentRes.data.students;
-					this.course = id;
-					this.loading = false;
-					return;
-				}
+        if (setExtension) {
+          this.assignments = res.data.assignments;
+          this.students = studentRes.data.students;
+          this.course = id;
+          this.loading = false;
+          return;
+        }
         if (!auditAssNums) {
           let moreAssignments = false;
           const { students } = studentRes.data;
@@ -858,141 +862,144 @@ export default {
       //       this.success = true;
       //     }
       //   } else {
-      //     const arr = extensionDate.split("T");
-      //     extension = `${arr[0]}T11:59:00+04:00`;
-      //     await assignments.forEach(async assignment => {
-      //       if (!putError) {
-      //         await axios
-      //           .post("/api/assignments", {
-      //             data: {
-      //               apiKey,
-      //               course,
-      //               assignment,
-      //               students: selectedStudents,
-      //               extension,
-      //               user,
-      //               teacher: this.$data.teachers[teacherIndex]._id,
-      //               courseName: this.$data.courses[courseIndex].name
-      //             }
-      //           })
-      //           .then(res => {
-      //             console.log(res.data.data);
-      //           })
-      //           .catch(err => {
-      //             putError = true;
-      //             console.error(err);
-      //             this.loading = false;
-      //             this.error = err.message;
-      //             window.location.href = "#error";
-      //           });
-      //       }
-      //     });
-      //     if (!putError) {
-      //       window.location.href = "#success";
-      //       this.loading = false;
-      //       this.success = true;
-      //     }
       //   }
       // } catch (e) {
       //   this.loading = false;
       //   this.error = e.message;
       //   window.location.href = "#error";
       // }
+      if (!setExtension) {
+        // create the CSV file with headers
+        const csv = [["Title", "Due", "Available from", "Available until"]];
+        // create the file name
+        const fileName = `${this.$data.courses[courseIndex].name} - ${this.$data.teachers[teacherIndex].fullName}`;
 
-      // create the CSV file with headers
-      const csv = [["Title", "Due", "Available from", "Available until"]];
-      // create the file name
-      const fileName = `${this.$data.courses[courseIndex].name} - ${this.$data.teachers[teacherIndex].fullName}`;
-
-      assignments.forEach(assignment => {
-        // format the dates for the csv
-        const resetLockArr = assignment.lock_at.split("T");
-        const lockDate = `${resetLockArr[0]}T23:59:00.000+04:00`;
-        const resetDueArr = assignment.due_at.split("T");
-        const dueDate = `${resetDueArr[0]}T23:59:00.000+04:00`;
-        const resetUnlockArr = assignment.unlock_at.split("T");
-        const unlockDate = `${resetUnlockArr[0]}T00:01:00.000+04:00`;
-        const dtUnlock = new Date(unlockDate);
-        const dtDue = new Date(dueDate);
-        const dtLock = new Date(lockDate);
-        const formDtUnlock = dtUnlock.toLocaleString("en-us", {
-          timeStyle: "medium",
-          dateStyle: "short",
-          hour12: false
-        });
-        const unlockArr = formDtUnlock.split(", ");
-        const unlockDateArr = unlockArr[0].split("/");
-        if (unlockDateArr[0].length === 1) {
-          unlockDateArr[0] = `0${unlockDateArr[0]}`;
-        }
-        if (unlockDateArr[1].length === 1) {
-          unlockDateArr[1] = `0${unlockDateArr[1]}`;
-        }
-        let finalUnlockDate;
-        if (unlockDateArr[2].length === 4) {
-          finalUnlockDate = `${unlockDateArr[2]}-${unlockDateArr[0]}-${unlockDateArr[1]} ${unlockArr[1]}`;
-        } else {
-          finalUnlockDate = `20${unlockDateArr[2]}-${unlockDateArr[0]}-${unlockDateArr[1]} ${unlockArr[1]}`;
-        }
-        const formDtLock = dtLock.toLocaleString("en-us", {
-          timeStyle: "medium",
-          dateStyle: "short",
-          hour12: false
-        });
-        const lockArr = formDtLock.split(", ");
-        const lockDateArr = lockArr[0].split("/");
-        if (lockDateArr[0].length === 1) {
-          lockDateArr[0] = `0${lockDateArr[0]}`;
-        }
-        if (lockDateArr[1].length === 1) {
-          lockDateArr[1] = `0${lockDateArr[1]}`;
-        }
-        let finalLockDate;
-        if (lockDateArr[2].length === 4) {
-          finalLockDate = `${lockDateArr[2]}-${lockDateArr[0]}-${lockDateArr[1]} ${lockArr[1]}`;
-        } else {
-          finalLockDate = `20${lockDateArr[2]}-${lockDateArr[0]}-${lockDateArr[1]} ${lockArr[1]}`;
-        }
-        const formDtDue = dtDue.toLocaleString("en-us", {
-          timeStyle: "medium",
-          dateStyle: "short",
-          hour12: false
-        });
-        const dueArr = formDtDue.split(", ");
-        const dueDateArr = dueArr[0].split("/");
-        if (dueDateArr[0].length === 1) {
-          dueDateArr[0] = `0${dueDateArr[0]}`;
-        }
-        if (dueDateArr[1].length === 1) {
-          dueDateArr[1] = `0${dueDateArr[1]}`;
-        }
-        let finalDueDate;
-        if (dueDateArr[2].length === 4) {
-          finalDueDate = `${dueDateArr[2]}-${dueDateArr[0]}-${dueDateArr[1]} ${dueArr[1]}`;
-        } else {
-          finalDueDate = `20${dueDateArr[2]}-${dueDateArr[0]}-${dueDateArr[1]} ${dueArr[1]}`;
-        }
-        // check the assignment name for commas and remove all for proper csv formatting
-        const newNameArr = [];
-        for (let i = 0; i < assignment.name.length; i++) {
-          if (assignment.name[i] !== ",") {
-            newNameArr.push(assignment.name[i]);
+        assignments.forEach(assignment => {
+          // format the dates for the csv
+          const resetLockArr = assignment.lock_at.split("T");
+          const lockDate = `${resetLockArr[0]}T23:59:00.000+04:00`;
+          const resetDueArr = assignment.due_at.split("T");
+          const dueDate = `${resetDueArr[0]}T23:59:00.000+04:00`;
+          const resetUnlockArr = assignment.unlock_at.split("T");
+          const unlockDate = `${resetUnlockArr[0]}T00:01:00.000+04:00`;
+          const dtUnlock = new Date(unlockDate);
+          const dtDue = new Date(dueDate);
+          const dtLock = new Date(lockDate);
+          const formDtUnlock = dtUnlock.toLocaleString("en-us", {
+            timeStyle: "medium",
+            dateStyle: "short",
+            hour12: false
+          });
+          const unlockArr = formDtUnlock.split(", ");
+          const unlockDateArr = unlockArr[0].split("/");
+          if (unlockDateArr[0].length === 1) {
+            unlockDateArr[0] = `0${unlockDateArr[0]}`;
           }
+          if (unlockDateArr[1].length === 1) {
+            unlockDateArr[1] = `0${unlockDateArr[1]}`;
+          }
+          let finalUnlockDate;
+          if (unlockDateArr[2].length === 4) {
+            finalUnlockDate = `${unlockDateArr[2]}-${unlockDateArr[0]}-${unlockDateArr[1]} ${unlockArr[1]}`;
+          } else {
+            finalUnlockDate = `20${unlockDateArr[2]}-${unlockDateArr[0]}-${unlockDateArr[1]} ${unlockArr[1]}`;
+          }
+          const formDtLock = dtLock.toLocaleString("en-us", {
+            timeStyle: "medium",
+            dateStyle: "short",
+            hour12: false
+          });
+          const lockArr = formDtLock.split(", ");
+          const lockDateArr = lockArr[0].split("/");
+          if (lockDateArr[0].length === 1) {
+            lockDateArr[0] = `0${lockDateArr[0]}`;
+          }
+          if (lockDateArr[1].length === 1) {
+            lockDateArr[1] = `0${lockDateArr[1]}`;
+          }
+          let finalLockDate;
+          if (lockDateArr[2].length === 4) {
+            finalLockDate = `${lockDateArr[2]}-${lockDateArr[0]}-${lockDateArr[1]} ${lockArr[1]}`;
+          } else {
+            finalLockDate = `20${lockDateArr[2]}-${lockDateArr[0]}-${lockDateArr[1]} ${lockArr[1]}`;
+          }
+          const formDtDue = dtDue.toLocaleString("en-us", {
+            timeStyle: "medium",
+            dateStyle: "short",
+            hour12: false
+          });
+          const dueArr = formDtDue.split(", ");
+          const dueDateArr = dueArr[0].split("/");
+          if (dueDateArr[0].length === 1) {
+            dueDateArr[0] = `0${dueDateArr[0]}`;
+          }
+          if (dueDateArr[1].length === 1) {
+            dueDateArr[1] = `0${dueDateArr[1]}`;
+          }
+          let finalDueDate;
+          if (dueDateArr[2].length === 4) {
+            finalDueDate = `${dueDateArr[2]}-${dueDateArr[0]}-${dueDateArr[1]} ${dueArr[1]}`;
+          } else {
+            finalDueDate = `20${dueDateArr[2]}-${dueDateArr[0]}-${dueDateArr[1]} ${dueArr[1]}`;
+          }
+          // check the assignment name for commas and remove all for proper csv formatting
+          const newNameArr = [];
+          for (let i = 0; i < assignment.name.length; i++) {
+            if (assignment.name[i] !== ",") {
+              newNameArr.push(assignment.name[i]);
+            }
+          }
+          const newName = newNameArr.join("");
+          const arr = [newName, finalDueDate, finalUnlockDate, finalLockDate];
+          csv.push(arr);
+        });
+        let csvContent =
+          "data:text/csv;charset=utf-8," + csv.map(e => e.join(",")).join("\n");
+        const encodedUri = encodeURI(csvContent);
+        const link = document.createElement("a");
+        link.setAttribute("href", encodedUri);
+        link.setAttribute("download", `${fileName}.csv`);
+        document.body.appendChild(link);
+        link.click();
+        this.loading = false;
+        this.acknowledgeNotice = false;
+      }
+      if (setExtension) {
+        const arr = extensionDate.split("T");
+        const extension = `${arr[0]}T23:59:00+04:00`;
+        assignments.forEach(assignment => {
+          if (!putError) {
+            axios
+              .post("/api/assignments", {
+                data: {
+                  apiKey,
+                  course,
+                  assignment,
+                  students: selectedStudents,
+                  extension,
+                  user,
+                  teacher: this.$data.teachers[teacherIndex]._id,
+                  courseName: this.$data.courses[courseIndex].name
+                }
+              })
+              .then(res => {
+                console.log(res.data.data);
+              })
+              .catch(err => {
+                putError = true;
+                console.error(err);
+                this.loading = false;
+                this.error = err.message;
+                window.location.href = "#error";
+              });
+          }
+        });
+        if (!putError) {
+          this.loading = false;
+          this.success = true;
+          window.location.href = "#success";
         }
-        const newName = newNameArr.join("");
-        const arr = [newName, finalDueDate, finalUnlockDate, finalLockDate];
-        csv.push(arr);
-      });
-      let csvContent =
-        "data:text/csv;charset=utf-8," + csv.map(e => e.join(",")).join("\n");
-      const encodedUri = encodeURI(csvContent);
-      const link = document.createElement("a");
-      link.setAttribute("href", encodedUri);
-      link.setAttribute("download", `${fileName}.csv`);
-      document.body.appendChild(link);
-      link.click();
-      this.loading = false;
-      this.acknowledgeNotice = false;
+      }
     },
     parseCSV: async function(e) {
       const { files } = e.target || e.dataTransfer;
