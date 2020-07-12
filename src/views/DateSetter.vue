@@ -127,6 +127,17 @@
           class="select-student"
         >
           <div class="set-extension">
+            <p>Available from date (course start date):</p>
+            <datetime
+              type="date"
+              zone="Asia/Dubai"
+              value-zone="Asia/Dubai"
+              input-id="course-extension-date"
+              week-start=7
+              v-model="extensionStart"
+            />
+          </div>
+          <div class="set-extension">
             <p>Extension end date:</p>
             <datetime
               type="date"
@@ -263,7 +274,8 @@ export default {
       assignmentTotal: 0,
       bypassPermZero: false,
       auditAssNums: false,
-      allCourses: []
+      allCourses: [],
+      extensionStart: ""
     };
   },
   mounted: async function() {
@@ -811,7 +823,8 @@ export default {
         setExtension,
         assignments,
         selectedStudents,
-        extension: extensionDate
+        extension: extensionDate,
+        extensionStart
       } = this.$data;
       const user = localStorage.getItem("icadDateId");
       const teacherIndex = this.$data.teachers.findIndex(
@@ -979,7 +992,8 @@ export default {
                   extension,
                   user,
                   teacher: this.$data.teachers[teacherIndex]._id,
-                  courseName: this.$data.courses[courseIndex].name
+                  courseName: this.$data.courses[courseIndex].name,
+                  extensionStart
                 }
               })
               .then(res => {
