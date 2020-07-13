@@ -1,10 +1,16 @@
 <template>
   <div class="home">
+		<div class="toggle">
+			<label class="switch">
+				<input type="checkbox" v-model="darkMode" @change="setTheme" />
+			</label>
+		</div>
     <Auth
       v-if="!user"
       :setUser="setUser"
+			:darkMode="darkMode"
     />
-    <DateSetter v-if="user" />
+		<DateSetter v-if="user" :darkMode="darkMode" />
   </div>
 </template>
 
@@ -21,6 +27,10 @@ export default {
     Auth,
     DateSetter
   },
+	props: {
+		darkMode: String,
+		setTheme: Function,
+	},
   data() {
     return {
       user: null

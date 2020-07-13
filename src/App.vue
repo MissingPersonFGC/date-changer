@@ -1,6 +1,6 @@
 <template>
   <div id="app">
-		<router-view :darkMode="darkMode" />
+		<router-view :darkMode="darkMode" :setTheme="setTheme" />
   </div>
 </template>
 
@@ -41,6 +41,13 @@ export default {
 	beforeMount() {
 		const darkMode = localStorage.getItem('darkMode') || false;
 		this.darkMode = darkMode;
+	},
+	methods: {
+		setTheme: function() {
+			const {darkMode} = this.$data;
+			this.darkMode = !darkMode;
+			localStorage.setItem('darkMode', !darkMode);
+		}
 	}
 }
 </script>

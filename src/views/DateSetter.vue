@@ -252,7 +252,11 @@ import { Settings } from "luxon";
 
 export default {
   name: "date-setter",
+	props: {
+		darkMode: String,
+	},
   data() {
+
     return {
       teachers: [],
       teacher: "",
