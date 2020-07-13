@@ -1,6 +1,6 @@
 <template>
   <div id="app">
-    <router-view />
+		<router-view :darkMode="darkMode" />
   </div>
 </template>
 
@@ -30,3 +30,17 @@ body {
   color: #42b983;
 }
 </style>
+
+<script>
+export default {
+	data() {
+		return {
+			darkMode: false
+		}
+	},
+	beforeMount() {
+		const darkMode = localStorage.getItem('darkMode') || false;
+		this.darkMode = darkMode;
+	}
+}
+</script>

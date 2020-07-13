@@ -44,13 +44,13 @@
         />
         Set course extension dates.
       </p>
-      <label v-if="!auditAssNums">Upload holiday calendar:</label>
+      <label v-if="!auditAssNums && !setExtension">Upload holiday calendar:</label>
       <input
         type="file"
         @change="parseCSV"
         multiple="false"
         accept=".csv"
-        v-if="!auditAssNums"
+        v-if="!auditAssNums && !setExtension"
       />
       <div
         class="date-grid"
