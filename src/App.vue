@@ -1,5 +1,5 @@
 <template>
-  <div id="app">
+  <div id="app" :class="darkMode ? 'dark' : 'light'">
 		<router-view :darkMode="darkMode" :setTheme="setTheme" />
   </div>
 </template>
@@ -15,6 +15,14 @@
 
 body {
   background: #ddf5ff;
+}
+
+body.dark #app {
+	color: #ccc;
+}
+
+body.dark {
+	background: #222;
 }
 
 #nav {
@@ -41,12 +49,20 @@ export default {
 	beforeMount() {
 		const darkMode = JSON.parse(localStorage.getItem('darkMode')) || false;
 		this.darkMode = darkMode;
+		if (darkMode) {
+			document.body.classList.add('dark')
+		}
 	},
 	methods: {
 		setTheme: function() {
 			const {darkMode} = this.$data;
 			this.darkMode = !darkMode;
 			localStorage.setItem('darkMode', !darkMode);
+			if (!darkMode) {
+				document.body.classList.add('dark')
+			} else {
+				document.body.classList.remove('dark')
+			}
 		}
 	}
 }
