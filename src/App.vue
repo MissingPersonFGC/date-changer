@@ -39,7 +39,7 @@ export default {
 		}
 	},
 	beforeMount() {
-		const darkMode = localStorage.getItem('darkMode') || false;
+		const darkMode = JSON.parse(localStorage.getItem('darkMode')) || false;
 		this.darkMode = darkMode;
 	},
 	methods: {

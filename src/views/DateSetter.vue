@@ -253,7 +253,7 @@ import { Settings } from "luxon";
 export default {
   name: "date-setter",
 	props: {
-		darkMode: String,
+		darkMode: Boolean
 	},
   data() {
 
