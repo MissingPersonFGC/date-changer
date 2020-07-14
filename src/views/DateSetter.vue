@@ -87,6 +87,7 @@
         :options="teachers"
         @input="setTeacher"
         v-if="(startDate !== '' && endDate !== '') || auditAssNums || setExtension"
+				class="style-chooser"
       ></v-select>
 
       <p v-if="teacher !== '' && courses.length > 0">Select a course:</p>
@@ -95,6 +96,7 @@
         label="fullName"
         :options="courses"
         @input="setCourse"
+				class="style-chooser"
       ></v-select>
     </div>
     <div

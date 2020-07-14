@@ -11,10 +11,12 @@
   -moz-osx-font-smoothing: grayscale;
   text-align: center;
   color: #2c3e50;
+	transition: 0.4s ease-in-out;
 }
 
 body {
   background: #ddf5ff;
+	transition: 0.4s ease-in-out;
 }
 
 body.dark #app {

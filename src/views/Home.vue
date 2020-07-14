@@ -131,6 +131,32 @@ button.submit:hover {
   font-weight: bold;
 }
 
+body .style-chooser,
+body .style-chooser .vs__clear,
+body .style_chooser .vs__open-indicator,
+body .style_chooser .vs__selected,
+body .style_chooser .vs__search::placeholder {
+	transition: 0.4s ease-in-out;
+}
+
+body.dark .style-chooser {
+	border: 1px solid #fff;
+	border-radius: 5px;
+}
+
+body.dark .style-chooser .vs__clear,
+body.dark .style-chooser .vs__open-indicator {
+  fill: #ddd;
+}
+
+body.dark .style-chooser .vs__selected {
+	color: #aaa;
+}
+
+body.dark .style-chooser .vs__search::placeholder {
+	color: #ddd;
+}
+
 @keyframes rotation {
   from {
     transform: rotateZ(0deg);
