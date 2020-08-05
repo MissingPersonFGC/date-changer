@@ -466,7 +466,10 @@ export default {
             let repeatDate = false;
             for (let i = 0; i < totalAssignments; i++) {
               const assignPermanentZero = (int, date) => {
-                if (!bypassPermZero && assignments[i].name.indexOf("-PZ") !== -1) {
+                if (
+                  !bypassPermZero &&
+                  assignments[i].name.indexOf("-PZ") !== -1
+                ) {
                   let permZeroDate = new Date(date);
                   permZeroDate.setDate(permZeroDate.getDate() + int);
                   const difference = calculateDateSpan(permZeroDate, endDate);
@@ -627,7 +630,10 @@ export default {
               amountRemaining = ceilInterval;
             }
             const assignPermanentZero = (int, date, i) => {
-              if (!bypassPermZero && assignment.name.indexOf("-PZ") !== -1) {
+              if (
+                !bypassPermZero &&
+                assignments[i].name.indexOf("-PZ") !== -1
+              ) {
                 let permZeroDate = new Date(date);
                 permZeroDate.setDate(permZeroDate.getDate() + int);
                 const difference = calculateDateSpan(permZeroDate, endDate);
