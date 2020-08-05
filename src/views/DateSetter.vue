@@ -1,25 +1,12 @@
 <template>
   <div class="date-setter">
-    <div
-      class="loading"
-      v-if="loading"
-      :aria-busy="loading"
-    ></div>
+    <div class="loading" v-if="loading" :aria-busy="loading"></div>
     <h1>Assignment Date Editor</h1>
     <div class="selection">
-      <p
-        v-if="success"
-        class="success"
-        id="success"
-      >
-        Assignments successfully updated.
-      </p>
-      <p
-        v-if="error"
-        class="error"
-        id="error"
-      >
-        <span>Error:</span> {{ error }}
+      <p v-if="success" class="success" id="success">Assignments successfully updated.</p>
+      <p v-if="error" class="error" id="error">
+        <span>Error:</span>
+        {{ error }}
       </p>
       <p>
         <input
@@ -38,10 +25,7 @@
         Bypass assigning permanent zero dates
       </p>
       <p v-if="!auditAssNums">
-        <input
-          type="checkbox"
-          v-model="setExtension"
-        />
+        <input type="checkbox" v-model="setExtension" />
         Set course extension dates.
       </p>
       <label v-if="!auditAssNums && !setExtension">Upload holiday calendar:</label>
@@ -52,14 +36,11 @@
         accept=".csv"
         v-if="!auditAssNums && !setExtension"
       />
-      <div
-        class="date-grid"
-        v-if="!auditAssNums && !setExtension"
-      >
+      <div class="date-grid" v-if="!auditAssNums && !setExtension">
         <div>
           <p>Access date:</p>
           <datetime
-            week-start=7
+            week-start="7"
             type="date"
             v-model="startDate"
             zone="Asia/Dubai"
@@ -70,7 +51,7 @@
         <div>
           <p>Last date to submit work:</p>
           <datetime
-            week-start=7
+            week-start="7"
             type="date"
             v-model="endDate"
             zone="Asia/Dubai"
@@ -79,15 +60,15 @@
           />
         </div>
       </div>
-      <p v-if="(startDate !== '' && endDate !== '') || auditAssNums || setExtension">
-        Select a teacher:
-      </p>
+      <p
+        v-if="(startDate !== '' && endDate !== '') || auditAssNums || setExtension"
+      >Select a teacher:</p>
       <v-select
         label="fullName"
         :options="teachers"
         @input="setTeacher"
         v-if="(startDate !== '' && endDate !== '') || auditAssNums || setExtension"
-				class="style-chooser"
+        class="style-chooser"
       ></v-select>
 
       <p v-if="teacher !== '' && courses.length > 0">Select a course:</p>
@@ -96,13 +77,10 @@
         label="fullName"
         :options="courses"
         @input="setCourse"
-				class="style-chooser"
+        class="style-chooser"
       ></v-select>
     </div>
-    <div
-      class="assignments"
-      v-if="course !== ''"
-    >
+    <div class="assignments" v-if="course !== ''">
       <h2>Assignments</h2>
       <h3>Grand Total of Assignments: {{ assignments.length }}</h3>
       <h3>Number of Assignments & Discussions: {{ assignmentTotal }}</h3>
@@ -112,22 +90,13 @@
         correct. Also, set the due date and end date for the semester exam
         before submitting the dates.
       </p>
-      <p
-        class="notice"
-        v-if="!setExtension && !auditAssNums"
-      >
+      <p class="notice" v-if="!setExtension && !auditAssNums">
         <span>NOTE:</span> The submit button will NOT enable until you have
         manually set the due and end date for the semester exam, and checked the
         box above the submit button.
       </p>
-      <div
-        class="set-extension"
-        v-if="!auditAssNums"
-      >
-        <div
-          v-if="setExtension"
-          class="select-student"
-        >
+      <div class="set-extension" v-if="!auditAssNums">
+        <div v-if="setExtension" class="select-student">
           <div class="set-extension">
             <p>Available from date (course start date):</p>
             <datetime
@@ -135,7 +104,7 @@
               zone="Asia/Dubai"
               value-zone="Asia/Dubai"
               input-id="course-extension-date"
-              week-start=7
+              week-start="7"
               v-model="extensionStart"
             />
           </div>
@@ -146,52 +115,32 @@
               zone="Asia/Dubai"
               value-zone="Asia/Dubai"
               input-id="course-extension-date"
-              week-start=7
+              week-start="7"
               v-model="extension"
             />
           </div>
           <p>Select student(s):</p>
           <div class="student-grid">
-            <div
-              class="student"
-              v-for="student in students"
-              :key="student.id"
-            >
-              <input
-                type="checkbox"
-                :value="student.id"
-                v-model="selectedStudents"
-              />
+            <div class="student" v-for="student in students" :key="student.id">
+              <input type="checkbox" :value="student.id" v-model="selectedStudents" />
               {{ student.sortable_name }}
             </div>
           </div>
-          <button
-            class="submit"
-            @click.prevent="submitDates"
-          >
-            Submit Extension
-          </button>
+          <button class="submit" @click.prevent="submitDates">Submit Extension</button>
         </div>
       </div>
-      <div
-        class="grid-container"
-        v-if="!setExtension && !auditAssNums"
-      >
+      <div class="grid-container" v-if="!setExtension && !auditAssNums">
         <div class="grid grid-header">
           <div class="name">Assignment Name:</div>
           <div class="unlock">Start Date:</div>
           <div class="due">Due Date:</div>
           <div class="permanent-zero">End Date:</div>
         </div>
-        <div
-          class="grid"
-          v-for="assignment in assignments"
-          :key="assignment.id"
-        >
+        <div class="grid" v-for="assignment in assignments" :key="assignment.id">
           <div class="name">{{ assignment.name }}</div>
           <div class="unlock">
             <datetime
-              week-start=7
+              week-start="7"
               type="date"
               v-model="assignment.unlock_at"
               zone="Asia/Dubai"
@@ -201,7 +150,7 @@
           </div>
           <div class="due">
             <datetime
-              week-start=7
+              week-start="7"
               type="date"
               v-model="assignment.due_at"
               zone="Asia/Dubai"
@@ -211,7 +160,7 @@
           </div>
           <div class="permanent-zero">
             <datetime
-              week-start=7
+              week-start="7"
               type="date"
               v-model="assignment.lock_at"
               zone="Asia/Dubai"
@@ -221,27 +170,24 @@
           </div>
         </div>
       </div>
-      <p
-        class="agreement"
-        v-if="!setExtension && !auditAssNums"
-      >
-        <input
-          type="checkbox"
-          v-model="acknowledgeNotice"
-        />
-        I acknowledge that I have checked <span>all</span> start dates, due
+      <p class="agreement" v-if="!setExtension && !auditAssNums">
+        <input type="checkbox" v-model="acknowledgeNotice" />
+        I acknowledge that I have checked
+        <span>all</span> start dates, due
         dates, and end dates on each assignment.
-        <span class="extraemphasis">I have also manually set the due and end dates on the semester
-          exam.</span>
+        <span
+          class="extraemphasis"
+        >
+          I have also manually set the due and end dates on the semester
+          exam.
+        </span>
       </p>
       <button
         class="submit"
         @click.prevent="submitDates"
         v-if="!setExtension && !auditAssNums"
         :disabled="!acknowledgeNotice"
-      >
-        Submit Dates
-      </button>
+      >Submit Dates</button>
     </div>
   </div>
 </template>
@@ -254,11 +200,10 @@ import { Settings } from "luxon";
 
 export default {
   name: "date-setter",
-	props: {
-		darkMode: Boolean
-	},
+  props: {
+    darkMode: Boolean
+  },
   data() {
-
     return {
       teachers: [],
       teacher: "",
@@ -521,7 +466,7 @@ export default {
             let repeatDate = false;
             for (let i = 0; i < totalAssignments; i++) {
               const assignPermanentZero = (int, date) => {
-                if (!bypassPermZero) {
+                if (!bypassPermZero && assignments[i].name.indexOf("-PZ") !== -1) {
                   let permZeroDate = new Date(date);
                   permZeroDate.setDate(permZeroDate.getDate() + int);
                   const difference = calculateDateSpan(permZeroDate, endDate);
@@ -682,7 +627,7 @@ export default {
               amountRemaining = ceilInterval;
             }
             const assignPermanentZero = (int, date, i) => {
-              if (!bypassPermZero) {
+              if (!bypassPermZero && assignment.name.indexOf("-PZ") !== -1) {
                 let permZeroDate = new Date(date);
                 permZeroDate.setDate(permZeroDate.getDate() + int);
                 const difference = calculateDateSpan(permZeroDate, endDate);
