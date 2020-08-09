@@ -1,10 +1,22 @@
 <template>
   <div class="date-setter">
-    <div class="loading" v-if="loading" :aria-busy="loading"></div>
+    <div
+      class="loading"
+      v-if="loading"
+      :aria-busy="loading"
+    ></div>
     <h1>Assignment Date Editor</h1>
     <div class="selection">
-      <p v-if="success" class="success" id="success">Assignments successfully updated.</p>
-      <p v-if="error" class="error" id="error">
+      <p
+        v-if="success"
+        class="success"
+        id="success"
+      >Assignments successfully updated.</p>
+      <p
+        v-if="error"
+        class="error"
+        id="error"
+      >
         <span>Error:</span>
         {{ error }}
       </p>
@@ -25,7 +37,10 @@
         Bypass assigning permanent zero dates
       </p>
       <p v-if="!auditAssNums">
-        <input type="checkbox" v-model="setExtension" />
+        <input
+          type="checkbox"
+          v-model="setExtension"
+        />
         Set course extension dates.
       </p>
       <label v-if="!auditAssNums && !setExtension">Upload holiday calendar:</label>
@@ -36,7 +51,10 @@
         accept=".csv"
         v-if="!auditAssNums && !setExtension"
       />
-      <div class="date-grid" v-if="!auditAssNums && !setExtension">
+      <div
+        class="date-grid"
+        v-if="!auditAssNums && !setExtension"
+      >
         <div>
           <p>Access date:</p>
           <datetime
@@ -60,9 +78,7 @@
           />
         </div>
       </div>
-      <p
-        v-if="(startDate !== '' && endDate !== '') || auditAssNums || setExtension"
-      >Select a teacher:</p>
+      <p v-if="(startDate !== '' && endDate !== '') || auditAssNums || setExtension">Select a teacher:</p>
       <v-select
         label="fullName"
         :options="teachers"
@@ -80,7 +96,10 @@
         class="style-chooser"
       ></v-select>
     </div>
-    <div class="assignments" v-if="course !== ''">
+    <div
+      class="assignments"
+      v-if="course !== ''"
+    >
       <h2>Assignments</h2>
       <h3>Grand Total of Assignments: {{ assignments.length }}</h3>
       <h3>Number of Assignments & Discussions: {{ assignmentTotal }}</h3>
@@ -90,13 +109,22 @@
         correct. Also, set the due date and end date for the semester exam
         before submitting the dates.
       </p>
-      <p class="notice" v-if="!setExtension && !auditAssNums">
+      <p
+        class="notice"
+        v-if="!setExtension && !auditAssNums"
+      >
         <span>NOTE:</span> The submit button will NOT enable until you have
         manually set the due and end date for the semester exam, and checked the
         box above the submit button.
       </p>
-      <div class="set-extension" v-if="!auditAssNums">
-        <div v-if="setExtension" class="select-student">
+      <div
+        class="set-extension"
+        v-if="!auditAssNums"
+      >
+        <div
+          v-if="setExtension"
+          class="select-student"
+        >
           <div class="set-extension">
             <p>Available from date (course start date):</p>
             <datetime
@@ -121,22 +149,40 @@
           </div>
           <p>Select student(s):</p>
           <div class="student-grid">
-            <div class="student" v-for="student in students" :key="student.id">
-              <input type="checkbox" :value="student.id" v-model="selectedStudents" />
+            <div
+              class="student"
+              v-for="student in students"
+              :key="student.id"
+            >
+              <input
+                type="checkbox"
+                :value="student.id"
+                v-model="selectedStudents"
+              />
               {{ student.sortable_name }}
             </div>
           </div>
-          <button class="submit" @click.prevent="submitDates">Submit Extension</button>
+          <button
+            class="submit"
+            @click.prevent="submitDates"
+          >Submit Extension</button>
         </div>
       </div>
-      <div class="grid-container" v-if="!setExtension && !auditAssNums">
+      <div
+        class="grid-container"
+        v-if="!setExtension && !auditAssNums"
+      >
         <div class="grid grid-header">
           <div class="name">Assignment Name:</div>
           <div class="unlock">Start Date:</div>
           <div class="due">Due Date:</div>
           <div class="permanent-zero">End Date:</div>
         </div>
-        <div class="grid" v-for="assignment in assignments" :key="assignment.id">
+        <div
+          class="grid"
+          v-for="assignment in assignments"
+          :key="assignment.id"
+        >
           <div class="name">{{ assignment.name }}</div>
           <div class="unlock">
             <datetime
@@ -170,14 +216,18 @@
           </div>
         </div>
       </div>
-      <p class="agreement" v-if="!setExtension && !auditAssNums">
-        <input type="checkbox" v-model="acknowledgeNotice" />
+      <p
+        class="agreement"
+        v-if="!setExtension && !auditAssNums"
+      >
+        <input
+          type="checkbox"
+          v-model="acknowledgeNotice"
+        />
         I acknowledge that I have checked
         <span>all</span> start dates, due
         dates, and end dates on each assignment.
-        <span
-          class="extraemphasis"
-        >
+        <span class="extraemphasis">
           I have also manually set the due and end dates on the semester
           exam.
         </span>
@@ -426,44 +476,22 @@ export default {
             moreAssignments = true;
           }
           if (!moreAssignments) {
+            // get remainder.
+            const remainder = (availableDates.length - 1) % totalAssignments;
+            console.log(remainder, availableDates.length - 1);
             const flooredInterval = Math.floor(
               (availableDates.length - 1) / totalAssignments
             );
+            let lesserGap = totalAssignments - remainder;
             const ceiledInterval = Math.ceil(
               (availableDates.length - 1) / totalAssignments
             );
-            const rawInterval = (availableDates.length - 1) / totalAssignments;
-            let flooredDeviation;
-            let ceiledDeviation;
-            let numFlooredAss;
-            let numCeiledAss;
-            if (
-              ceiledInterval - rawInterval < 0.2 &&
-              ceiledInterval - rawInterval > 0.1
-            ) {
-              flooredDeviation = ceiledInterval - rawInterval;
-              ceiledDeviation = rawInterval - flooredInterval;
-              numFlooredAss = Math.floor(totalAssignments * flooredDeviation);
-              numCeiledAss = Math.ceil(totalAssignments * ceiledDeviation);
-            } else if (ceiledInterval - rawInterval > 0.2) {
-              flooredDeviation = rawInterval - flooredInterval;
-              ceiledDeviation = ceiledInterval - rawInterval;
-              numFlooredAss = Math.ceil(totalAssignments * ceiledDeviation);
-              numCeiledAss = Math.floor(totalAssignments * flooredDeviation);
-            } else {
-              flooredDeviation = ceiledInterval - rawInterval;
-              ceiledDeviation = rawInterval - flooredInterval;
-              numFlooredAss = Math.ceil(totalAssignments * flooredDeviation);
-              numCeiledAss = Math.floor(totalAssignments * ceiledDeviation);
-            }
-            const intervalArr = [
-              Math.ceil((availableDates.length - 1) / totalAssignments),
-              Math.floor((availableDates.length - 1) / totalAssignments)
-            ];
-            let intervalIndex = 0;
+            console.log(
+              `There will be ${remainder} assignments with ${ceiledInterval} days between them, and there will be ${lesserGap} assignments with ${flooredInterval} days between them. There are ${availableDates.length -
+                1} days in the course.`
+            );
             let currentDate = new Date(startDate);
             let dateIndex = 0;
-            let repeatDate = false;
             for (let i = 0; i < totalAssignments; i++) {
               const assignPermanentZero = (int, date) => {
                 if (
@@ -541,94 +569,49 @@ export default {
                   assignments[i].lock_at = formattedPermZero;
                 }
               };
-              const assignDates = int => {
-                dateIndex = dateIndex + int;
+              const assignDates = () => {
+                // check to see if small gap is completed.
+                // if not, run the small gap. then subtract one from small gap limit before assigning permanent zeroes.
+                // if it is, then run the large gap, then assign permanent zeroes.
+                if (lesserGap !== 0) {
+                  dateIndex += flooredInterval;
+                  lesserGap -= 1;
+                } else {
+                  dateIndex += ceiledInterval;
+                }
                 const arr = availableDates[dateIndex].split("T");
                 const formattedDate = `${arr[0]}T23:59:00.000+04:00`;
                 assignments[i].due_at = formattedDate;
                 assignPermanentZero(30, formattedDate);
               };
-              if (numFlooredAss === 0) {
-                assignDates(ceiledInterval);
-                numCeiledAss -= 1;
-              } else if (numCeiledAss === 0) {
-                assignDates(flooredInterval);
-                numFlooredAss -= 1;
-              } else {
-                assignDates(intervalArr[intervalIndex]);
-                if (intervalIndex === 0) {
-                  intervalIndex = 1;
-                  numCeiledAss -= 1;
-                } else {
-                  intervalIndex = 0;
-                  numFlooredAss -= 1;
-                }
-              }
+              assignDates();
             }
           } else {
-            const rawInterval = totalAssignments / (availableDates.length - 1);
-            let floorInterval = Math.floor(
+            // get the remainder
+            let remainder = totalAssignments % (availableDates.length - 1);
+            const dividend = Math.floor(
               totalAssignments / (availableDates.length - 1)
             );
-            let ceilInterval = Math.ceil(
+            const roundedUp = Math.ceil(
               totalAssignments / (availableDates.length - 1)
+            );
+            const subtrahend = availableDates.length - 1 - remainder;
+            const findLowestNumber = (num1, num2) => {
+              if (num1 < num2) {
+                return num1, true;
+              }
+              return num2, false;
+            };
+            let { lowestNumber, isRemainder } = findLowestNumber(
+              remainder,
+              subtrahend
+            );
+            let currentRate = roundedUp;
+            console.log(
+              `${remainder} days have ${dividend} assignments, and ${lowestNumber} days have ${roundedUp} assignments. There are ${availableDates.length -
+                1} days in the course available for assignments.`
             );
             let dateIndex = 1;
-            let amountRemaining;
-            let nextAssign;
-            if (ceilInterval - rawInterval > 0.5) {
-              amountRemaining = floorInterval;
-              nextAssign = "ceil";
-            } else {
-              amountRemaining = ceilInterval;
-              nextAssign = "floor";
-            }
-            let floorLoops = 0;
-            let ceilLoops = 0;
-            const loopQuantities = (remaining, assign, total) => {
-              if (assign === "ceil") {
-                floorLoops += 1;
-                if (total + remaining < totalAssignments) {
-                  loopQuantities(ceilInterval, "floor", total + remaining);
-                }
-              } else {
-                ceilLoops += 1;
-                if (total + remaining < totalAssignments) {
-                  loopQuantities(floorInterval, "ceil", total + remaining);
-                }
-              }
-            };
-            if (nextAssign === "ceil") {
-              loopQuantities(floorInterval, "ceil", 0);
-            } else {
-              loopQuantities(ceilInterval, "floor", 0);
-            }
-            const dateGap = floorLoops + ceilLoops - availableDates.length - 1;
-            const assignGap =
-              floorLoops * floorInterval +
-              ceilLoops * ceilInterval -
-              totalAssignments;
-            let extraCeil;
-            if (ceilInterval - rawInterval > 0.9) {
-              ceilInterval = floorInterval;
-            }
-            if ((availableDates.length - 1) / totalAssignments > 0.9) {
-              extraCeil = 0;
-            } else {
-              if (ceilInterval - rawInterval > 0.3) {
-                extraCeil = Math.ceil(ceilLoops * (ceilInterval - rawInterval));
-                if (assignGap + dateGap === 1) {
-                  extraCeil += 1;
-                }
-              } else {
-                extraCeil = 11;
-              }
-            }
-            const initialExtra = extraCeil;
-            let timesRan = 0;
-            if (initialExtra > 0) {
-              amountRemaining = ceilInterval;
-            }
             const assignPermanentZero = (int, date, i) => {
               if (
                 !bypassPermZero &&
@@ -706,49 +689,31 @@ export default {
               }
             };
             const assignDates = i => {
+              // assign date.
+              // subtract one from currentRate.
+              // check to see if currentRate is 0.
+              // if it is, check to see if lowerNumber is 0 and add 1 to dateIndex.
+              // if it isn't reassign currentRate to roundedUp and subtract one from lowerNumber. else assign currentRate to dividend.
               const arr = availableDates[dateIndex].split("T");
               const formattedDate = `${arr[0]}T23:59:00.000+04:00`;
               assignments[i].due_at = formattedDate;
-              amountRemaining -= 1;
-              if (initialExtra > 0) {
-                if (amountRemaining === 0) {
-                  if (extraCeil > 0) {
-                    amountRemaining = ceilInterval;
-                    extraCeil -= 1;
-                  } else if (
-                    nextAssign === "ceil" &&
-                    timesRan === extraCeil * ceilInterval
-                  ) {
-                    amountRemaining = ceilInterval;
-                  } else if (
-                    nextAssign === "floor" &&
-                    timesRan === extraCeil * ceilInterval
-                  ) {
-                    amountRemaining = floorInterval;
-                  } else if (nextAssign === "floor") {
-                    amountRemaining = floorInterval;
-                    nextAssign = "ceil";
+              currentRate -= 1;
+              if (currentRate === 0) {
+                if (lowestNumber !== 0) {
+                  if (!isRemainder) {
+                    currentRate = roundedUp;
                   } else {
-                    amountRemaining = ceilInterval;
-                    nextAssign = "floor";
+                    currentRate = dividend;
                   }
-                  timesRan += 1;
-                  if (dateIndex !== availableDates.length - 1) {
-                    dateIndex += 1;
-                  }
-                }
-              } else {
-                if (nextAssign === "floor") {
-                  amountRemaining = floorInterval;
-                  nextAssign = "ceil";
+                  lowestNumber -= 1;
                 } else {
-                  amountRemaining = ceilInterval;
-                  nextAssign = "floor";
+                  if (!isRemainder) {
+                    currentRate = dividend;
+                  } else {
+                    currentRate = roundedUp;
+                  }
                 }
-                timesRan += 1;
-                if (dateIndex !== availableDates.length - 1) {
-                  dateIndex += 1;
-                }
+                dateIndex += 1;
               }
               assignPermanentZero(30, formattedDate, i);
             };
