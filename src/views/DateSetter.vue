@@ -426,7 +426,6 @@ export default {
             moreAssignments = true;
           }
           if (!moreAssignments) {
-            // get remainder.
             const remainder = (availableDates.length - 1) % totalAssignments;
             console.log(remainder, availableDates.length - 1);
             const flooredInterval = Math.floor(
@@ -436,10 +435,7 @@ export default {
             const ceiledInterval = Math.ceil(
               (availableDates.length - 1) / totalAssignments
             );
-            console.log(
-              `There will be ${remainder} assignments with ${ceiledInterval} days between them, and there will be ${lesserGap} assignments with ${flooredInterval} days between them. There are ${availableDates.length -
-                1} days in the course.`
-            );
+
             let currentDate = new Date(startDate);
             let dateIndex = 0;
             for (let i = 0; i < totalAssignments; i++) {
@@ -520,9 +516,6 @@ export default {
                 }
               };
               const assignDates = () => {
-                // check to see if small gap is completed.
-                // if not, run the small gap. then subtract one from small gap limit before assigning permanent zeroes.
-                // if it is, then run the large gap, then assign permanent zeroes.
                 if (lesserGap !== 0) {
                   dateIndex += flooredInterval;
                   lesserGap -= 1;
@@ -537,7 +530,6 @@ export default {
               assignDates();
             }
           } else {
-            // get the remainder
             let remainder = totalAssignments % (availableDates.length - 1);
             const dividend = Math.floor(
               totalAssignments / (availableDates.length - 1)
@@ -557,10 +549,6 @@ export default {
               subtrahend
             );
             let currentRate = roundedUp;
-            console.log(
-              `${remainder} days have ${dividend} assignments, and ${subtrahend} days have ${roundedUp} assignments. There are ${availableDates.length -
-                1} days in the course available for assignments.`
-            );
             let dateIndex = 1;
             const assignPermanentZero = (int, date, i) => {
               if (
@@ -639,11 +627,6 @@ export default {
               }
             };
             const assignDates = i => {
-              // assign date.
-              // subtract one from currentRate.
-              // check to see if currentRate is 0.
-              // if it is, check to see if lowerNumber is 0 and add 1 to dateIndex.
-              // if it isn't reassign currentRate to roundedUp and subtract one from lowerNumber. else assign currentRate to dividend.
               const arr = availableDates[dateIndex].split("T");
               const formattedDate = `${arr[0]}T23:59:00.000+04:00`;
               assignments[i].due_at = formattedDate;
