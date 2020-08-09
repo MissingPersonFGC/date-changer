@@ -1,22 +1,10 @@
 <template>
   <div class="date-setter">
-    <div
-      class="loading"
-      v-if="loading"
-      :aria-busy="loading"
-    ></div>
+    <div class="loading" v-if="loading" :aria-busy="loading"></div>
     <h1>Assignment Date Editor</h1>
     <div class="selection">
-      <p
-        v-if="success"
-        class="success"
-        id="success"
-      >Assignments successfully updated.</p>
-      <p
-        v-if="error"
-        class="error"
-        id="error"
-      >
+      <p v-if="success" class="success" id="success">Assignments successfully updated.</p>
+      <p v-if="error" class="error" id="error">
         <span>Error:</span>
         {{ error }}
       </p>
@@ -37,10 +25,7 @@
         Bypass assigning permanent zero dates
       </p>
       <p v-if="!auditAssNums">
-        <input
-          type="checkbox"
-          v-model="setExtension"
-        />
+        <input type="checkbox" v-model="setExtension" />
         Set course extension dates.
       </p>
       <label v-if="!auditAssNums && !setExtension">Upload holiday calendar:</label>
@@ -51,10 +36,7 @@
         accept=".csv"
         v-if="!auditAssNums && !setExtension"
       />
-      <div
-        class="date-grid"
-        v-if="!auditAssNums && !setExtension"
-      >
+      <div class="date-grid" v-if="!auditAssNums && !setExtension">
         <div>
           <p>Access date:</p>
           <datetime
@@ -78,7 +60,9 @@
           />
         </div>
       </div>
-      <p v-if="(startDate !== '' && endDate !== '') || auditAssNums || setExtension">Select a teacher:</p>
+      <p
+        v-if="(startDate !== '' && endDate !== '') || auditAssNums || setExtension"
+      >Select a teacher:</p>
       <v-select
         label="fullName"
         :options="teachers"
@@ -96,10 +80,7 @@
         class="style-chooser"
       ></v-select>
     </div>
-    <div
-      class="assignments"
-      v-if="course !== ''"
-    >
+    <div class="assignments" v-if="course !== ''">
       <h2>Assignments</h2>
       <h3>Grand Total of Assignments: {{ assignments.length }}</h3>
       <h3>Number of Assignments & Discussions: {{ assignmentTotal }}</h3>
@@ -109,22 +90,13 @@
         correct. Also, set the due date and end date for the semester exam
         before submitting the dates.
       </p>
-      <p
-        class="notice"
-        v-if="!setExtension && !auditAssNums"
-      >
+      <p class="notice" v-if="!setExtension && !auditAssNums">
         <span>NOTE:</span> The submit button will NOT enable until you have
         manually set the due and end date for the semester exam, and checked the
         box above the submit button.
       </p>
-      <div
-        class="set-extension"
-        v-if="!auditAssNums"
-      >
-        <div
-          v-if="setExtension"
-          class="select-student"
-        >
+      <div class="set-extension" v-if="!auditAssNums">
+        <div v-if="setExtension" class="select-student">
           <div class="set-extension">
             <p>Available from date (course start date):</p>
             <datetime
@@ -149,40 +121,22 @@
           </div>
           <p>Select student(s):</p>
           <div class="student-grid">
-            <div
-              class="student"
-              v-for="student in students"
-              :key="student.id"
-            >
-              <input
-                type="checkbox"
-                :value="student.id"
-                v-model="selectedStudents"
-              />
+            <div class="student" v-for="student in students" :key="student.id">
+              <input type="checkbox" :value="student.id" v-model="selectedStudents" />
               {{ student.sortable_name }}
             </div>
           </div>
-          <button
-            class="submit"
-            @click.prevent="submitDates"
-          >Submit Extension</button>
+          <button class="submit" @click.prevent="submitDates">Submit Extension</button>
         </div>
       </div>
-      <div
-        class="grid-container"
-        v-if="!setExtension && !auditAssNums"
-      >
+      <div class="grid-container" v-if="!setExtension && !auditAssNums">
         <div class="grid grid-header">
           <div class="name">Assignment Name:</div>
           <div class="unlock">Start Date:</div>
           <div class="due">Due Date:</div>
           <div class="permanent-zero">End Date:</div>
         </div>
-        <div
-          class="grid"
-          v-for="assignment in assignments"
-          :key="assignment.id"
-        >
+        <div class="grid" v-for="assignment in assignments" :key="assignment.id">
           <div class="name">{{ assignment.name }}</div>
           <div class="unlock">
             <datetime
@@ -216,18 +170,14 @@
           </div>
         </div>
       </div>
-      <p
-        class="agreement"
-        v-if="!setExtension && !auditAssNums"
-      >
-        <input
-          type="checkbox"
-          v-model="acknowledgeNotice"
-        />
+      <p class="agreement" v-if="!setExtension && !auditAssNums">
+        <input type="checkbox" v-model="acknowledgeNotice" />
         I acknowledge that I have checked
         <span>all</span> start dates, due
         dates, and end dates on each assignment.
-        <span class="extraemphasis">
+        <span
+          class="extraemphasis"
+        >
           I have also manually set the due and end dates on the semester
           exam.
         </span>
@@ -485,10 +435,7 @@ export default {
             const ceiledInterval = Math.ceil(
               (availableDates.length - 1) / totalAssignments
             );
-            console.log(
-              `There will be ${remainder} assignments with ${ceiledInterval} days between them, and there will be ${lesserGap} assignments with ${flooredInterval} days between them. There are ${availableDates.length -
-                1} days in the course.`
-            );
+
             let currentDate = new Date(startDate);
             let dateIndex = 0;
             for (let i = 0; i < totalAssignments; i++) {
@@ -594,9 +541,9 @@ export default {
             const subtrahend = availableDates.length - 1 - remainder;
             const findLowestNumber = (num1, num2) => {
               if (num1 < num2) {
-                return num1, true;
+                return { lowestNumber: num1, isRemander: true };
               }
-              return num2, false;
+              return { lowestNumber: num2, isRemainder: false };
             };
             let { lowestNumber, isRemainder } = findLowestNumber(
               remainder,
