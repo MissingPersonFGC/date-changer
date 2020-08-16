@@ -1,10 +1,22 @@
 <template>
   <div class="date-setter">
-    <div class="loading" v-if="loading" :aria-busy="loading"></div>
+    <div
+      class="loading"
+      v-if="loading"
+      :aria-busy="loading"
+    ></div>
     <h1>Assignment Date Editor</h1>
     <div class="selection">
-      <p v-if="success" class="success" id="success">Assignments successfully updated.</p>
-      <p v-if="error" class="error" id="error">
+      <p
+        v-if="success"
+        class="success"
+        id="success"
+      >Assignments successfully updated.</p>
+      <p
+        v-if="error"
+        class="error"
+        id="error"
+      >
         <span>Error:</span>
         {{ error }}
       </p>
@@ -25,7 +37,10 @@
         Bypass assigning permanent zero dates
       </p>
       <p v-if="!auditAssNums">
-        <input type="checkbox" v-model="setExtension" />
+        <input
+          type="checkbox"
+          v-model="setExtension"
+        />
         Set course extension dates.
       </p>
       <label v-if="!auditAssNums && !setExtension">Upload holiday calendar:</label>
@@ -36,7 +51,10 @@
         accept=".csv"
         v-if="!auditAssNums && !setExtension"
       />
-      <div class="date-grid" v-if="!auditAssNums && !setExtension">
+      <div
+        class="date-grid"
+        v-if="!auditAssNums && !setExtension"
+      >
         <div>
           <p>Access date:</p>
           <datetime
@@ -60,9 +78,7 @@
           />
         </div>
       </div>
-      <p
-        v-if="(startDate !== '' && endDate !== '') || auditAssNums || setExtension"
-      >Select a teacher:</p>
+      <p v-if="(startDate !== '' && endDate !== '') || auditAssNums || setExtension">Select a teacher:</p>
       <v-select
         label="fullName"
         :options="teachers"
@@ -80,7 +96,10 @@
         class="style-chooser"
       ></v-select>
     </div>
-    <div class="assignments" v-if="course !== ''">
+    <div
+      class="assignments"
+      v-if="course !== ''"
+    >
       <h2>Assignments</h2>
       <h3>Grand Total of Assignments: {{ assignments.length }}</h3>
       <h3>Number of Assignments & Discussions: {{ assignmentTotal }}</h3>
@@ -90,13 +109,22 @@
         correct. Also, set the due date and end date for the semester exam
         before submitting the dates.
       </p>
-      <p class="notice" v-if="!setExtension && !auditAssNums">
+      <p
+        class="notice"
+        v-if="!setExtension && !auditAssNums"
+      >
         <span>NOTE:</span> The submit button will NOT enable until you have
         manually set the due and end date for the semester exam, and checked the
         box above the submit button.
       </p>
-      <div class="set-extension" v-if="!auditAssNums">
-        <div v-if="setExtension" class="select-student">
+      <div
+        class="set-extension"
+        v-if="!auditAssNums"
+      >
+        <div
+          v-if="setExtension"
+          class="select-student"
+        >
           <div class="set-extension">
             <p>Available from date (course start date):</p>
             <datetime
@@ -121,22 +149,40 @@
           </div>
           <p>Select student(s):</p>
           <div class="student-grid">
-            <div class="student" v-for="student in students" :key="student.id">
-              <input type="checkbox" :value="student.id" v-model="selectedStudents" />
+            <div
+              class="student"
+              v-for="student in students"
+              :key="student.id"
+            >
+              <input
+                type="checkbox"
+                :value="student.id"
+                v-model="selectedStudents"
+              />
               {{ student.sortable_name }}
             </div>
           </div>
-          <button class="submit" @click.prevent="submitDates">Submit Extension</button>
+          <button
+            class="submit"
+            @click.prevent="submitDates"
+          >Submit Extension</button>
         </div>
       </div>
-      <div class="grid-container" v-if="!setExtension && !auditAssNums">
+      <div
+        class="grid-container"
+        v-if="!setExtension && !auditAssNums"
+      >
         <div class="grid grid-header">
           <div class="name">Assignment Name:</div>
           <div class="unlock">Start Date:</div>
           <div class="due">Due Date:</div>
           <div class="permanent-zero">End Date:</div>
         </div>
-        <div class="grid" v-for="assignment in assignments" :key="assignment.id">
+        <div
+          class="grid"
+          v-for="assignment in assignments"
+          :key="assignment.id"
+        >
           <div class="name">{{ assignment.name }}</div>
           <div class="unlock">
             <datetime
@@ -170,14 +216,18 @@
           </div>
         </div>
       </div>
-      <p class="agreement" v-if="!setExtension && !auditAssNums">
-        <input type="checkbox" v-model="acknowledgeNotice" />
+      <p
+        class="agreement"
+        v-if="!setExtension && !auditAssNums"
+      >
+        <input
+          type="checkbox"
+          v-model="acknowledgeNotice"
+        />
         I acknowledge that I have checked
         <span>all</span> start dates, due
         dates, and end dates on each assignment.
-        <span
-          class="extraemphasis"
-        >
+        <span class="extraemphasis">
           I have also manually set the due and end dates on the semester
           exam.
         </span>
@@ -201,7 +251,7 @@ import { Settings } from "luxon";
 export default {
   name: "date-setter",
   props: {
-    darkMode: Boolean
+    darkMode: Boolean,
   },
   data() {
     return {
@@ -226,21 +276,21 @@ export default {
       bypassPermZero: false,
       auditAssNums: false,
       allCourses: [],
-      extensionStart: ""
+      extensionStart: "",
     };
   },
-  mounted: async function() {
+  mounted: async function () {
     const teachers = await axios({
       method: "GET",
-      url: "/api/teachers/"
+      url: "/api/teachers/",
     });
-    teachers.data.data.forEach(teacher => {
+    teachers.data.data.forEach((teacher) => {
       teacher.fullName = `${teacher.lastName}, ${teacher.firstName} (${teacher.designation})`;
     });
     this.teachers = teachers.data.data;
   },
   methods: {
-    setTeacher: async function(e) {
+    setTeacher: async function (e) {
       this.loading = true;
       this.success = false;
       this.error = null;
@@ -251,11 +301,11 @@ export default {
           method: "GET",
           url: "/api/courses",
           params: {
-            apiKey
-          }
+            apiKey,
+          },
         });
         const courses = [];
-        res.data.data.forEach(course => {
+        res.data.data.forEach((course) => {
           course.fullName = `${course.name} (${course.term.name})`;
           courses.push(course);
         });
@@ -268,14 +318,14 @@ export default {
         this.error = e.message;
       }
     },
-    sortCourses: function() {
+    sortCourses: function () {
       const { setExtension, allCourses, auditAssNums } = this.$data;
       if (allCourses.length > 0) {
         if (!setExtension && auditAssNums) {
           this.courses = allCourses;
         } else if (!setExtension && !auditAssNums) {
           const courses = [];
-          allCourses.forEach(course => {
+          allCourses.forEach((course) => {
             if (course.workflow_state === "unpublished") {
               courses.push(course);
             }
@@ -283,7 +333,7 @@ export default {
           this.courses = courses;
         } else {
           const courses = [];
-          allCourses.forEach(course => {
+          allCourses.forEach((course) => {
             if (course.workflow_state === "available") {
               courses.push(course);
             }
@@ -292,7 +342,7 @@ export default {
         }
       }
     },
-    setCourse: async function(e) {
+    setCourse: async function (e) {
       this.error = null;
       const {
         teacher,
@@ -302,7 +352,7 @@ export default {
         holidays,
         bypassPermZero,
         auditAssNums,
-        setExtension
+        setExtension,
       } = this.$data;
       const { id } = e;
       this.loading = true;
@@ -326,7 +376,7 @@ export default {
           weekday: "long",
           year: "numeric",
           day: "numeric",
-          month: "numeric"
+          month: "numeric",
         });
         if (
           thisDate.indexOf("Friday") !== -1 ||
@@ -341,7 +391,7 @@ export default {
             dateArr[1] = `0${dateArr[1]}`;
           }
           const formattedDate = `${dateArr[2]}-${dateArr[0]}-${dateArr[1]}T00:00:00.000+04:00`;
-          const index = holidays.findIndex(x => x === formattedDate);
+          const index = holidays.findIndex((x) => x === formattedDate);
           if (index === -1) {
             holidays.push(formattedDate);
           }
@@ -355,7 +405,7 @@ export default {
             dateArr[1] = `0${dateArr[1]}`;
           }
           const formattedDate = `${dateArr[2]}-${dateArr[0]}-${dateArr[1]}T00:00:00.000+04:00`;
-          const index = holidays.findIndex(x => x === formattedDate);
+          const index = holidays.findIndex((x) => x === formattedDate);
           if (index === -1) {
             availableDates.push(formattedDate);
           }
@@ -366,7 +416,7 @@ export default {
       });
       this.holidays = holidays;
       const holidaysMidPoint = [];
-      holidays.forEach(holiday => {
+      holidays.forEach((holiday) => {
         const dt1 = new Date(startDate);
         const dt2 = new Date(holiday);
         const dt3 = new Date(endDate);
@@ -385,21 +435,21 @@ export default {
           url: "/api/assignments",
           params: {
             apiKey: teacher,
-            course: id
-          }
+            course: id,
+          },
         });
         const studentRes = await axios({
           method: "Get",
           url: "/api/students",
           params: {
             apiKey: teacher,
-            course: id
-          }
+            course: id,
+          },
         });
         const assignments = [];
         let assignmentTotal = 0;
         let quizTotal = 0;
-        res.data.assignments.forEach(assignment => {
+        res.data.assignments.forEach((assignment) => {
           assignment.old_unlock_at = assignment.unlock_at;
           assignment.unlock_at = startDate;
           assignment.old_due_at = assignment.due_at;
@@ -427,7 +477,6 @@ export default {
           }
           if (!moreAssignments) {
             const remainder = (availableDates.length - 1) % totalAssignments;
-            console.log(remainder, availableDates.length - 1);
             const flooredInterval = Math.floor(
               (availableDates.length - 1) / totalAssignments
             );
@@ -443,7 +492,6 @@ export default {
                 if (
                   !bypassPermZero &&
                   assignments[i].name.indexOf("-PZ") !== -1
-									&& assignments[i].name.indexOf('~') !== -1
                 ) {
                   let permZeroDate = new Date(date);
                   permZeroDate.setDate(permZeroDate.getDate() + int);
@@ -454,7 +502,7 @@ export default {
                       timeZone: "Asia/Dubai",
                       year: "numeric",
                       day: "numeric",
-                      month: "numeric"
+                      month: "numeric",
                     });
                     const dtArr = formatted.split("/");
                     if (dtArr[0].length === 1) {
@@ -470,7 +518,7 @@ export default {
                       timeZone: "Asia/Dubai",
                       year: "numeric",
                       day: "numeric",
-                      month: "numeric"
+                      month: "numeric",
                     });
                     const arr1 = formZeroDate.split("/");
                     if (arr1[0].length === 1) {
@@ -481,7 +529,7 @@ export default {
                     }
                     const earlyFormat = `${arr1[2]}-${arr1[0]}-${arr1[1]}T00:00:00.000+04:00`;
                     const permZeroIndex = holidays.findIndex(
-                      x => x === earlyFormat
+                      (x) => x === earlyFormat
                     );
                     if (permZeroIndex !== -1) {
                       assignPermanentZero(int + 1, date);
@@ -503,7 +551,7 @@ export default {
                     timeZone: "Asia/Dubai",
                     year: "numeric",
                     day: "numeric",
-                    month: "numeric"
+                    month: "numeric",
                   });
                   const dtArr = formatted.split("/");
                   if (dtArr[0].length === 1) {
@@ -555,7 +603,6 @@ export default {
               if (
                 !bypassPermZero &&
                 assignments[i].name.indexOf("-PZ") !== -1
-							  && assignments[i].name.indexOf('~') !== -1
               ) {
                 let permZeroDate = new Date(date);
                 permZeroDate.setDate(permZeroDate.getDate() + int);
@@ -566,7 +613,7 @@ export default {
                     timeZone: "Asia/Dubai",
                     year: "numeric",
                     day: "numeric",
-                    month: "numeric"
+                    month: "numeric",
                   });
                   const dtArr = formatted.split("/");
                   if (dtArr[0].length === 1) {
@@ -582,7 +629,7 @@ export default {
                     timeZone: "Asia/Dubai",
                     year: "numeric",
                     day: "numeric",
-                    month: "numeric"
+                    month: "numeric",
                   });
                   const arr1 = formZeroDate.split("/");
                   if (arr1[0].length === 1) {
@@ -593,7 +640,7 @@ export default {
                   }
                   const earlyFormat = `${arr1[2]}-${arr1[0]}-${arr1[1]}T00:00:00.000+04:00`;
                   const permZeroIndex = holidays.findIndex(
-                    x => x === earlyFormat
+                    (x) => x === earlyFormat
                   );
                   if (permZeroIndex !== -1) {
                     assignPermanentZero(int + 1, date, i);
@@ -615,7 +662,7 @@ export default {
                   timeZone: "Asia/Dubai",
                   year: "numeric",
                   day: "numeric",
-                  month: "numeric"
+                  month: "numeric",
                 });
                 const dtArr = formatted.split("/");
                 if (dtArr[0].length === 1) {
@@ -628,7 +675,7 @@ export default {
                 assignments[i].lock_at = formattedPermZero;
               }
             };
-            const assignDates = i => {
+            const assignDates = (i) => {
               const arr = availableDates[dateIndex].split("T");
               const formattedDate = `${arr[0]}T23:59:00.000+04:00`;
               assignments[i].due_at = formattedDate;
@@ -669,7 +716,7 @@ export default {
         console.error(e);
       }
     },
-    submitDates: async function() {
+    submitDates: async function () {
       this.loading = true;
       this.error = null;
       this.success = false;
@@ -681,13 +728,13 @@ export default {
         assignments,
         selectedStudents,
         extension: extensionDate,
-        extensionStart
+        extensionStart,
       } = this.$data;
       const user = localStorage.getItem("icadDateId");
       const teacherIndex = this.$data.teachers.findIndex(
-        x => x.apiKey === apiKey
+        (x) => x.apiKey === apiKey
       );
-      const courseIndex = this.$data.courses.findIndex(x => x.id === course);
+      const courseIndex = this.$data.courses.findIndex((x) => x.id === course);
 
       // TODO: This is the code for submitting the API PUT request to Canvas servers. Whenever they fix their issues with the endpoint, this should be uncommented. The code below this block handles creating the CSV file for manipulation in the Google Sheet macro.
       // try {
@@ -744,7 +791,7 @@ export default {
         // create the file name
         const fileName = `${this.$data.courses[courseIndex].name} - ${this.$data.teachers[teacherIndex].fullName}`;
 
-        assignments.forEach(assignment => {
+        assignments.forEach((assignment) => {
           // format the dates for the csv
           const resetLockArr = assignment.lock_at.split("T");
           const lockDate = `${resetLockArr[0]}T23:59:00.000+04:00`;
@@ -758,7 +805,7 @@ export default {
           const formDtUnlock = dtUnlock.toLocaleString("en-us", {
             timeStyle: "medium",
             dateStyle: "short",
-            hour12: false
+            hour12: false,
           });
           const unlockArr = formDtUnlock.split(", ");
           const unlockDateArr = unlockArr[0].split("/");
@@ -777,7 +824,7 @@ export default {
           const formDtLock = dtLock.toLocaleString("en-us", {
             timeStyle: "medium",
             dateStyle: "short",
-            hour12: false
+            hour12: false,
           });
           const lockArr = formDtLock.split(", ");
           const lockDateArr = lockArr[0].split("/");
@@ -796,7 +843,7 @@ export default {
           const formDtDue = dtDue.toLocaleString("en-us", {
             timeStyle: "medium",
             dateStyle: "short",
-            hour12: false
+            hour12: false,
           });
           const dueArr = formDtDue.split(", ");
           const dueDateArr = dueArr[0].split("/");
@@ -824,7 +871,8 @@ export default {
           csv.push(arr);
         });
         let csvContent =
-          "data:text/csv;charset=utf-8," + csv.map(e => e.join(",")).join("\n");
+          "data:text/csv;charset=utf-8," +
+          csv.map((e) => e.join(",")).join("\n");
         const encodedUri = encodeURI(csvContent);
         const link = document.createElement("a");
         link.setAttribute("href", encodedUri);
@@ -837,7 +885,7 @@ export default {
       if (setExtension) {
         const arr = extensionDate.split("T");
         const extension = `${arr[0]}T23:59:00+04:00`;
-        assignments.forEach(assignment => {
+        assignments.forEach((assignment) => {
           if (!putError) {
             axios
               .post("/api/assignments", {
@@ -850,13 +898,13 @@ export default {
                   user,
                   teacher: this.$data.teachers[teacherIndex]._id,
                   courseName: this.$data.courses[courseIndex].name,
-                  extensionStart
-                }
+                  extensionStart,
+                },
               })
-              .then(res => {
+              .then((res) => {
                 console.log(res.data.data);
               })
-              .catch(err => {
+              .catch((err) => {
                 putError = true;
                 console.error(err);
                 this.loading = false;
@@ -872,23 +920,23 @@ export default {
         }
       }
     },
-    parseCSV: async function(e) {
+    parseCSV: async function (e) {
       const { files } = e.target || e.dataTransfer;
       const file = await files[0];
       let csvData;
       const reader = new FileReader();
       const promise = new Promise((resolve, reject) => {
-        reader.onload = async e => {
+        reader.onload = async (e) => {
           resolve((csvData = reader.result));
         };
         reader.readAsText(file);
       });
       promise
-        .then(res => {
+        .then((res) => {
           const lines = csvData.split(/\r\n|\n/);
           lines.pop();
           const arr = [];
-          lines.forEach(line => {
+          lines.forEach((line) => {
             const arr2 = line.split(",");
             arr.push(arr2);
           });
@@ -903,17 +951,17 @@ export default {
             }
           });
           const holidays = [];
-          parsedArray.forEach(holiday => {
+          parsedArray.forEach((holiday) => {
             holiday.date = `${holiday.date}T00:00:00.000+04:00`;
             holidays.push(holiday.date);
           });
           this.holidays = holidays;
         })
-        .catch(err => {
+        .catch((err) => {
           console.error(err);
         });
-    }
-  }
+    },
+  },
 };
 </script>
 

@@ -25,6 +25,7 @@ router.route("/").get(async (req, res) => {
 		});
 		const regex = /([A-Za-z\s])/;
 		const assignments = [];
+		const extraCredit = [];
 		results.data.forEach(assignment => {
 			const index =
 				assignment.name.indexOf("Extra Credit") ||
@@ -35,6 +36,9 @@ router.route("/").get(async (req, res) => {
 				index === -1
 			) {
 				assignments.push(assignment);
+			}
+			if (assignment.published === true && index !== -1) {
+				extraCredit.push(assignment);
 			}
 		});
 		if (results.data.length === 100) {
@@ -65,6 +69,9 @@ router.route("/").get(async (req, res) => {
 					) {
 						assignments.push(assignment);
 					}
+					if (assignment.published === true && index !== -1) {
+						extraCredit.push(assignment);
+					}
 				});
 				if (assignmentRes.data.length === 100) {
 					currentPage += 1;
@@ -76,7 +83,8 @@ router.route("/").get(async (req, res) => {
 
 		assignments.sort((x, y) => x.name.localeCompare(y.name));
 		res.status(200).json({
-			assignments
+			assignments,
+			extraCredit
 		});
 	} catch (e) {
 		res.status(400).send(e);
