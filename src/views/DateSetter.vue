@@ -58,7 +58,7 @@
         <div>
           <p>Access date:</p>
           <datetime
-            week-start="7"
+            :week-start="7"
             type="date"
             v-model="startDate"
             zone="Asia/Dubai"
@@ -69,7 +69,7 @@
         <div>
           <p>Last date to submit work:</p>
           <datetime
-            week-start="7"
+            :week-start="7"
             type="date"
             v-model="endDate"
             zone="Asia/Dubai"
@@ -132,7 +132,7 @@
               zone="Asia/Dubai"
               value-zone="Asia/Dubai"
               input-id="course-extension-date"
-              week-start="7"
+              :week-start="7"
               v-model="extensionStart"
             />
           </div>
@@ -143,7 +143,7 @@
               zone="Asia/Dubai"
               value-zone="Asia/Dubai"
               input-id="course-extension-date"
-              week-start="7"
+              :week-start="7"
               v-model="extension"
             />
           </div>
@@ -186,9 +186,9 @@
           <div class="name">{{ assignment.name }}</div>
           <div class="unlock">
             <datetime
-              week-start="7"
+              :week-start="7"
               type="date"
-              v-model="assignment.unlock_at"
+              :v-model="assignment.unlock_at"
               zone="Asia/Dubai"
               value-zone="Asia/Dubai"
               :input-id="assignment.id + '-unlock-date'"
@@ -196,7 +196,7 @@
           </div>
           <div class="due">
             <datetime
-              week-start="7"
+              :week-start="7"
               type="date"
               v-model="assignment.due_at"
               zone="Asia/Dubai"
@@ -206,7 +206,7 @@
           </div>
           <div class="permanent-zero">
             <datetime
-              week-start="7"
+              :week-start="7"
               type="date"
               v-model="assignment.lock_at"
               zone="Asia/Dubai"
