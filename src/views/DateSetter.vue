@@ -703,6 +703,44 @@ export default {
               assignDates(i);
             }
           }
+					const { extraCredit } = res.data;
+					console.log(extraCredit);
+					extraCredit.forEach(assignment => {
+						const dt1 = new Date(startDate);
+						const dt2 = new Date(endDate);
+            const formatted1 = dt1.toLocaleString("en-US", {
+              timeZone: "Asia/Dubai",
+              year: "numeric",
+              day: "numeric",
+              month: "numeric",
+            });
+            const dtArr1 = formatted1.split("/");
+            if (dtArr1[0].length === 1) {
+              dtArr1[0] = `0${dtArr1[0]}`;
+            }
+            if (dtArr1[1].length === 1) {
+              dtArr1[1] = `0${dtArr1[1]}`;
+            }
+            const formatted2 = dt2.toLocaleString("en-US", {
+              timeZone: "Asia/Dubai",
+              year: "numeric",
+              day: "numeric",
+              month: "numeric",
+            });
+            const dtArr2 = formatted1.split("/");
+            if (dtArr2[0].length === 1) {
+              dtArr2[0] = `0${dtArr2[0]}`;
+            }
+            if (dtArr2[1].length === 1) {
+              dtArr2[1] = `0${dtArr2[1]}`;
+            }
+            const formattedEnd = `${dtArr2[2]}-${dtArr2[0]}-${dtArr2[1]}T23:59:00.000+04:00`;
+	          const formattedStart = `${dateArr1[2]}-${dateArr1[0]}-${dateArr1[1]}T00:00:00.000+04:00`;
+						assignment.unlock_at = formattedStart;
+						assignment.lock_at = formattedEnd;
+						assignment.due_at = formattedEnd;
+						assignments.push(assignment);
+					});
           this.students = students;
         }
         this.course = id;
