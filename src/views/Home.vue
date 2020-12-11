@@ -1,17 +1,13 @@
 <template>
   <div class="home">
-		<div class="toggle">
-			<label class="switch">
-				<input type="checkbox" :checked="darkMode" @change="setTheme" />
-				<span class="slider round" />
-			</label>
-		</div>
-    <Auth
-      v-if="!user"
-      :setUser="setUser"
-			:darkMode="darkMode"
-    />
-		<DateSetter v-if="user" :darkMode="darkMode" />
+    <div class="toggle">
+      <label class="switch">
+        <input type="checkbox" :checked="darkMode" @change="setTheme" />
+        <span class="slider round" />
+      </label>
+    </div>
+    <Auth v-if="!user" :setUser="setUser" :darkMode="darkMode" />
+    <DateSetter v-if="user" :darkMode="darkMode" />
   </div>
 </template>
 
@@ -28,10 +24,10 @@ export default {
     Auth,
     DateSetter
   },
-	props: {
-		darkMode: Boolean,
-		setTheme: Function,
-	},
+  props: {
+    darkMode: Boolean,
+    setTheme: Function
+  },
   data() {
     return {
       user: null
@@ -136,12 +132,12 @@ body .style-chooser .vs__clear,
 body .style_chooser .vs__open-indicator,
 body .style_chooser .vs__selected,
 body .style_chooser .vs__search::placeholder {
-	transition: 0.4s ease-in-out;
+  transition: 0.4s ease-in-out;
 }
 
 body.dark .style-chooser {
-	border: 1px solid #fff;
-	border-radius: 5px;
+  border: 1px solid #fff;
+  border-radius: 5px;
 }
 
 body.dark .style-chooser .vs__clear,
@@ -150,11 +146,11 @@ body.dark .style-chooser .vs__open-indicator {
 }
 
 body.dark .style-chooser .vs__selected {
-	color: #aaa;
+  color: #aaa;
 }
 
 body.dark .style-chooser .vs__search::placeholder {
-	color: #ddd;
+  color: #ddd;
 }
 
 @keyframes rotation {
@@ -191,68 +187,68 @@ button:disabled:hover {
 }
 
 .toggle {
-	position: fixed;
-	top: 10px;
-	left: 15px;
+  position: fixed;
+  top: 10px;
+  left: 15px;
 }
 
 .switch {
-	position: relative;
-	display: inline-block;
-	width: 60px;
-	height: 34px;
+  position: relative;
+  display: inline-block;
+  width: 60px;
+  height: 34px;
 }
 
 .slider {
-	position: absolute;
-	cursor: pointer;
-	top: 0;
-	left: 0;
-	right: 0;
-	bottom: 0;
-	background-color: #ccc;
-	-webkit-transition: .4s;
-	transition: .4s;
-	width: 60px;
-	height: 34px;
+  position: absolute;
+  cursor: pointer;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: #ccc;
+  -webkit-transition: 0.4s;
+  transition: 0.4s;
+  width: 60px;
+  height: 34px;
 }
 
 .slider:before {
-	position: absolute;
-	content: '';
-	height: 26px;
-	width: 26px;
-	left: 4px;
-	bottom: 4px;
-	background-color:white;
-	-webkit-transition: .4s;
-	transition: .4s;
+  position: absolute;
+  content: "";
+  height: 26px;
+  width: 26px;
+  left: 4px;
+  bottom: 4px;
+  background-color: white;
+  -webkit-transition: 0.4s;
+  transition: 0.4s;
 }
 
 .toggle input {
-	display: none;
+  display: none;
 }
 
 .slider.round {
-	border-radius: 34px;
+  border-radius: 34px;
 }
 
 .slider.round:before {
-	border-radius: 50%;
+  border-radius: 50%;
 }
 
 input:checked + .slider {
-	background-color: #fff;
+  background-color: #fff;
 }
 
 input:focus + .slider {
-	box-shadow: 0 0 1px #fff;
+  box-shadow: 0 0 1px #fff;
 }
 
 input:checked + .slider:before {
-	-webkit-transform: translateX(26px);
-	-ms-transform: translateX(26px);
-	transform: translateX(26px);
-	background: #222;
+  -webkit-transform: translateX(26px);
+  -ms-transform: translateX(26px);
+  transform: translateX(26px);
+  background: #222;
 }
 </style>

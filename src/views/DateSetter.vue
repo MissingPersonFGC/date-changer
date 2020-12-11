@@ -58,7 +58,7 @@
         <div>
           <p>Access date:</p>
           <datetime
-            week-start="7"
+            :week-start="7"
             type="date"
             v-model="startDate"
             zone="Asia/Dubai"
@@ -67,9 +67,20 @@
           />
         </div>
         <div>
+          <p>First date homework can be due:</p>
+          <datetime
+            :week-start="7"
+            type="date"
+            v-model="startAssignments"
+            zone="Asia/Dubai"
+            value-zone="Asia/Dubai"
+            input-id="assignment-start-date"
+          />
+        </div>
+        <div>
           <p>Last date to submit work:</p>
           <datetime
-            week-start="7"
+            :week-start="7"
             type="date"
             v-model="endDate"
             zone="Asia/Dubai"
@@ -132,7 +143,7 @@
               zone="Asia/Dubai"
               value-zone="Asia/Dubai"
               input-id="course-extension-date"
-              week-start="7"
+              :week-start="7"
               v-model="extensionStart"
             />
           </div>
@@ -143,7 +154,7 @@
               zone="Asia/Dubai"
               value-zone="Asia/Dubai"
               input-id="course-extension-date"
-              week-start="7"
+              :week-start="7"
               v-model="extension"
             />
           </div>
@@ -186,7 +197,7 @@
           <div class="name">{{ assignment.name }}</div>
           <div class="unlock">
             <datetime
-              week-start="7"
+              :week-start="7"
               type="date"
               v-model="assignment.unlock_at"
               zone="Asia/Dubai"
@@ -196,7 +207,7 @@
           </div>
           <div class="due">
             <datetime
-              week-start="7"
+              :week-start="7"
               type="date"
               v-model="assignment.due_at"
               zone="Asia/Dubai"
@@ -206,7 +217,7 @@
           </div>
           <div class="permanent-zero">
             <datetime
-              week-start="7"
+              :week-start="7"
               type="date"
               v-model="assignment.lock_at"
               zone="Asia/Dubai"
@@ -277,6 +288,7 @@ export default {
       auditAssNums: false,
       allCourses: [],
       extensionStart: "",
+      startAssignments: "",
     };
   },
   mounted: async function () {
@@ -353,6 +365,7 @@ export default {
         bypassPermZero,
         auditAssNums,
         setExtension,
+        startAssignments,
       } = this.$data;
       const { id } = e;
       this.loading = true;
@@ -367,7 +380,7 @@ export default {
       };
       const availableDates = [];
       for (
-        let i = new Date(startDate);
+        let i = new Date(startAssignments);
         i <= new Date(endDate);
         i.setDate(i.getDate() + 1)
       ) {
@@ -417,7 +430,7 @@ export default {
       this.holidays = holidays;
       const holidaysMidPoint = [];
       holidays.forEach((holiday) => {
-        const dt1 = new Date(startDate);
+        const dt1 = new Date(startAssignments);
         const dt2 = new Date(holiday);
         const dt3 = new Date(endDate);
         if (
@@ -460,6 +473,7 @@ export default {
           } else {
             assignmentTotal += 1;
           }
+          console.log(assignment.unlock_at);
         });
         if (setExtension) {
           this.assignments = res.data.assignments;
@@ -472,11 +486,11 @@ export default {
           let moreAssignments = false;
           const { students } = studentRes.data;
           const totalAssignments = assignments.length;
-          if (totalAssignments - (availableDates.length - 1) > 0) {
+          if (totalAssignments - availableDates.length > 0) {
             moreAssignments = true;
           }
           if (!moreAssignments) {
-            const remainder = (availableDates.length - 1) % totalAssignments;
+            const remainder = availableDates.length % totalAssignments;
             const flooredInterval = Math.floor(
               (availableDates.length - 1) / totalAssignments
             );
@@ -486,7 +500,7 @@ export default {
             );
 
             let currentDate = new Date(startDate);
-            let dateIndex = 0;
+            let dateIndex = 1;
             for (let i = 0; i < totalAssignments; i++) {
               const assignPermanentZero = (int, date) => {
                 if (
@@ -565,15 +579,15 @@ export default {
                 }
               };
               const assignDates = () => {
+                const arr = availableDates[dateIndex].split("T");
+                const formattedDate = `${arr[0]}T23:59:00.000+04:00`;
+                assignments[i].due_at = formattedDate;
                 if (lesserGap !== 0) {
                   dateIndex += flooredInterval;
                   lesserGap -= 1;
                 } else {
                   dateIndex += ceiledInterval;
                 }
-                const arr = availableDates[dateIndex].split("T");
-                const formattedDate = `${arr[0]}T23:59:00.000+04:00`;
-                assignments[i].due_at = formattedDate;
                 assignPermanentZero(30, formattedDate);
               };
               assignDates();
@@ -1091,6 +1105,8 @@ button.submit:hover {
 .date-grid {
   display: flex;
   justify-content: space-between;
+  gap: 10px;
+  align-items: flex-end;
 }
 
 p.notice {
