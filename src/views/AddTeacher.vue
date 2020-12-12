@@ -1,5 +1,11 @@
 <template>
 	<div class="add-teacher">
+		<div class="toggle">
+			<label class="switch">
+				<input type="checkbox" :checked="darkMode" @change="setTheme" />
+				<span class="slider round" />
+			</label>
+		</div>
 		<h1>Add a Teacher</h1>
 		<form @submit.prevent="addTeacher">
 			<p>First Name:</p>
@@ -19,6 +25,9 @@
 import axios from "axios";
 export default {
 	name: "add-teacher",
+	props: {
+		darkMode: Boolean
+	},
 	data() {
 		return {
 			firstName: "",
