@@ -1,5 +1,8 @@
 <template>
 	<div class="add-teacher">
+		<div class="navigation">
+			<router-link to="/">Back</router-link>
+		</div>
 		<div class="toggle">
 			<label class="switch">
 				<input type="checkbox" :checked="darkMode" @change="setTheme" />
@@ -34,15 +37,19 @@ export default {
 			lastName: "",
 			designation: "",
 			apiKey: "",
-			success: false
+			success: false,
+			loading: false
 		};
 	},
 	addTeacher: async function() {
+		this.data.loading = true;
+		this.data.success = false;
 		const teacher = this.$data;
 		const res = await axios.post("/api/teachers", {
 			teacher
 		});
 		this.data.success = true;
+		this.data.loading = false;
 		this.data.firstName = "";
 		this.data.lastName = "";
 		this.data.designation = "";
