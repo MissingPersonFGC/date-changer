@@ -727,7 +727,7 @@ export default {
 							dtArr2[1] = `0${dtArr2[1]}`;
 						}
 						const formattedEnd = `${dtArr2[2]}-${dtArr2[0]}-${dtArr2[1]}T23:59:00.000+04:00`;
-						const formattedStart = `${dateArr1[2]}-${dateArr1[0]}-${dateArr1[1]}T00:00:00.000+04:00`;
+						const formattedStart = `${dtArr1[2]}-${dtArr1[0]}-${dtArr1[1]}T00:00:00.000+04:00`;
 						assignment.unlock_at = formattedStart;
 						assignment.lock_at = formattedEnd;
 						assignment.due_at = formattedEnd;
