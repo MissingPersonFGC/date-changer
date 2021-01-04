@@ -338,13 +338,13 @@ export default {
 				teacher,
 				startDate,
 				endDate,
-				dueDateLimit,
 				holidays,
 				bypassPermZero,
 				auditAssNums,
 				setExtension,
 				startAssignments
-			} = this.$data;
+      } = this.$data;
+      const dueDateLimit = this.$data.dueDateLimit || this.$data.startDate;
 			const { id } = e;
 			this.loading = true;
 			const calculateDateSpan = (start, end) => {
