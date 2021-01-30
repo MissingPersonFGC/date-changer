@@ -719,7 +719,7 @@ export default {
 							day: "numeric",
 							month: "numeric"
 						});
-						const dtArr2 = formatted1.split("/");
+						const dtArr2 = formatted2.split("/");
 						if (dtArr2[0].length === 1) {
 							dtArr2[0] = `0${dtArr2[0]}`;
 						}
