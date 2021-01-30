@@ -402,6 +402,7 @@ export default {
 					}
 				}
 			}
+			console.log(availableDates.length)
 			holidays.sort((x, y) => {
 				return x < y;
 			});
@@ -581,7 +582,7 @@ export default {
 						const subtrahend = availableDates.length - 1 - remainder;
 						const findLowestNumber = (num1, num2) => {
 							if (num1 < num2) {
-								return { lowestNumber: num1, isRemander: true };
+								return { lowestNumber: num1, isRemainder: true };
 							}
 							return { lowestNumber: num2, isRemainder: false };
 						};
