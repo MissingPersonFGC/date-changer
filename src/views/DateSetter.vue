@@ -464,7 +464,7 @@ export default {
 					let moreAssignments = false;
 					const { students } = studentRes.data;
 					const totalAssignments = assignments.length;
-					if (totalAssignments - (availableDates.length - 1) > 0) {
+					if (totalAssignments - availableDates.length > 0) {
 						console.log("there's more assignments")
 						moreAssignments = true;
 					}
@@ -560,19 +560,19 @@ export default {
 								}
 							};
 							const assignDates = () => {
+								if (ceiledInterval === 1 && flooredInterval === 0 && i === 0) {
+									dateIndex = 0
+								}
 								const arr = availableDates[dateIndex].split("T");
 								const formattedDate = `${arr[0]}T23:59:00.000+04:00`;
 								assignments[i].due_at = formattedDate;
-								if (flooredInterval !== 0) {
-									if (lesserGap !== 0) {
-										dateIndex += flooredInterval;
-										lesserGap -= 1;
-									} else {
-										dateIndex += ceiledInterval;
-									}
-								} else {
-									console.log("lowest interval is 0")
+								if (flooredInterval === 0 && ceiledInterval === 1) {
 									dateIndex += ceiledInterval
+								} else if (lesserGap !== 0) {
+									dateIndex += flooredInterval;
+									lesserGap -= 1;
+								} else {
+									dateIndex += ceiledInterval;
 								}
 								assignPermanentZero(30, formattedDate);
 							};
