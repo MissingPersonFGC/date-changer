@@ -465,7 +465,8 @@ export default {
 					let moreAssignments = false;
 					const { students } = studentRes.data;
 					const totalAssignments = assignments.length;
-					if (totalAssignments - availableDates.length > 0) {
+					if (totalAssignments - (availableDates.length - 1) > 0) {
+						console.log("there's more assignments")
 						moreAssignments = true;
 					}
 					if (!moreAssignments) {
@@ -477,6 +478,8 @@ export default {
 						const ceiledInterval = Math.ceil(
 							(availableDates.length - 1) / totalAssignments
 						);
+
+						console.log(`lesser gap: ${lesserGap}, highest interval: ${ceiledInterval},  lowest interval: ${flooredInterval}`)
 
 						let currentDate = new Date(startDate);
 						let dateIndex = 1;
@@ -561,11 +564,16 @@ export default {
 								const arr = availableDates[dateIndex].split("T");
 								const formattedDate = `${arr[0]}T23:59:00.000+04:00`;
 								assignments[i].due_at = formattedDate;
-								if (lesserGap !== 0) {
-									dateIndex += flooredInterval;
-									lesserGap -= 1;
+								if (flooredInterval !== 0) {
+									if (lesserGap !== 0) {
+										dateIndex += flooredInterval;
+										lesserGap -= 1;
+									} else {
+										dateIndex += ceiledInterval;
+									}
 								} else {
-									dateIndex += ceiledInterval;
+									console.log("lowest interval is 0")
+									dateIndex += ceiledInterval
 								}
 								assignPermanentZero(30, formattedDate);
 							};
