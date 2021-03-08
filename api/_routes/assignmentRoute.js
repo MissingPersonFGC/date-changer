@@ -27,17 +27,17 @@ router.route("/").get(async (req, res) => {
 		const assignments = [];
 		const extraCredit = [];
 		results.data.forEach(assignment => {
-			const index =
-				assignment.name.indexOf("Extra Credit") ||
-				assignment.name.indexOf("Bonus");
+			const index = assignment.name.indexOf("Extra Credit");
+			const index2 = assignment.name.indexOf("Bonus");
 			if (
 				!regex.test(assignment.name.charAt(0)) &&
 				assignment.published === true &&
-				index === -1
+				index === -1 &&
+				index2 === -1
 			) {
 				assignments.push(assignment);
 			}
-			if (assignment.published === true && index !== -1) {
+			if (assignment.published === true && (index !== -1 || index2 !== -1)) {
 				extraCredit.push(assignment);
 			}
 		});
