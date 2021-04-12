@@ -6,6 +6,9 @@
         <span class="slider round" />
       </label>
     </div>
+    <div class="logout-btn">
+      <button :click="doLogout">Logout</button>
+    </div>
     <Auth v-if="!user" :setUser="setUser" :darkMode="darkMode" />
     <DateSetter v-if="user" :darkMode="darkMode" />
   </div>
@@ -22,15 +25,15 @@ export default {
   name: "home",
   components: {
     Auth,
-    DateSetter
+    DateSetter,
   },
   props: {
     darkMode: Boolean,
-    setTheme: Function
+    setTheme: Function,
   },
   data() {
     return {
-      user: null
+      user: null,
     };
   },
   beforeMount() {
@@ -38,10 +41,14 @@ export default {
     this.user = user;
   },
   methods: {
-    setUser: function(id) {
+    setUser: function (id) {
       this.user = id;
-    }
-  }
+    },
+    doLogout: function () {
+      this.user = null;
+      localStorage.removeItem("icadDateId");
+    },
+  },
 };
 </script>
 

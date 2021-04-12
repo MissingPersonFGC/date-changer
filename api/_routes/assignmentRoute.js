@@ -12,7 +12,7 @@ router.route("/").get(async (req, res) => {
 	try {
 		const results = await axios({
 			method: "GET",
-			url: `https://canvas.instructure.com/api/v1/courses/${course}/assignments`,
+			url: `https://icademymiddleeast.instructure.com/api/v1/courses/${course}/assignments`,
 			headers: {
 				Accept: "application/json+canvas-string-ids"
 			},
@@ -46,7 +46,7 @@ router.route("/").get(async (req, res) => {
 			async function apiPagination() {
 				const assignmentRes = await axios({
 					method: "GET",
-					url: `https://canvas.instructure.com/api/v1/courses/${course}/assignments`,
+					url: `https://icademymiddleeast.instructure.com/api/v1/courses/${course}/assignments`,
 					headers: {
 						Accept: "application/json+canvas-string-ids"
 					},
@@ -104,7 +104,7 @@ router.route("/").put(async (req, res) => {
 	try {
 		const result = await axios({
 			method: "PUT",
-			url: `https://canvas.instructure.com/api/v1/courses/${course}/assignments/${assignment.id}`,
+			url: `https://icademymiddleeast.instructure.com/api/v1/courses/${course}/assignments/${assignment.id}`,
 			params: {
 				access_token
 			},
@@ -167,7 +167,7 @@ router.route("/").post(async (req, res) => {
 	try {
 		const apiResults = await axios({
 			method: "POST",
-			url: `https://canvas.instructure.com/api/v1/courses/${course}/assignments/${assignment.id}/overrides`,
+			url: `https://icademymiddleeast.instructure.com/api/v1/courses/${course}/assignments/${assignment.id}/overrides`,
 			params: {
 				access_token
 			},
