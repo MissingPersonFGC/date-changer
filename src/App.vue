@@ -27,6 +27,10 @@ body.dark {
 	background: #222;
 }
 
+body.dark #app .vs__search {
+	color: #fff !important;
+}
+
 #nav {
 	padding: 30px;
 }
