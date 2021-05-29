@@ -339,12 +339,11 @@ export default {
 				startDate,
 				endDate,
 				holidays,
-				bypassPermZero,
 				auditAssNums,
 				setExtension,
-				startAssignments
+				
       } = this.$data;
-      const dueDateLimit = this.$data.dueDateLimit || this.$data.startDate;
+      const startAssignments = this.$data.startAssignments || this.$data.startDate;
 			const { id } = e;
 			this.loading = true;
 			const calculateDateSpan = (start, end) => {
@@ -370,23 +369,9 @@ export default {
 					month: "numeric"
 				});
 				if (
-					thisDate.indexOf("Friday") !== -1 ||
-					thisDate.indexOf("Saturday") !== -1
+					thisDate.indexOf("Friday") === -1 &&
+					thisDate.indexOf("Saturday") === -1
 				) {
-					const arr = thisDate.split(" ");
-					const dateArr = arr[1].split("/");
-					if (dateArr[0].length === 1) {
-						dateArr[0] = `0${dateArr[0]}`;
-					}
-					if (dateArr[1].length === 1) {
-						dateArr[1] = `0${dateArr[1]}`;
-					}
-					const formattedDate = `${dateArr[2]}-${dateArr[0]}-${dateArr[1]}T00:00:00.000+04:00`;
-					const index = holidays.findIndex(x => x === formattedDate);
-					if (index === -1) {
-						holidays.push(formattedDate);
-					}
-				} else {
 					const arr = thisDate.split(" ");
 					const dateArr = arr[1].split("/");
 					if (dateArr[0].length === 1) {
@@ -451,7 +436,6 @@ export default {
 					} else {
 						assignmentTotal += 1;
 					}
-					console.log(assignment.unlock_at);
 				});
 				if (setExtension) {
 					this.assignments = res.data.assignments;
@@ -466,13 +450,6 @@ export default {
 					const assignmentInterval = availableDates.length / totalAssignments
 					let assignmentIndex = 0;
 					let accumulator = 0;
-					// round accumulator
-					// assign initial date to available date at index of rounded accumulator.
-					// assign permanent zero at accumulator rounded down + 30 OR the last index in the available dates
-					// add interval to accumulator
-					// add 1 to assignment index
-					// rerun function
-					// if accumulator rounded down is greater than available dates OR the assignment index is greater than assignments length, terminate the function.
 					const assignPermanentZero = () => {
 						const permZeroDate = availableDates[Math.floor(accumulator) + 30] || availableDates[availableDates.length]
 						assignments[assignmentIndex].lock_at = permZeroDate;
@@ -490,40 +467,9 @@ export default {
 					assignDueDate();
 					const { extraCredit } = res.data;
 					extraCredit.forEach(assignment => {
-						const dt1 = new Date(startDate);
-						const dt2 = new Date(endDate);
-						const formatted1 = dt1.toLocaleString("en-US", {
-							timeZone: "Asia/Dubai",
-							year: "numeric",
-							day: "numeric",
-							month: "numeric"
-						});
-						const dtArr1 = formatted1.split("/");
-						if (dtArr1[0].length === 1) {
-							dtArr1[0] = `0${dtArr1[0]}`;
-						}
-						if (dtArr1[1].length === 1) {
-							dtArr1[1] = `0${dtArr1[1]}`;
-						}
-						const formatted2 = dt2.toLocaleString("en-US", {
-							timeZone: "Asia/Dubai",
-							year: "numeric",
-							day: "numeric",
-							month: "numeric"
-						});
-						const dtArr2 = formatted2.split("/");
-						if (dtArr2[0].length === 1) {
-							dtArr2[0] = `0${dtArr2[0]}`;
-						}
-						if (dtArr2[1].length === 1) {
-							dtArr2[1] = `0${dtArr2[1]}`;
-						}
-						const formattedEnd = `${dtArr2[2]}-${dtArr2[0]}-${dtArr2[1]}T23:59:00.000+04:00`;
-						const formattedStart = `${dtArr1[2]}-${dtArr1[0]}-${dtArr1[1]}T00:00:00.000+04:00`;
-						console.log(formattedEnd)
-						assignment.unlock_at = formattedStart;
-						assignment.lock_at = formattedEnd;
-						assignment.due_at = formattedEnd;
+						assignment.unlock_at = availableDates[0];
+						assignment.lock_at = availableDates[availableDates.length - 1];
+						assignment.due_at = availableDates[availableDates.length - 1];
 						assignments.push(assignment);
 					});
 					this.students = students;
