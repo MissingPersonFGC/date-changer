@@ -301,8 +301,6 @@ export default {
 				});
 				this.loading = false;
 				this.courses = courses;
-				// this.allCourses = res.data.data;
-				// this.sortCourses();
 			} catch (e) {
 				this.loading = false;
 				this.error = e.message;
@@ -451,7 +449,15 @@ export default {
 					let assignmentIndex = 0;
 					let accumulator = 0;
 					const assignPermanentZero = () => {
-						const permZeroDate = availableDates[Math.floor(accumulator) + 30] || availableDates[availableDates.length]
+						let permZeroDate;
+						switch (availableDates[Math.round(accumulator) + 30]) {
+							case undefined:
+								permZeroDate = availableDates[availableDates.length - 1]
+								break;
+							default:
+								permZeroDate = availableDates[Math.round(accumulator) + 30]
+								break;
+						}
 						assignments[assignmentIndex].lock_at = permZeroDate;
 					}
 					const assignDueDate = () => {
@@ -460,7 +466,7 @@ export default {
 						assignPermanentZero();
 						accumulator += assignmentInterval;
 						assignmentIndex++;
-						if (assignmentIndex <= assignments.length - 1 || Math.floor(accumulator) <= availableDates.length - 1) {
+						if (assignmentIndex <= assignments.length - 1 && Math.floor(accumulator) <= availableDates.length - 1) {
 							assignDueDate();
 						}
 					}
