@@ -70,6 +70,7 @@
 						zone="Asia/Dubai"
 						value-zone="Asia/Dubai"
 						input-id="assignment-start-date"
+						:min-datetime="startDate"
 					/>
 				</div>
 				<div>
@@ -81,6 +82,7 @@
 						zone="Asia/Dubai"
 						value-zone="Asia/Dubai"
 						input-id="course-end-date"
+						:min-datetime="startAssignments || startDate"
 					/>
 				</div>
 			</div>
@@ -235,7 +237,6 @@
 import "vue-datetime/dist/vue-datetime.css";
 import "vue-select/dist/vue-select.css";
 import axios from "axios";
-import { Settings } from "luxon";
 
 export default {
 	name: "date-setter",
@@ -334,7 +335,6 @@ export default {
 			this.error = null;
 			const {
 				teacher,
-				startDate,
 				endDate,
 				holidays,
 				auditAssNums,
@@ -344,15 +344,6 @@ export default {
       const startAssignments = this.$data.startAssignments || this.$data.startDate;
 			const { id } = e;
 			this.loading = true;
-			const calculateDateSpan = (start, end) => {
-				const dt1 = new Date(start);
-				const dt2 = new Date(end);
-				return Math.floor(
-					(Date.UTC(dt2.getFullYear(), dt2.getMonth(), dt2.getDate()) -
-						Date.UTC(dt1.getFullYear(), dt1.getMonth(), dt1.getDate())) /
-						(1000 * 60 * 60 * 24)
-				);
-			};
 			const availableDates = [];
 			for (
 				let i = new Date(startAssignments);
