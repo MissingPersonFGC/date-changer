@@ -339,9 +339,10 @@ export default {
 				holidays,
 				auditAssNums,
 				setExtension,
-				
-      } = this.$data;
-      const startAssignments = this.$data.startAssignments || this.$data.startDate;
+				startDate
+			} = this.$data;
+			const startAssignments =
+				this.$data.startAssignments || this.$data.startDate;
 			const { id } = e;
 			this.loading = true;
 			const availableDates = [];
@@ -435,36 +436,58 @@ export default {
 				}
 				if (!auditAssNums) {
 					const { students } = studentRes.data;
-					const totalAssignments = assignments.length
-					const assignmentInterval = availableDates.length / totalAssignments
+					const totalAssignments = assignments.length;
+					const assignmentInterval = availableDates.length / totalAssignments;
 					let assignmentIndex = 0;
 					let accumulator = 0;
 					const assignPermanentZero = () => {
 						let permZeroDate;
 						switch (availableDates[Math.round(accumulator) + 30]) {
 							case undefined:
-								permZeroDate = availableDates[availableDates.length - 1]
+								permZeroDate = availableDates[availableDates.length - 1];
 								break;
 							default:
-								permZeroDate = availableDates[Math.round(accumulator) + 30]
+								permZeroDate = availableDates[Math.round(accumulator) + 30];
 								break;
 						}
+						const dateIsSunday = new Date(permZeroDate)
+							.toLocaleString("en-US", {
+								timeZone: "Asia/Dubai",
+								weekday: "long",
+								year: "numeric",
+								day: "numeric",
+								month: "numeric"
+							})
+							.includes("Sunday");
+						if (dateIsSunday) {
+							switch (availableDates[Math.round(accumulator) + 31]) {
+								case undefined:
+									permZeroDate = availableDates[availableDates.length - 1];
+									break;
+								default:
+									permZeroDate = availableDates[Math.round(accumulator) + 31];
+									break;
+							}
+						}
 						assignments[assignmentIndex].lock_at = permZeroDate;
-					}
+					};
 					const assignDueDate = () => {
-						const dueDate = availableDates[Math.floor(accumulator)]
+						const dueDate = availableDates[Math.floor(accumulator)];
 						assignments[assignmentIndex].due_at = dueDate;
 						assignPermanentZero();
 						accumulator += assignmentInterval;
 						assignmentIndex++;
-						if (assignmentIndex <= assignments.length - 1 && Math.floor(accumulator) <= availableDates.length - 1) {
+						if (
+							assignmentIndex <= assignments.length - 1 &&
+							Math.floor(accumulator) <= availableDates.length - 1
+						) {
 							assignDueDate();
 						}
-					}
+					};
 					assignDueDate();
 					const { extraCredit } = res.data;
 					extraCredit.forEach(assignment => {
-						assignment.unlock_at = availableDates[0];
+						assignment.unlock_at = startDate;
 						assignment.lock_at = availableDates[availableDates.length - 1];
 						assignment.due_at = availableDates[availableDates.length - 1];
 						assignments.push(assignment);
